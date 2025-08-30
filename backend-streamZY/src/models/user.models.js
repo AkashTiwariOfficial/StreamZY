@@ -32,10 +32,12 @@ const userSchema = new mongoose.Schema(
         coverImage: {
             type: String // cloudinary url
         },
-        watchHistory: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Video"
-        },
+        watchHistory: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Video"
+            }
+        ],
         password: {
             type: String,
             required: [true, 'Password is required']
@@ -70,7 +72,7 @@ userSchema.methods.generateAccessToken = function () {
         },
         process.env.ACCESS_JWT_TOKEN_SECRET,
         {
-          expiresIn: process.env.ACCESS_JWT_TOKEN_EXPIRY
+            expiresIn: process.env.ACCESS_JWT_TOKEN_EXPIRY
         }
     )
 }
@@ -81,11 +83,11 @@ userSchema.methods.generateRefreshToken = function () {
         {
 
             _id: this._id,
-            
+
         },
         process.env.REFRESH_JWT_TOKEN_SECRET,
         {
-          expiresIn: process.env.REFRESH_JWT_TOKEN_EXPIRY
+            expiresIn: process.env.REFRESH_JWT_TOKEN_EXPIRY
         }
     )
 }

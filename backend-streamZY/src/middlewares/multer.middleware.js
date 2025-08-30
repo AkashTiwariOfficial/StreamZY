@@ -6,7 +6,6 @@ const storage = multer.diskStorage({
     cb(null, './public/temp')
   },
 
-
 filename(req, file, cb) {
   const ext = path.extname(file.originalname)          
   const base = path.basename(file.originalname, ext)     
