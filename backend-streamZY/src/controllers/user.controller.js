@@ -234,41 +234,142 @@ const changePassword = asyncHandler(async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.user?.id)
+    const user = await User.findById(req.user?._id)
     const ispasswordCorrect = await isPasswordCorrect(oldPassword)
-  
+
     if (!ispasswordCorrect) {
       throw new ApiErrors(400, "Invalid password");
     }
-  
+
     user.password = newPassword;
-    await user.save({ validateBeforeSave: false } )
-  
-    return  res
-            .status(200)
-            .json( new ApiResponses(200, {} , "Password was changed Successfully"))
+    await user.save({ validateBeforeSave: false })
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, {}, "Password was changed Successfully"))
   } catch (error) {
     throw new ApiErrors(500, error.message || "Internal Server Error while changing password");
   }
 })
 
 
-const getCurrentUser = asyncHandler( async (req,res) => {
-           
+const getCurrentUser = asyncHandler(async (req, res) => {
+
   try {
-      const user = await User.findById(req.user?.id).select(
-        "-password -refreshToken"
-      )
-  
-      if(!user){
-        throw new ApiErrors(404, "User not does exists");
-      }
-  
-      return res
-             .status(200)
-             .json(new ApiResponses(200, { user } , "Current user fetched successfully"))
+    const user = await User.findById(req.user?._id).select(
+      "-password -refreshToken"
+    )
+
+    if (!user) {
+      throw new ApiErrors(404, "User not does exists");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, { user }, "Current user fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, "Internal Server Error")
+  }
+
+})
+
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+
+  const { fullName, email } = req.body
+
+  if (!(fullName || email)) {
+    throw new ApiErrors(400, "Atleast one field is required")
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(req.user?._id,
+      {
+        $set: {
+          fullName,
+          email
+        }
+      },
+      { new: true }
+    ).select(
+      "-password -refreshToken"
+    )
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, user, "Account details updated successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while updating Account details");
+  }
+
+})
+
+
+const upadteAvatar = asyncHandler(async (req, res) => {
+
+
+  const newAvatarFilePath = req.file?.path
+
+  if (!newAvatarFilePath) {
+    throw new ApiErrors(400, "Avatar file is missing");
+  }
+
+  try {
+    const avatar = await uploadOnCloudinary(newAvatarFilePath)
+
+    if (!avatar.url) {
+      throw new ApiErrors(400, "Error while updating and uploading Avatar on cloudinary")
+    }
+
+    const user = await findByIdAndUpdate(req.user?._id,
+      {
+        $set: {
+          avatar: avatar.url
+        }
+      }, { new: true }
+    ).select(
+      "-password -refreshToken")
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, user , "Avatar file updated successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while updating Avatar file")
+  }
+
+})
+
+
+const upadtecoverImage = asyncHandler(async (req, res) => {
+
+
+  const coverImageLocalPath = req.file?.path
+
+  if (!coverImageLocalPath) {
+    throw new ApiErrors(400, "coverImage file is missing");
+  }
+
+  try {
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if (!coverImage.url) {
+      throw new ApiErrors(400, "Error while updating and uploading coverImage on cloudinary")
+    }
+
+    const user = await findByIdAndUpdate(req.user?._id,
+      {
+        $set: {
+          coverImage: coverImage.url
+        }
+      }, { new: true }
+    ).select(
+      "-password -refreshToken")
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, user , "coverImage file updated successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while updating coverImage file")
   }
 
 })
@@ -280,5 +381,8 @@ export {
   logoutUser,
   refreshAccessandRefreshTokens,
   changePassword,
-  getCurrentUser
+  getCurrentUser,
+  updateAccountDetails,
+  upadteAvatar,
+  upadtecoverImage
 }
