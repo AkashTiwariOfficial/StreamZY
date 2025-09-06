@@ -44,6 +44,20 @@ const userSchema = new mongoose.Schema(
         },
         refreshToken: {
             type: String
+        },
+        public_id_avatar: {
+            type: String
+        },
+        public_id_coverImage: {
+            type: String
+        },
+        otp: {
+            type: String,
+            default: 0
+        },
+        expiryIn: {
+            type: Number,
+            default: 0
         }
     },
     {

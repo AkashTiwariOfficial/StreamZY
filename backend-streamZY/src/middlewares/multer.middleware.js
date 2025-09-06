@@ -10,7 +10,8 @@ filename(req, file, cb) {
   const ext = path.extname(file.originalname)          
   const base = path.basename(file.originalname, ext)     
   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-  cb(null, `${base}-${uniqueSuffix}${ext}`)            
+  const safeBase = base.replace(/\s+/g, "_")
+  cb(null, `${safeBase}-${uniqueSuffix}${ext}`)            
 }
 
 })

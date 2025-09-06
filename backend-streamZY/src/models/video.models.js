@@ -8,17 +8,27 @@ const videoSchema = new mongoose.Schema(
             type: String, // cloudinary url
             required: true
         },
+        videoFile_public_id: {
+            type: String
+        },
         thumbnail: {
             type: String,  // cloudinary url
-            required: true
+            default: ""
+        },
+        thumbnail_public_id: {
+            type: String
         },
         title: {
             type: String,
-            required: true
+            default: ""
         },
         description: {
             type: String,
-            required: true
+            default: ""
+        },
+        tag:{
+            type: String,
+            default: ""
         },
         duration: {
             type: Number,
