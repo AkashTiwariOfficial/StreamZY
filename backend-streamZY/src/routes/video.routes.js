@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { deleteVideoById, getVideoById, publishAVideo, updateVideo, updateVideoDetails, uploadManyVideos } from "../controllers/video.controller.js";
+import { deleteVideoById, getVideoById, publishAVideo, togglePublishVideo, updateVideo, updateVideoDetails, uploadManyVideos } from "../controllers/video.controller.js";
 
 
 
@@ -48,6 +48,11 @@ router.route("/update-video/:videoId").patch(
     verifyJWT,
     upload.single("videoFile"),
     updateVideo
+)
+
+router.route("/toggle-publish/:videoId").patch(
+    verifyJWT,
+    togglePublishVideo
 )
 
 

@@ -339,11 +339,51 @@ return res
 })
 
 
+const togglePublishVideo = asyncHandler( async (req, res) =>{
+    
+    const { videoId } = req.params
+
+      if (!videoId) {
+        throw new ApiErrors(400, "video id is missing!")
+    }
+
+    const video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiErrors(404, "Video does not exists");
+    }
+
+    let isPublished ;
+
+    if (video?.isPublished) {
+        isPublished = false
+    } else {
+        isPublished = true
+    }
+
+    const togglePublish = await Video.findByIdAndUpdate(videoId,
+        {
+            $set: {
+                isPublished: isPublished
+            }
+        }, { new: true }
+    )
+
+    if (!togglePublish) {
+        throw new ApiErrors(400, "Toggle publishVideo failed! try again")
+    }
+
+    return res
+    .status(200)
+    .json( new ApiResponses(200, togglePublish.isPublished, "Video Published Mode toggled successfully"))
+})
+
 export {
     publishAVideo,
     uploadManyVideos,
     getVideoById,
     deleteVideoById,
     updateVideoDetails,
-    updateVideo
+    updateVideo,
+    togglePublishVideo
 }
