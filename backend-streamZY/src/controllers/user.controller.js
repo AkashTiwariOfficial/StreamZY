@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
 import bcrypt from "bcrypt"
 import mongoose from "mongoose";
+import { Video } from "../models/video.models.js";
 
 
 
@@ -580,7 +581,7 @@ try {
           as: "subscribedTo"
         }
       },
-      {
+      { 
         $addFields: {
           subscribersCount: {
             $size: "$subscribers"
@@ -683,6 +684,63 @@ try {
 }
 })
 
+const fetchUserVideos = asyncHandler( async (req, res) =>{
+
+   const { username } = req.params
+
+     const { page = 1, limit = 10, query, sortBy = "views", sortType = "desc" } = req.query
+
+   if(!username){
+     throw new ApiErrors(400, "username is missing")
+   }
+
+  try {
+     const user = await User.findOne({username: username}).select(
+      "-password -refreshToken -otp"
+     )
+  
+     if (!user) {
+      throw new ApiErrors(404, "User does not exists")
+     }
+
+    const limitNumber = parseInt(limit, 10)
+    const pageNumber = parseInt(page, 10)
+
+    const filter = {}
+
+    if (query) {
+        filter.$or = [
+            { title: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } },
+            { tag: { $regex: query, $options: "i" } }
+        ]
+    }
+
+    const sort = {}
+
+    if (sortBy) {
+        sort[sortBy] = sortType === "desc" ? -1 : 1;
+    }
+  
+     const userVideos = await Video.find({owner: new mongoose.Types.ObjectId(user?._id)})
+     .sort(sort)
+     .skip((pageNumber - 1) * 10)
+     .limit(limitNumber)
+      
+     if (userVideos.length === 0) {
+        userVideos =  "No vidoes found for this user!"
+     }
+  
+     return res
+     .status(200)
+     .json( new ApiResponses(200, {userVideos, user} , "user's videos fetched successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, "Internal Server Error while fetcing user videos")
+  }
+    
+})
+
+
 
 export {
   registerUser,
@@ -698,5 +756,6 @@ export {
   sendOtp,
   otpVerification,
   getUserChannel,
-  getUserWatchHistory
+  getUserWatchHistory,
+  fetchUserVideos
 }

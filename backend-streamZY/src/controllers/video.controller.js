@@ -1,5 +1,6 @@
-import { User } from "../models/user.models.js";
+import mongoose from "mongoose";
 import { Video } from "../models/video.models.js";
+import { Views } from "../models/videoViewsData.models.js";
 import { ApiErrors } from "../utils/ApiErrors.js";
 import { ApiResponses } from "../utils/ApiResponses.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -7,14 +8,45 @@ import { deleteFromCloudinary, uploadOnCloudinary, uploadVideoOnCloudinary } fro
 
 
 
-
-
-
-
-
 const getAllVideos = asyncHandler(async (req, res) => {
 
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+    const { page = 1, limit = 10, query, sortBy = "views", sortType = "desc", userId } = req.query
+
+    const limitNumber = parseInt(limit, 10)
+    const pageNumber = parseInt(page, 10)
+
+    const filter = {}
+
+    if (query) {
+        filter.$or = [
+            { title: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } },
+            { tag: { $regex: query, $options: "i" } }
+        ]
+    }
+
+    const sort = {}
+
+    if (sortBy) {
+        sort[sortBy] = sortType === "desc" ? -1 : 1;
+    }
+
+    if (userId) {
+        filter.userId = userId
+    }
+    
+    const vidoes = await Video.find(filter)
+    .sort(sort)
+    .skip((pageNumber - 1) * 10)
+    .limit(limitNumber)
+  
+    if(!vidoes){
+        throw new ApiErrors(500, "No Vidoes found!")
+    }
+
+    return res
+    .status(200)
+    .json( new ApiResponses(200, vidoes , "All Videos were fetched successfully"))
 })
 
 
@@ -183,15 +215,38 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "video id is missing!")
     }
 
+    let viewDetails;
     const video = await Video.findById(videoId)
 
     if (!video) {
         throw new ApiErrors(404, "Video does not exists");
     }
 
+    const checkView = await Views.findOne({
+        videoId: videoId,
+        vistedUser: req.user?._id
+    })
+
+    if (!checkView) {
+        viewDetails = await Views.create({
+            videoId: videoId,
+            vistedUser: req.user?._id,
+            visitedTime: Date.now()
+        })
+    }
+
+    /*  if (checkView) {
+         if (checkView.vistedUser.toString() !== req.user?._id.toString()) {
+             viewDetails = await Views.create({
+                 videoId: videoId,
+                 vistedUser: req.user?._id,
+                 visitedTime: Date.now()
+             })
+         } */
+
     return res
         .status(200)
-        .json(new ApiResponses(200, video, "Video fetched successfully"))
+        .json(new ApiResponses(200, { video, viewDetails }, "Video fetched successfully"))
 
 })
 
@@ -297,25 +352,25 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Video does not exists");
     }
 
-   const videoFilePath = req.file?.path
+    const videoFilePath = req.file?.path
 
     if (!videoFilePath) {
         throw new ApiErrors(404, "Video file path not found!")
     }
-   
+
     const videoFile = await uploadVideoOnCloudinary(videoFilePath)
 
-    if(!videoFile){
+    if (!videoFile) {
         throw new ApiErrors(404, "VideoFile not found!")
     }
 
     const old_public_id = video?.videoFile_public_id
 
-    const updateVideoFile = await Video.findByIdAndUpdate(videoId,{
-               $set: {
-                videoFile: videoFile?.url,
-                videoFile_public_id: videoFile?.public_id
-               }
+    const updateVideoFile = await Video.findByIdAndUpdate(videoId, {
+        $set: {
+            videoFile: videoFile?.url,
+            videoFile_public_id: videoFile?.public_id
+        }
     }, { new: true }
     )
 
@@ -324,7 +379,7 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "VideoFile uploaded failed! rollback initiated , try again")
     }
 
-     try {
+    try {
         if (old_public_id) {
             await deleteFromCloudinary(old_public_id, "video")
         }
@@ -332,18 +387,18 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiErrors(500, `Internal Server Error while deleting old video : ${error.message}`);
     }
 
-return res
+    return res
         .status(200)
         .json(new ApiResponses(200, updateVideoFile, "Video File updated successfully"))
 
 })
 
 
-const togglePublishVideo = asyncHandler( async (req, res) =>{
-    
+const togglePublishVideo = asyncHandler(async (req, res) => {
+
     const { videoId } = req.params
 
-      if (!videoId) {
+    if (!videoId) {
         throw new ApiErrors(400, "video id is missing!")
     }
 
@@ -353,7 +408,7 @@ const togglePublishVideo = asyncHandler( async (req, res) =>{
         throw new ApiErrors(404, "Video does not exists");
     }
 
-    let isPublished ;
+    let isPublished;
 
     if (video?.isPublished) {
         isPublished = false
@@ -374,16 +429,91 @@ const togglePublishVideo = asyncHandler( async (req, res) =>{
     }
 
     return res
-    .status(200)
-    .json( new ApiResponses(200, togglePublish.isPublished, "Video Published Mode toggled successfully"))
+        .status(200)
+        .json(new ApiResponses(200, togglePublish.isPublished, "Video Published Mode toggled successfully"))
+
 })
 
+
+const increaseViewCount = asyncHandler(async (req, res) => {
+
+    const { videoId } = req.params
+
+    if (!videoId) {
+        throw new ApiErrors(400, "video id is missing!")
+    }
+
+    try {
+        let updateViewsDetails, updateViews;
+
+        const video = await Video.findById(videoId)
+
+        if (!video) {
+            throw new ApiErrors(404, "Video does not exists");
+        }
+
+        const durationInSec = parseFloat(video.duration)
+        const minGapToIncreaseView = (0.07 * durationInSec)
+
+        const countViews = await Views.findOne({
+            videoId: video._id,
+            vistedUser: req.user?._id
+        })
+
+        const newTimeToIncreseViews = countViews.visitedTime + (minGapToIncreaseView * 1000);
+        const newDate = Date.now()
+
+        if (newDate > newTimeToIncreseViews) {
+
+            const views = video.views + 1;
+
+            updateViews = await Video.findByIdAndUpdate(videoId,
+                {
+                    $set: {
+                        views: views,
+                    }
+                }, { new: true }
+            )
+
+            if (!updateViews) {
+                throw new ApiErrors(400, "Upadte Count views failed");
+            }
+
+            updateViewsDetails = await Views.findByIdAndUpdate(countViews._id, {
+                $set: {
+                    visitedTime: newDate
+                }
+            }, { new: true }
+            )
+
+            if (!updateViewsDetails) {
+                throw new ApiErrors(400, "Upadte Count views Model Details failed");
+            }
+        } else {
+            throw new ApiErrors(400, "Cannot increase Views as User rectenly watched Video")
+        }
+
+        return res
+            .status(200)
+            .json(new ApiResponses(200, { updateViewsDetails, updateViews }, "View count increased Successfully"))
+    } catch (error) {
+        throw new ApiErrors(500, `Internal Server Error While Incresing The count of Views : ${error.message}`);
+    }
+
+})
+
+
+
+
+
 export {
+    getAllVideos,
     publishAVideo,
     uploadManyVideos,
     getVideoById,
     deleteVideoById,
     updateVideoDetails,
     updateVideo,
-    togglePublishVideo
+    togglePublishVideo,
+    increaseViewCount
 }
