@@ -1,7 +1,6 @@
 import Router from "express"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { getAllVideos } from "../controllers/video.controller..js";
-import { addComment, deleteComment, updateComment } from "../controllers/comment.controller";
+import { addComment, deleteComment, getVideoComment, updateComment } from "../controllers/comment.controller.js";
 
 
 
@@ -10,25 +9,25 @@ import { addComment, deleteComment, updateComment } from "../controllers/comment
 const router = Router();
 
 
-router.route("/getAll-comments").get(
+router.route("/getAll-comments/:videoId").get(
     verifyJWT,
-    getAllVideos
+    getVideoComment
 )
 
 
-router.route("/add-comment").post(
+router.route("/add-comment/:videoId").post(
     verifyJWT,
     addComment
 )
 
 
-router.route("/update-comment").patch(
+router.route("/update-comment/:commentId").patch(
     verifyJWT,
     updateComment
 )
 
 
-router.route("/delete-comment").delete(
+router.route("/delete-comment/:commentId").delete(
     verifyJWT,
     deleteComment
 )

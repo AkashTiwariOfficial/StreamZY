@@ -5,6 +5,11 @@ import userRouter from "./routes/user.routes.js"
 import videoRouter from "./routes/video.routes.js"
 import playlistRouter from "./routes/video.routes.js"
 import commentRouter from "./routes/comment.router.js"
+import tweetRouter from "./routes/tweet.routes.js"
+import subscriptionRouter from "./routes/subscription.routes.js"
+import likesRouter from "./routes/like.routes.js"
+
+
 
 
 
@@ -26,6 +31,9 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/videos", videoRouter);
 app.use("/api/v1/playlists", playlistRouter)
 app.use("/api/v1/comments", commentRouter)
+app.use("/api/v1/comments", tweetRouter)
+app.use("/api/v1/subscriber", subscriptionRouter)
+app.use("/api/v1/likes", likesRouter)
 
 
 
