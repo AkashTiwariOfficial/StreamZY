@@ -17,7 +17,21 @@ const likeSchema = new mongoose.Schema({
     tweet: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tweet"
+    },
+    isCommentLiked: {
+        type: Boolean,
+        default: false
+    },
+     isVideoLiked: {
+        type: Boolean,
+        default: false
+    },
+     isTweetLiked: {
+        type: Boolean,
+        default: false
     }
+
+
 
 }, { timestamps: true })
 

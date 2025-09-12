@@ -33,10 +33,14 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         toggleSubscribe = await Subscription.findByIdAndUpdate(doUserSubscribedCurrentChannel._id,
             {
                 $set: {
-                   isSubscribed: false 
+                    isSubscribed: false
                 }
-            }, {new: true}
+            }, { new: true }
         )
+
+        if (!doUserSubscribedCurrentChannel) {
+              throw new ApiErrors(500, "Internal Server Error while toggling Subscribe")
+        }
     }
 
     if (!doUserSubscribedCurrentChannel) {
@@ -45,11 +49,10 @@ const toggleSubscription = asyncHandler(async (req, res) => {
             channel: userChannel?._id,
             isSubscribed: true
         })
-    }
 
-
-    if (!subsCribe) {
-        throw new ApiErrors(500, "Internal Server Error while creating Subscription")
+        if (!subsCribe) {
+            throw new ApiErrors(500, "Internal Server Error while Subscripting")
+        }
     }
 
     return res
@@ -83,13 +86,13 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     }
 
     return res
-    .status(200)
-    .json( new  ApiResponses(200, totalSubscriber, "Subscriber's of channel fetched successfully"))
+        .status(200)
+        .json(new ApiResponses(200, totalSubscriber, "Subscriber's of channel fetched successfully"))
 
 })
 
 
-const getSubscribedChannels  = asyncHandler(async (req, res) => {
+const getSubscribedChannels = asyncHandler(async (req, res) => {
 
     const { subscriberId } = req.params
 
@@ -113,8 +116,8 @@ const getSubscribedChannels  = asyncHandler(async (req, res) => {
     }
 
     return res
-    .status(200)
-    .json( new  ApiResponses(200, mySubscribedChannel, "channel Subscribed by user fetched successfully"))
+        .status(200)
+        .json(new ApiResponses(200, mySubscribedChannel, "channel Subscribed by user fetched successfully"))
 
 })
 
@@ -122,8 +125,8 @@ const getSubscribedChannels  = asyncHandler(async (req, res) => {
 
 export {
 
-toggleSubscription,
-getUserChannelSubscribers,
-getSubscribedChannels
+    toggleSubscription,
+    getUserChannelSubscribers,
+    getSubscribedChannels
 
 }
