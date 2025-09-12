@@ -8,6 +8,7 @@ import commentRouter from "./routes/comment.router.js"
 import tweetRouter from "./routes/tweet.routes.js"
 import subscriptionRouter from "./routes/subscription.routes.js"
 import likesRouter from "./routes/like.routes.js"
+import serverResponse from "./routes/healthCheckup.routes.js"
 
 
 
@@ -34,6 +35,7 @@ app.use("/api/v1/comments", commentRouter)
 app.use("/api/v1/comments", tweetRouter)
 app.use("/api/v1/subscriber", subscriptionRouter)
 app.use("/api/v1/likes", likesRouter)
+app.use("/api/v1/server", serverResponse)
 
 
 
