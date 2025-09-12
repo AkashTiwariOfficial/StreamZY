@@ -22,7 +22,7 @@ const createPlayList = asyncHandler(async (req, res) => {
         owner: req.user?._id
     })
 
-    if (!playList) {
+    if (!newPlayList) {
         throw new ApiErrors(500, "Internal Server Error while creating playlist")
     }
 
@@ -127,9 +127,7 @@ const updatePlayList = asyncHandler(async (req, res) => {
 
     const newPlayList = await Playlist.findByIdAndUpdate(playListId,
         {
-            $set: {
-                updateDetails
-            }
+            $set: updateDetails
         }, { new: true }
     )
 
@@ -137,7 +135,7 @@ const updatePlayList = asyncHandler(async (req, res) => {
         throw new ApiErrors(500, "Internal Server Error while updating Playlist")
     }
 
-    return res.$set
+    return res
         .status(200)
         .json(new ApiResponses(200, newPlayList, "Playlist Updated Successfully"))
 
@@ -233,12 +231,11 @@ const addManyVideosToPlalyList = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, `These videos ${existingVidoes} already exists in playlis`)
     }
 
-    console.log(existingVidoes)
     const doVideoInPlayList = await Playlist.find({
         _id: playListId,
         videos: { $in: videoIds }
     })
-     console.log(doVideoInPlayList)
+    
     if (doVideoInPlayList.length !== 0) {
         throw new ApiErrors(400, `One or more these videos ${doVideoInPlayList} already present in Playlist`)
     }
@@ -292,7 +289,7 @@ const deleteVideoFromPlayList = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Video is already deleted from PlayList or has not been added to Playlist")
     }
 
-    const deleteVideo = await Playlist.findByIdAndDelete(playListId,
+    const deleteVideo = await Playlist.findByIdAndUpdate(playListId,
         {
             $pull: {
                 videos: videoId
@@ -343,8 +340,6 @@ const deleteManyVideos = asyncHandler(async (req, res) => {
         _id: playListId,
         videos: { $in: videoIds }
     })
-
-    console.log(doVideoInPlayList)
 
     if (doVideoInPlayList.length === 0) {
         throw new ApiErrors(400, `One or more videos these ${doVideoInPlayList} already deleted from Playlist or has not been added to Playlist`)

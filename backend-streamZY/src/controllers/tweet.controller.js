@@ -22,7 +22,7 @@ const createTweet = asyncHandler(async (req, res) => {
         comment
     })
 
-    if (createdTweet) {
+    if (!createdTweet) {
         throw new ApiErrors(500, "Internal Server Error whiel creating tweet")
     }
 
@@ -80,7 +80,7 @@ const getmyTweets = asyncHandler( async ( req, res ) => {
 
     return res
     .status(200)
-    .json(200, myTweets, "Tweets fetched Successfully")
+    .json(new ApiResponses(200, myTweets, "Tweets fetched Successfully"))
 
 })
 
@@ -172,7 +172,7 @@ const deleteTweet = asyncHandler(async (req, res) => {
 
     const { tweetId } = req.params
 
-    if (tweetId) {
+    if (!tweetId) {
         throw new ApiErrors(400, "Tweet id is missing!")
     }
 

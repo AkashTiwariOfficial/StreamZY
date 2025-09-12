@@ -478,7 +478,7 @@ const increaseViewCount = asyncHandler(async (req, res) => {
             if (!updateViews) {
                 throw new ApiErrors(400, "Upadte Count views failed");
             }
-
+           
             updateViewsDetails = await Views.findByIdAndUpdate(countViews._id, {
                 $set: {
                     visitedTime: newDate

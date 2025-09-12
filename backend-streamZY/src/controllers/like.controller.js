@@ -84,14 +84,14 @@ const toggleUserTweetLike = asyncHandler(async (req, res) => {
 
         let likeTweet, toggleTweetLike;
 
-        const isLikedByUser = await Tweet.findOne({
+        const isLikedByUser = await Like.findOne({
             tweet: tweetId,
             likedBy: req.user?._id,
             isTweetLiked: true
         })
 
         if (isLikedByUser) {
-            toggleTweetLike = await Tweet.findByIdAndUpdate(isLikedByUser?._id, {
+            toggleTweetLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
                 $set: {
                     isTweetLiked: false
                 }
@@ -103,7 +103,7 @@ const toggleUserTweetLike = asyncHandler(async (req, res) => {
         }
 
         if (!isLikedByUser) {
-            likeTweet = await Tweet.create({
+            likeTweet = await Like.create({
                 tweet: tweetId,
                 likedBy: req.user?._id,
                 isTweetLiked: true
@@ -141,14 +141,14 @@ const toggleUserCommentLike = asyncHandler(async (req, res) => {
 
         let likeComment, toggleCommentLike;
 
-        const isLikedByUser = await Comment.findOne({
+        const isLikedByUser = await Like.findOne({
             comment: commentId,
             likedBy: req.user?._id,
             isCommentLiked: true
         })
 
         if (isLikedByUser) {
-            toggleCommentLike = await Comment.findByIdAndUpdate(isLikedByUser?._id, {
+            toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
                 $set: {
                     isCommentLiked: false
                 }
@@ -160,7 +160,7 @@ const toggleUserCommentLike = asyncHandler(async (req, res) => {
         }
 
         if (!isLikedByUser) {
-            likeComment = await Comment.create({
+            likeComment = await Like.create({
                 comment: commentId,
                 likedBy: req.user?._id,
                 isCommentLiked: true

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { healthCheckup } from "../controllers/healthCheckUp.controller";
+import { healthCheckup } from "../controllers/healthCheckUp.controller.js";
 
 
 

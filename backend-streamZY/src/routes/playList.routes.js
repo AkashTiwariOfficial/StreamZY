@@ -20,7 +20,7 @@ router.route("/fetch-playlist/:playListId").get(
 )
 
 
-router.route("/fetch-user-playlist/:playListId").get(
+router.route("/fetch-user-playlist/:userId").get(
     verifyJWT,
     getUserPlayLists
 )
@@ -56,7 +56,7 @@ router.route("/delete-video/:playListId/:videoId").delete(
 )
 
 
-router.route("/update/:playListId").post(
+router.route("/update/:playListId").patch(
     verifyJWT,
     updatePlayList
 )

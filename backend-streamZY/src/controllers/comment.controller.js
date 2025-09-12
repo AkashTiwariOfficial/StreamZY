@@ -1,9 +1,8 @@
-import { ApiErrors } from "../utils/ApiErrors";
+import { ApiErrors } from "../utils/ApiErrors.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { Comment } from "../models/comment.models.js";
-import { ApiResponses } from "../utils/ApiResponses";
+import { ApiResponses } from "../utils/ApiResponses.js";
 import { Video } from "../models/video.models.js";
-
+import { Comment } from "../models/comment.models.js";
 
 
 
