@@ -199,7 +199,7 @@ const addManyVideosToPlalyList = asyncHandler(async (req, res) => {
 
     const { videoIds } = req.body
 
-    if (!videoIds && videoIds.length === 0) {
+    if ((!videoIds && videoIds.length === 0) || (videoIds && videoIds.length === 0) ) {
         throw new ApiErrors(400, "videoIds are missing!")
     }
 
@@ -209,13 +209,7 @@ const addManyVideosToPlalyList = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Playlist does not exists")
     }
 
-    /*  const result = await Promise.all(videoIds.map( async (id) => {
-             const isVideoExists =  await Video.findById(videoId) 
- 
-             if (!isVideoExists) {
-                 throw new ApiErrors(404, "Video not found!")
-             }
-     }) */
+    let addManyVideo;
 
     const result = await Video.find({
         _id: { $in: videoIds }
@@ -224,34 +218,29 @@ const addManyVideosToPlalyList = asyncHandler(async (req, res) => {
     if (result.length !== videoIds.length) {
         throw new ApiErrors(404, "One or more videos do not exists")
     }
-     
-    const existingVidoes = getPlayList.videos.filter(videoId => videoIds.includes(videoId))
 
-    if (existingVidoes > 0) {
-        throw new ApiErrors(400, `These videos ${existingVidoes} already exists in playlis`)
-    }
+    const existingVidoes = getPlayList.videos.filter((videoId) => { return videoIds.includes(videoId.toString()) })
 
-    const doVideoInPlayList = await Playlist.find({
-        _id: playListId,
-        videos: { $in: videoIds }
-    })
-    
-    if (doVideoInPlayList.length !== 0) {
-        throw new ApiErrors(400, `One or more these videos ${doVideoInPlayList} already present in Playlist`)
-    }
+    const newVidoes = videoIds.filter(videoId => !getPlayList.videos.includes(videoId.toString()))
 
-    const addManyVideo = await Playlist.findByIdAndUpdate(playListId,
-        {
-            $addToSet: {
-                videos: {
-                    $each: videoIds
+    if (newVidoes.length !== 0) {
+        addManyVideo = await Playlist.findByIdAndUpdate(playListId,
+            {
+                $addToSet: {
+                    videos: {
+                        $each: newVidoes
+                    }
                 }
-            }
-        }, { new: true }
-    )
+            }, { new: true }
+        )
 
-    if (!addManyVideo) {
-        throw new ApiErrors(500, "Internal Server Error while adding videos to Playlist")
+        if (!addManyVideo) {
+            throw new ApiErrors(500, "Internal Server Error while adding videos to Playlist")
+        }
+    }
+
+    if (existingVidoes.length !== 0) {
+        throw new ApiErrors(400, `These Videos are already in playlist ${existingVidoes} and Remaining Videos are added to Playlist successfully ${addManyVideo}`)
     }
 
     return res
@@ -318,7 +307,7 @@ const deleteManyVideos = asyncHandler(async (req, res) => {
 
     const { videoIds } = req.body
 
-    if (!videoIds && videoIds.length === 0) {
+    if ((!videoIds && videoIds.length === 0) || (videoIds && videoIds.length === 0) ) {
         throw new ApiErrors(400, "videoIds are missing!")
     }
 
@@ -328,6 +317,8 @@ const deleteManyVideos = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Playlist does not exists")
     }
 
+    let addManyVideo;
+
     const result = await Video.find({
         _id: { $in: videoIds }
     })
@@ -336,25 +327,27 @@ const deleteManyVideos = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "One or more videos do not exists")
     }
 
-    const doVideoInPlayList = await Playlist.find({
-        _id: playListId,
-        videos: { $in: videoIds }
-    })
+    const existingVidoes = getPlayList.videos.filter((videoId) => { return videoIds.includes(videoId.toString()) })
 
-    if (doVideoInPlayList.length === 0) {
-        throw new ApiErrors(400, `One or more videos these ${doVideoInPlayList} already deleted from Playlist or has not been added to Playlist`)
+    const videoDoesNotExists = videoIds.filter(videoId => !getPlayList.videos.includes(videoId.toString()))
+
+    if (existingVidoes.length !== 0) {
+
+        addManyVideo = await Playlist.findByIdAndUpdate(playListId,
+            {
+                $pullAll: {
+                    videos: existingVidoes
+                }
+            }, { new: true }
+        )
+
+        if (!addManyVideo) {
+            throw new ApiErrors(500, "Internal Server Error while adding videos to Playlist")
+        }
     }
 
-    const addManyVideo = await Playlist.findByIdAndUpdate(playListId,
-        {
-            $pullAll: {
-                videos: videoIds
-            }
-        }, { new: true }
-    )
-
-    if (!addManyVideo) {
-        throw new ApiErrors(500, "Internal Server Error while adding videos to Playlist")
+    if (videoDoesNotExists.length !== 0) {
+        throw new ApiErrors(400, `These Videos does exists in playlist ${videoDoesNotExists} and Remaining Videos are deleted from Playlist successfully ${addManyVideo}`)
     }
 
     return res
