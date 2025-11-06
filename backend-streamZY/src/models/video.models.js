@@ -45,6 +45,14 @@ const videoSchema = new mongoose.Schema(
         owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
+        },
+        ownerName:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+         ownerAvatar:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
         }
     },
     {

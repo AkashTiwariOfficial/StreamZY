@@ -1,0 +1,3 @@
+:root {
+  --navbar-gap: calc(var(--navbar-height) * 1.2);
+}

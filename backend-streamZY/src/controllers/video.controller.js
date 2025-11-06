@@ -34,19 +34,19 @@ const getAllVideos = asyncHandler(async (req, res) => {
     if (userId) {
         filter.userId = userId
     }
-    
+
     const vidoes = await Video.find(filter)
-    .sort(sort)
-    .skip((pageNumber - 1) * 10)
-    .limit(limitNumber)
-  
-    if(!vidoes){
+        .sort(sort)
+        .skip((pageNumber - 1) * 10)
+        .limit(limitNumber)
+
+    if (!vidoes) {
         throw new ApiErrors(500, "No Vidoes found!")
     }
 
     return res
-    .status(200)
-    .json( new ApiResponses(200, vidoes , "All Videos were fetched successfully"))
+        .status(200)
+        .json(new ApiResponses(200, vidoes, "All Videos were fetched successfully"))
 })
 
 
@@ -94,7 +94,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
             tag: tag,
             duration: videoFile.duration,
             owner: req.user?._id,
-            isPublished: true
+            isPublished: true,
+            ownerName: req.user?.username,
+            ownerAvatar: req.user?.avatar,
         })
 
         return res
@@ -189,6 +191,8 @@ const uploadManyVideos = asyncHandler(async (req, res) => {
             videoFile_public_id: videoFile.public_id,
             duration: videoFile.duration,
             owner: req.user?._id,
+            ownerName: req.user?.username,
+            ownerAvatar: req.user?.avatar,
             isPublished: false
         })
 
@@ -478,7 +482,7 @@ const increaseViewCount = asyncHandler(async (req, res) => {
             if (!updateViews) {
                 throw new ApiErrors(400, "Upadte Count views failed");
             }
-           
+
             updateViewsDetails = await Views.findByIdAndUpdate(countViews._id, {
                 $set: {
                     visitedTime: newDate
