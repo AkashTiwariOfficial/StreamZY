@@ -4,43 +4,60 @@ export default function VideoItems(props) {
 
   const { video } = props;
 
+  function timeAgo(dateString) {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diff = (now - past) / 1000;
+
+    if (diff < 60) return `${Math.floor(diff)} sec ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)} day ago`;
+    if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
+    return `${Math.floor(diff / 31104000)} yr ago`;
+  }
+
   return (
     <div>
-      <div className="lg:max-w-[355px] w-[500px] md:w-[450px] xl:w-[420px] rounded-xl dark:bg-[#121212] cursor-pointer py-3 mx-auto">
-        <div className="xl:w-[400px] xl:h-[230px] lg:w-[325px] md:w-[420px] md:h-[250px] w-[470px] h-[282px] lg:h-[200px] bg-center overflow-hidden mx-auto mb-[12px]">
-          <img className="h-full w-full rounded-xl object-cover" src="video.thumbnail" alt="Video thumbnail" />
+      <div className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
+
+        <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
+          <img
+            src={video.thumbnail}
+            alt="Video thumbnail"
+            className="absolute inset-0 w-full h-full object-cover rounded-xl transform transition-transform duration-300 ease-in-out hover:scale-105"
+          />
         </div>
 
-        <div className="flex items-start xl:w-[420px] lg:w-[355px] md:w-[420px] w-[470px] mx-auto">
-          <div className="h-full w-[44px] mr-3">
-            <div className="h-[40px] w-[40px] rounded-full bg-cover overflow-hidden">
-              <img className="h-full w-full object-cover" src="video.Avatar" alt="Channel-image" />
-            </div>
+        <div className="flex items-start w-full">
+          <div className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
+            <img
+              src={video.owner.avatar}
+              alt="Channel avatar"
+              className="h-full w-full object-cover"
+            />
           </div>
-          <div className="flex-col flex-1">
-            <div className="flex flex-2 justify-between items-center">
-              <span className="font-[700] text-gray-700 dark:text-[#f1f1f1]/90  pr-7 my-auto">
-                Akash's Channel  ghformation is Thier bregergregergergergre
-              </span>
-            </div>
 
-            <div className="my-auto hover:text-black/100 hover:dark:text-[#f1f1f1]/80 cursor-pointer"> <span className="font-[490] text-gray-700 text-[17px] dark:text-[#f1f1f1]/40">
-              Akash's Channel I
-            </span></div>
-             <div className="">
-              <div className="flex items-center"> <span className="font-[490] text-gray-700 text-[14px] dark:text-[#f1f1f1]/40">
-            43M Views
+          <div className="flex flex-col flex-1 overflow-hidden">
+
+            <span className="font-semibold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2">
+              {video.title.length > 55
+                ? video.title.slice(0, 55) + "..."
+                : video.title}
             </span>
-            <span className="font-[490] text-gray-700 text-[7px] dark:text-[#f1f1f1]/40 px-1">&#9679;</span>
-            
-               <span className="font-[490] text-gray-700 text-[14px] dark:text-[#f1f1f1]/40">
-            2 years ago
+
+            <span className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
+              {video.owner.username}
             </span>
-            </div>
+
+            <div className="flex items-center text-sm text-gray-500 dark:text-gray-600 mt-1 truncate">
+              <span className="dark:text-white/60 text-sm font-[400] truncate">100M views • 2 days ago</span>
             </div>
           </div>
 
-  <div className="flex h-9 w-9 justify-center align-center items-center hover:bg-black/10 dark:hover:bg-slate-700/90 rounded-full mr-3 mb-2"><i className="fa-solid fa-ellipsis-vertical dark:text-[#f1f1f1]"></i></div>
+          <div className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2">
+            <i className="fa-solid fa-ellipsis-vertical dark:text-gray-200"></i>
+          </div>
         </div>
       </div>
 

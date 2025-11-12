@@ -1,0 +1,74 @@
+import React from 'react'
+import SideVideosItems from './SideVideosItems'
+import { Link } from 'react-router-dom'
+
+export default function Yourvideo() {
+    return (
+        <div className="lg:ml-24 ml-4 pr-3 py-1">
+            <div className="flex flex-wrap ml-4">
+                <div className="sm:h-[120px] sm:w-[120px] h-[72px] w-[72px] rounded-full relative  overflow-hidden">
+                    <img src="https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-74e0-51f7-925f-fa5dff284004/raw?se=2025-11-09T22%3A16%3A04Z&sp=r&sv=2024-08-04&sr=b&scid=d321b3b0-6200-4752-b496-5d78d3d588fc&skoid=9063adf3-a524-4acf-b70a-8731b33f2f50&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-11-08T22%3A38%3A30Z&ske=2025-11-09T22%3A38%3A30Z&sks=b&skv=2024-08-04&sig=sjVZpfVZesEysvYk1kjL3/uuqe4IHt2bAJ9fE4OJSQI%3D" alt="Profile photo" className="h-full w-full object-cover rounded-full" />
+                </div>
+                <div className="flex flex-col gap-2 w-auto mx-2 px-3 flex-wrap">
+                    <span className="text-4xl dark:text-white/90 font-[700]">Akash Tiwari</span>
+                    <span className="dark:text-white/60 text-base font-[400]">akashTiwari00624 • View Channel</span>
+                    <div className="flex gap-5 mt-2">
+
+                        <div className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
+                    md:px-10 lg:px-20 sm:px-10 xs:px-5 
+                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center justify-center">
+                            <i className="fa-solid fa-right-from-bracket"></i>
+                            <button>SignOut</button>
+                        </div>
+
+                        <Link to="/you" className="flex gap-3 dark:text-white/90 text-[12px] sm:text-base md:text-lg font-[500]
+                      md:py-2 md:px-10 lg:px-20 sm:px-10 xs:px-5 
+                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center justify-center">
+                            <i className="fa fa-circle-user text-xl"></i>
+                            <button>You</button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+            <div className="flex flex-col">
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+
+                <div className=" text-center mr-5 py-2 text-3xl font-[800] text-gray-800 dark:text-gray-300 w-44  mx-3">All Vidoes</div>
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+                <SideVideosItems />
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+                <SideVideosItems />
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+                <SideVideosItems />
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+                <SideVideosItems />
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+                <SideVideosItems />
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+                <SideVideosItems />
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+                <SideVideosItems />
+                <div className="py-4 dark:text-white">
+                    <hr />
+                </div>
+
+            </div>
+        </div>
+    )
+}

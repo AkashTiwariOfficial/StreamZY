@@ -1,10 +1,14 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx'
 import Tooltip from './Tooltip';
 import { Link } from 'react-router-dom';
 
 export default function Navbar() {
 
+  const Context = useContext(videoContext);
+  const { fetchAllVideoswithQuery } = Context;
+
+  const [open, setOpen] = useState(false);
   const tailwindClasses = (rMargin, newChanges) => {
 
     const changes = newChanges || "";
@@ -16,13 +20,25 @@ export default function Navbar() {
     document.documentElement.classList.toggle('dark');
   }
 
+  const toggleOpen = () => {
+    if (!open) {
+      setOpen(true)
+    } else {
+      setOpen(false)
+    }
+
+    if (open) {
+      
+    }
+  }
+
   return (
     <div>
       <div className="relative">
         <input type="checkbox" id="menu-toggle" className="hidden peer" />
 
         {/* Navbar */}
-        <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] bg-transparent dark:bg-transparent flex flex-wrap justify-between align-items-center backdrop-blur-sm bg-opacity-90">
+        <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-sm bg-opacity-90">
           <div className="flex flex-wrap items-center">
             <div className="ml-6 mr-[10px] h-10 w-10 text-center rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90">
               <label
@@ -34,14 +50,14 @@ export default function Navbar() {
             </div>
             <Tooltip text="StreamZY  Home" margin="mt-25px">
               <Link to="/" >
-              <div className="flex gap-[2px] cursor-pointer">
-                <div className="h-[26px] w-[26px]">
-                  <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+                <div className="flex gap-[2px] cursor-pointer">
+                  <div className="h-[26px] w-[26px]">
+                    <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+                  </div>
+                  <div>
+                    <h1 className="dark:text-white tracking-wide font-semibold text-lg">StreamZY</h1>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="dark:text-white tracking-wide font-semibold text-lg">StreamZY</h1>
-                </div>
-              </div>
               </Link>
             </Tooltip>
           </div>
@@ -104,119 +120,146 @@ export default function Navbar() {
               </label>
             </div>
             <Tooltip text="StreamZY Home" margin="mt-25px" changes="ml-4">
-              <div className="flex mt-[24px]">
-                <div className="h-[26px] w-[26px]">
-                  <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+              <Link to="/" >
+                <div className="flex mt-[24px]">
+                  <div className="h-[26px] w-[26px]">
+                    <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+                  </div>
+                  <div>
+                    <h1 className="dark:text-white tracking-wide font-semibold text-lg">StreamZY</h1>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="dark:text-white tracking-wide font-semibold text-lg">StreamZY</h1>
-                </div>
-              </div>
+              </Link>
             </Tooltip>
           </div>
           <ul className="space-y-1 px-2 dark:text-gray-200 text-[11px] font-light">
             <Tooltip text="Home" width="w-90px" margin="mt-[10px]" changes="ml-12">
-              <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90">
-                <i className="fa fa-house text-base mb-1"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Home</label></li>
-              </div>
+              <Link to="/">
+                <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90">
+                  <i className="fa fa-house text-base mb-1"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Home</label></li>
+                </div>
+              </Link>
             </Tooltip>
             <Tooltip text="Subscriptions" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[62px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 mb-2">
+              <Link to="/subscriptions" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[62px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 mb-2">
                 <i className="fa fa-clapperboard text-base"></i>
                 <li><label htmlFor="menu-toggle" className="cursor-pointer block">Subscriptions</label></li>
-              </div>
+              </Link>
             </Tooltip>
             <hr />
-            <h5 className="flex gap-2 text-base mt-1 pt-2 mx-3"><p>You</p>
-              <p>{">"}</p>
-            </h5>
+            <Tooltip text="Music" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+              <Link to="/you" className="flex text-base mt-2 py-2 cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[100px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90"><p>You</p>
+                <p>{">"}</p>
+              </Link>
+            </Tooltip>
             <Tooltip text="History" width="w-1/3" margin="mt-[10px]" changes="ml-12">
-              <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
+              <Link to="/watchHistory" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
                 <i className="fa-solid fa-clock-rotate-left text-base"></i>
                 <li><label htmlFor="menu-toggle" className="cursor-pointer block">History</label></li>
-              </div>
+              </Link>
             </Tooltip>
             <Tooltip text="Playlists" width="w-1/3" margin="mt-[10px]" changes="ml-14">
-              <div className="flex cursor-pointer h-8 w-max    items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
+              <Link to="/playlists" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
                 <i className="fa-solid fa-list-ul text-base"></i>
                 <li><label htmlFor="menu-toggle" className="cursor-pointer block">Playlists</label></li>
-              </div>
+              </Link>
             </Tooltip>
             <Tooltip text="Your Videos" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
+              <Link to="/yourVideos" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
                 <i className="fa-solid fa-video text-base"></i>
                 <li><label htmlFor="menu-toggle" className="cursor-pointer block">Your Videos</label></li>
-              </div>
+              </Link>
             </Tooltip>
             <Tooltip text="Liked Videos" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
+              <Link to="/likes" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
                 <i className="fa-regular fa-thumbs-up text-base"></i>
                 <li><label htmlFor="menu-toggle" className="cursor-pointer block">Liked Videos</label></li>
-              </div>
+              </Link>
             </Tooltip>
             <hr />
-            <h5 className="flex gap-2 text-base mt-1 py-3 mx-3"><p>Subscriptions</p>
-              <p>{">"}</p>
-            </h5>
-            <hr />
-            <h5 className="flex text-base mt-1 py-2 mx-3">Explore</h5>
-            <Tooltip text="Music" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[100px]")} >
-                <i className="fa-solid fa-music text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Music</label></li>
-              </div>
+
+            <Tooltip text="Subscriptions" width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
+              <Link to="/subscriptions" className="flex text-base mt-2 py-2 cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[35px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90"><p>Subscriptions</p>
+                <p>{">"}</p>
+              </Link>
             </Tooltip>
-            <Tooltip text="Films" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[105px]")} >
-                <i className="fa-solid fa-film text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Films</label></li>
-              </div>
-            </Tooltip>
-            <Tooltip text="Cartoons" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[85px]")} >
-                <i className="fa-regular fa-circle-play text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Cartoons</label></li>
-              </div>
-            </Tooltip>
-            <Tooltip text="News" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[100px]")} >
-                <i className="fa-solid fa-newspaper text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">News</label></li>
-              </div>
-            </Tooltip>
-            <Tooltip text="Sports" width="w-1/3" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[94px]")} >
-                <i className="fa-solid fa-trophy text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Sports</label></li>
-              </div>
-            </Tooltip>
-            <Tooltip text="Knowledge" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[75px]", "mb-[12px]")} >
-                <i className="fa-solid fa-brain text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Knowledge</label></li>
-              </div>
-            </Tooltip>
-            <hr />
-            <Tooltip text="Settings" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[88px]", "mt-[11px]")} >
-                <i className="fa-solid fa-gear text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Settings</label></li>
-              </div>
-            </Tooltip>
-            <Tooltip text="Feedback" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[55px]")} >
-                <i className="fa-solid fa-envelope-open-text text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">Send Feedback</label></li>
-              </div>
-            </Tooltip>
-            <Tooltip text="About" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-              <div className={tailwindClasses("pr-[96px]", "mb-[12px]")} >
-                <i className="fa-solid fa-circle-info text-base"></i>
-                <li><label htmlFor="menu-toggle" className="cursor-pointer block">About</label></li>
-              </div>
-            </Tooltip>
-            <hr />
+            <div ClassName="flex flex-col">
+             { // video.slice(0 , !open ? video.length : 4).map(() => { ..... })
+              <Tooltip text={`Akshu`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
+                <div className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
+                  <div className="w-6 h-6 object-cover overflow-hidden rounded-full">
+                    <img src="https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-a4dc-522f-9e34-920f22556d92/raw?se=2025-11-12T19%3A57%3A46Z&sp=r&sv=2024-08-04&sr=b&scid=30c54a92-c0e0-45b5-83c9-b2480e52a92b&skoid=0b778285-7b0b-4cdc-ac3b-fb93e8c3686f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-11-11T23%3A59%3A12Z&ske=2025-11-12T23%3A59%3A12Z&sks=b&skv=2024-08-04&sig=oWf0JK1JkepxVDErr0S8Dpzn0ReKVKbJQxRz4UrXX4Q%3D" alt="profile image" className="w-full h-full object-cover" />
+                  </div>
+                  <span>Akshu's channel</span>
+                </div>
+              </Tooltip>
+}
+              <button className="mb-2 flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-6 pr-[70px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90" onClick={toggleOpen}>
+                <i className={`fa-solid fa-angle-${open ? "down" : "up"} text-base`}></i>
+                <li><label htmlFor="menu-toggle" className="cursor-pointer block">{open ? (
+                  "Show more"
+                ) : ( "Show fewer" )}</label></li>
+              </button>
+                </div>
+              <hr />
+              <h5 className="flex text-base mt-1 py-2 mx-3">Explore</h5>
+              <Tooltip text="Music" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <Link to="/Music" onClick={() => fetchAllVideoswithQuery("Music")} className={tailwindClasses("pr-[100px]")} >
+                  <i className="fa-solid fa-music text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Music</label></li>
+                </Link>
+              </Tooltip>
+              <Tooltip text="Films" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <Link to="/Films" onClick={() => fetchAllVideoswithQuery("Films")} className={tailwindClasses("pr-[105px]")} >
+                  <i className="fa-solid fa-film text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Films</label></li>
+                </Link>
+              </Tooltip>
+              <Tooltip text="Cartoons" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <Link tio="/Cartoon" onClick={() => fetchAllVideoswithQuery("Cartoon")} className={tailwindClasses("pr-[85px]")} >
+                  <i className="fa-regular fa-circle-play text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Cartoons</label></li>
+                </Link>
+              </Tooltip>
+              <Tooltip text="News" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <Link to="/News" onClick={() => { fetchAllVideoswithQuery("News") }} className={tailwindClasses("pr-[100px]")} >
+                  <i className="fa-solid fa-newspaper text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">News</label></li>
+                </Link>
+              </Tooltip>
+              <Tooltip text="Sports" width="w-1/3" margin="mt-[10px]" changes="ml-12">
+                <Link to="/Sports" onClick={() => fetchAllVideoswithQuery("Sports")} className={tailwindClasses("pr-[94px]")} >
+                  <i className="fa-solid fa-trophy text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Sports</label></li>
+                </Link>
+              </Tooltip>
+              <Tooltip text="Knowledge" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <Link to="/Knowledge" onClick={() => fetchAllVideoswithQuery("Educational")} className={tailwindClasses("pr-[75px]", "mb-[12px]")} >
+                  <i className="fa-solid fa-brain text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Knowledge</label></li>
+                </Link>
+              </Tooltip>
+              <hr />
+              <Tooltip text="Settings" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <div className={tailwindClasses("pr-[88px]", "mt-[11px]")} >
+                  <i className="fa-solid fa-gear text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Settings</label></li>
+                </div>
+              </Tooltip>
+              <Tooltip text="Feedback" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <div className={tailwindClasses("pr-[55px]")} >
+                  <i className="fa-solid fa-envelope-open-text text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Send Feedback</label></li>
+                </div>
+              </Tooltip>
+              <Tooltip text="About" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+                <div className={tailwindClasses("pr-[96px]", "mb-[12px]")} >
+                  <i className="fa-solid fa-circle-info text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">About</label></li>
+                </div>
+              </Tooltip>
+              <hr />
           </ul>
           <div className="bottom-95 w-full text-center text-[11px] text-gray-600 dark:text-gray-400 pr-7 pt-3 pb-2">
             <p className="text-[11px] mt-1">All rights reserved</p>
@@ -233,32 +276,34 @@ export default function Navbar() {
         <div className="hidden lg:flex fixed top-[70px] left-0 h-screen w-[64px] pl-2 pr-2 dark:text-[#f1f1f1] text-center">
           <div className="flex flex-col gap-6">
             <Tooltip text="Home" width="w-[50px]" direction="absolute left-full top-1/2 -translate-y-1/2 ml-[10px]">
-              <div className="flex flex-col h-[64px] w-[64px] pt-[10px] rounded-xl hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
-                <i className="fa fa-house text-xl"></i>
-                <div className="text-[11px] text">
-                  Home
+              <Link to="/">
+                <div className="flex flex-col h-[64px] w-[64px] pt-[10px] rounded-xl hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
+                  <i className="fa fa-house text-xl"></i>
+                  <div className="text-[11px] text">
+                    Home
+                  </div>
                 </div>
-              </div>
+              </Link>
             </Tooltip>
             <Tooltip text="Subscriptions" width="w-[80px]" direction="absolute left-full top-1/2 -translate-y-1/2 ml-[10px]">
-              <div className="flex flex-col h-[64px] w-[70px] pt-[6px] pr-1 rounded-xl hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
+              <Link to="/subscriptions" className="flex flex-col h-[64px] w-[70px] pt-[6px] pr-1 rounded-xl hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
                 <div className="mt-1">
                   <i className="fa fa-clapperboard text-xl"></i>
                 </div>
                 <div className="text-[11px] ml-[2px]">
                   Subscriptions
                 </div>
-              </div>
+              </Link>
             </Tooltip>
             <Tooltip text="You" width="w-[54px]" direction="absolute left-full top-1/2 -translate-y-1/2 ml-[10px]">
-              <div className="flex flex-col h-[64px] w-[67px] pt-1 rounded-xl hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
+              <Link to="/you" className="flex flex-col h-[64px] w-[67px] pt-1 rounded-xl hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
                 <div className="mt-1">
                   <i className="fa fa-circle-user text-2xl"></i>
                 </div>
                 <div className="text-[11px]">
                   You
                 </div>
-              </div>
+              </Link>
             </Tooltip>
             <div className="flex flex-col">
               <div className="mt-3">
