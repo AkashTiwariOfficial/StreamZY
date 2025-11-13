@@ -6,7 +6,7 @@ import { ApiResponses } from "../utils/ApiResponses.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { deleteFromCloudinary, uploadOnCloudinary, uploadVideoOnCloudinary } from "../utils/cloudinary.js";
 
-
+ 
 
 const getAllVideos = asyncHandler(async (req, res) => {
 
@@ -39,6 +39,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         .sort(sort)
         .skip((pageNumber - 1) * 10)
         .limit(limitNumber)
+        .populate("owner", "username avatar")
 
     if (!vidoes) {
         throw new ApiErrors(500, "No Vidoes found!")
@@ -83,7 +84,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         if (!thumbnail) {
             throw new ApiErrors(400, "thumbnail not found!")
         }
-
+        
         const uploadedVideoFile = await Video.create({
             videoFile: videoFile.url,
             thumbnail: thumbnail.url,
@@ -95,8 +96,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
             duration: videoFile.duration,
             owner: req.user?._id,
             isPublished: true,
-            ownerName: req.user?.username,
-            ownerAvatar: req.user?.avatar,
         })
 
         return res
@@ -191,8 +190,6 @@ const uploadManyVideos = asyncHandler(async (req, res) => {
             videoFile_public_id: videoFile.public_id,
             duration: videoFile.duration,
             owner: req.user?._id,
-            ownerName: req.user?.username,
-            ownerAvatar: req.user?.avatar,
             isPublished: false
         })
 
@@ -221,6 +218,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     let viewDetails;
     const video = await Video.findById(videoId)
+    .populate("owner", "username avatar")
 
     if (!video) {
         throw new ApiErrors(404, "Video does not exists");

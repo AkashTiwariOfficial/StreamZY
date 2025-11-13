@@ -86,8 +86,10 @@ const registerUser = asyncHandler(async (req, res) => {
     password,
     username: username.toLowerCase(),
     public_id_avatar: avatar.public_id,
-    public_id_coverImage: coverImage?.public_id || ""
+    public_id_coverImage: coverImage?.public_id || "",
   });
+
+    const { accessToken, refreshToken } = await generateAccessTokenandRefreshToken(user._id);
 
   const userCreated = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -98,7 +100,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   return res.status(201).json(
-    new ApiResponses(200, userCreated, "User registered successfully")
+    new ApiResponses(200, {userCreated, accessToken}, "User registered successfully")
   )
 
 })
@@ -637,7 +639,7 @@ try {
     const user = await User.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(req.user._id)
+          _id: new mongoose.Types.ObjectId(req.user?._id)
         }
       },
         {

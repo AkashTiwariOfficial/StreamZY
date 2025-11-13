@@ -1,68 +1,93 @@
 import VideoContext from "./videoContext.jsx";
-import  react,{ useState } from 'react';
+import react, { useState } from 'react';
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function VideoState(props) {
 
     const initialVideos = [];
+    const navigate = useNavigate();
     const [videos, setVideos] = useState(initialVideos);
     const host = import.meta.env.VITE_HOST_LINK;
+    const [user, setUser] = useState(null);
 
-    const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OGI3MWE1YTkwY2JjZGYzOTBlZDgyNzkiLCJlbWFpbCI6ImFrYXNodGl3YXJpMDA2MjRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJha2E5MTQ5IiwiZnVsbE5hbWUiOiJha2FzaCIsImlhdCI6MTc2MjgxMzE1NywiZXhwIjoxNzYyODk5NTU3fQ.Bpsk4AQdT0gAQWNryCiNg96Tsy1i1egoUqmrMsp6Fqg"
+    const token = localStorage.getItem("accessToken");
 
     // Fetchng all Videos :-
     const fetchAllVideos = async () => {
 
-       try {
+        try {
 
-         const response = await axios.get(`${host}/v1/videos/get-allVideos`, {
-             headers: {
-                 Authorization: `Bearer ${accessToken}`
-             },
-             withCredentials: true
-         });
-        
-       const videosData = response.data.data;
-       setVideos(videosData);
+            const response = await axios.get(`${host}/v1/videos/get-allVideos`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                withCredentials: true
+            });
 
-       } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-       }
-         
-    }
+            const videosData = response.data.data;
+            setVideos(videosData);
 
-     const fetchAllVideoswithQuery = async (query) => {
-
-        if (!query) {
-        query = "";    
+        } catch (error) {
+            console.log("Error while fetching vidoes", error.response?.data || error.message);
         }
 
-       try {
-
-         const response = await axios.get(`${host}/v1/videos/get-allVideos?&query=${query}`, {
-             headers: {
-                 Authorization: `Bearer ${accessToken}`
-             },
-             withCredentials: true
-         });
-        
-       const videosData = response.data.data;
-       setVideos(videosData);
-
-       } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-       }
-         
     }
-  
+
+    const fetchAllVideoswithQuery = async (query) => {
+
+        if (!query) {
+            query = "";
+        }
+
+        try {
+
+            const response = await axios.get(`${host}/v1/videos/get-allVideos?&query=${query}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                withCredentials: true
+            });
+
+            const videosData = response.data.data;
+            setVideos(videosData);
+
+        } catch (error) {
+            console.log("Error while fetching vidoes", error.response?.data || error.message);
+        }
+
+    }
+
+    const handleLogout = async () => {
+         
+         try {
+            const response = await axios.post(`${host}/v1/users/logout`, {} , {
+                 headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                withCredentials: true
+            });
+            
+            if (response.data.success) {
+                localStorage.removeItem("accessToken");
+                navigate("/")
+            }
+
+         } catch (error) {
+                     console.log("Error while fetching vidoes", error.response?.data || error.message);
+         }
+    }
 
     return (
 
         <VideoContext.Provider value={{
             videos,
+            user,
+            setUser,
             setVideos,
-          fetchAllVideos,
-          fetchAllVideoswithQuery
+            fetchAllVideos,
+            fetchAllVideoswithQuery,
+            handleLogout,
         }}
         >
             {props.children}

@@ -12,7 +12,7 @@ export default function Videos() {
    const location = useLocation();
 
    useEffect(() => {
-    if(location.pathname === "/") fetchAllVideos();
+    if(location.pathname === "/home") fetchAllVideos();
    }, [location.pathname])
 
   return (

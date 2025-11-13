@@ -2,9 +2,10 @@ import React, { useRef, useContext } from "react";
 import VideoItems from "./VideoItems";
 import videoContext from "../Context/Videos/videoContext.jsx";
 import { Link } from "react-router-dom";
+import PlaylistItems from "./PlaylistItems.jsx"
 
 export default function Yourprofile() {
-  const { videos } = useContext(videoContext);
+  const { videos, handleLogout } = useContext(videoContext);
   const scrollRef = useRef(null);
 
   const scroll = (direction) => {
@@ -30,12 +31,12 @@ export default function Yourprofile() {
           <span className="dark:text-white/60 text-base font-[400]">akashTiwari00624 • View Channel</span>
           <div className="flex gap-5 mt-2">
 
-            <div className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
+            <button onClick={handleLogout} className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
                     md:px-10 lg:px-20 sm:px-10 xs:px-5 
                     rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center">
               <i className="fa-solid fa-right-from-bracket"></i>
-              <button>SignOut</button>
-            </div>
+              <span>SignOut</span>
+            </button>
             <Link to="/yourVideos" className="flex gap-3 dark:text-white/90 text-[12px] sm:text-base md:text-lg font-[500]
                       md:py-2 md:px-10 lg:px-20 sm:px-10 xs:px-5 
                     rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center">
@@ -162,11 +163,26 @@ export default function Yourprofile() {
         </div>
       </div>
       <div className="overflow-x-auto flex gap-3 scroll-hidden overflow-x-hidden scroll-smooth">
-        {
-          videos.map((video) => {
-            return <VideoItems video={video} key={video._id} />
-          })
-        }
+        <PlaylistItems />
+            <PlaylistItems />
+
+                <PlaylistItems />
+                    <PlaylistItems />
+                        <PlaylistItems />
+                            <PlaylistItems />
+                                <PlaylistItems />
+                                    <PlaylistItems />
+                                        <PlaylistItems />
+                                            <PlaylistItems />
+                                                <PlaylistItems />
+
+                                                    <PlaylistItems />
+
+                                                        <PlaylistItems />
+                                                            <PlaylistItems />
+                                                                <PlaylistItems />
+
+                                                                    <PlaylistItems />
       </div>
 
    <div className="py-4 dark:text-white">

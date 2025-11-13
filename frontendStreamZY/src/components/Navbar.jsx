@@ -1,13 +1,14 @@
 import { useContext, useState } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx'
 import Tooltip from './Tooltip';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
 
   const Context = useContext(videoContext);
   const { fetchAllVideoswithQuery } = Context;
-
+  
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const tailwindClasses = (rMargin, newChanges) => {
 
@@ -32,11 +33,21 @@ export default function Navbar() {
     }
   }
 
+  const handleRegister = () => {
+    navigate("register")
+  }
+
+  
+  const handleLogin = () => {
+    navigate("login")
+  }
+
   return (
     <div>
+
+     {localStorage.getItem("accessToken") ? (
       <div className="relative">
         <input type="checkbox" id="menu-toggle" className="hidden peer" />
-
         {/* Navbar */}
         <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-sm bg-opacity-90">
           <div className="flex flex-wrap items-center">
@@ -48,8 +59,8 @@ export default function Navbar() {
                 &#9776;
               </label>
             </div>
-            <Tooltip text="StreamZY  Home" margin="mt-25px">
-              <Link to="/" >
+            <Tooltip text="StreamZY Home" margin="mt-25px">
+              <Link to="/home" >
                 <div className="flex gap-[2px] cursor-pointer">
                   <div className="h-[26px] w-[26px]">
                     <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
@@ -61,7 +72,9 @@ export default function Navbar() {
               </Link>
             </Tooltip>
           </div>
-          <div className="hidden lg:flex  h-[42px] lg:w-[600px] xl:w-[650px] lg:ml-9 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+
+            
+        <div className="hidden lg:flex  h-[42px] lg:w-[600px] xl:w-[650px] lg:ml-9 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
             <input type="text" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
             </input>
             <i className="fa fa-search white-icon dark:text-white mx-[25px] text-xl cursor-pointer" aria-hidden="true"></i>
@@ -120,7 +133,7 @@ export default function Navbar() {
               </label>
             </div>
             <Tooltip text="StreamZY Home" margin="mt-25px" changes="ml-4">
-              <Link to="/" >
+              <Link to="/home" >
                 <div className="flex mt-[24px]">
                   <div className="h-[26px] w-[26px]">
                     <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
@@ -134,7 +147,7 @@ export default function Navbar() {
           </div>
           <ul className="space-y-1 px-2 dark:text-gray-200 text-[11px] font-light">
             <Tooltip text="Home" width="w-90px" margin="mt-[10px]" changes="ml-12">
-              <Link to="/">
+              <Link to="/home">
                 <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90">
                   <i className="fa fa-house text-base mb-1"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Home</label></li>
@@ -184,7 +197,7 @@ export default function Navbar() {
                 <p>{">"}</p>
               </Link>
             </Tooltip>
-            <div ClassName="flex flex-col">
+            <div className="flex flex-col">
              { // video.slice(0 , !open ? video.length : 4).map(() => { ..... })
               <Tooltip text={`Akshu`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
                 <div className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
@@ -276,7 +289,7 @@ export default function Navbar() {
         <div className="hidden lg:flex fixed top-[70px] left-0 h-screen w-[64px] pl-2 pr-2 dark:text-[#f1f1f1] text-center">
           <div className="flex flex-col gap-6">
             <Tooltip text="Home" width="w-[50px]" direction="absolute left-full top-1/2 -translate-y-1/2 ml-[10px]">
-              <Link to="/">
+              <Link to="/home">
                 <div className="flex flex-col h-[64px] w-[64px] pt-[10px] rounded-xl hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
                   <i className="fa fa-house text-xl"></i>
                   <div className="text-[11px] text">
@@ -312,7 +325,37 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+        </div>
+
+          ) :
+          (
+
+            <div className="relative">
+        <input type="checkbox" id="menu-toggle" className="hidden peer" />
+        {/* Navbar */}
+        <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] px-5 transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-sm bg-opacity-90">
+          <div className="flex flex-wrap items-center">
+            <Tooltip text="StreamZY Home" margin="mt-25px">
+              <Link to="/" >
+                <div className="flex gap-[2px] cursor-pointer">
+                  <div className="h-[40px] w-[40px]">
+                    <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+                  </div>
+                  <div>
+                    <h1 className="dark:text-white tracking-wide font-semibold text-3xl">StreamZY</h1>
+                  </div>
+                </div>
+              </Link>
+            </Tooltip>
+          </div>
+            <div className="flex gap-3 text-white pt-2">
+              <button onClick={handleRegister} className="bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/40 py-2 px-3">Register</button>
+              <button  onClick={handleLogin} className="bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/40 py-2 px-3">Login</button>
+            </div>
+            </nav>
+            </div>
+          ) }
       </div>
-    </div>
+
   )
 }
