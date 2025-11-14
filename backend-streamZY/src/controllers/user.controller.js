@@ -238,7 +238,6 @@ const refreshAccessandRefreshTokens = asyncHandler(async (req, res) => {
   }
 })
 
-
 const changePassword = asyncHandler(async (req, res) => {
 
   const { oldPassword, newPassword } = req.body
@@ -506,6 +505,78 @@ const sendOtp = asyncHandler(async (req, res) => {
 
 })
 
+const sendOtpforgotpassword = asyncHandler(async (req, res) => {
+
+  const { email } = req.body
+
+  if (!email) {
+    throw new ApiErrors(400, "email is required")
+  }
+
+  const user = await User.findOne({
+         email
+  })
+
+  if (!user) {
+    throw new ApiErrors(404, "User does not exists");
+  }
+
+  const { otp, expiryIn, expTime } = generateOtp()
+
+  if (!(otp && expiryIn)) {
+    throw new ApiErrors(400, "Error while generating OTP");
+  }
+
+  try {
+
+    const users = await User.findById(user._id)
+
+    try {
+
+      await transporter.sendMail({
+        from: "noreply@StreamZY.com",
+        to: users.email,
+        subject: "Your OTP Code",
+        html: `
+      <div style="font-family: system-ui, sans-serif, Arial; font-size: 14px">
+        <p style="padding-top: 14px; border-top: 1px solid #eaeaea">
+          To authenticate, please use the following One Time Password (OTP):
+        </p>
+        <p style="font-size: 22px"><strong>${otp}</strong></p>
+        <p>This OTP will be valid for 10 minutes till <strong>${expTime}</strong>.</p>
+        <p>
+          Do not share this OTP with anyone. If you didn't make this request, you can safely ignore this
+          email.<br />StreamZY will never contact you about this email or ask for any login codes or
+          links. Beware of phishing scams.
+        </p>
+        <p>Thanks for visiting StreamZY!</p>
+      </div>
+    `
+      });
+    } catch (error) {
+      throw new ApiErrors(400, error.message || "Sending of email failed");
+    }
+
+    const newOtp = await bcrypt.hash(otp.toString(), 10)
+
+       await User.findByIdAndUpdate(user._id,
+      {
+        $set: {
+          otp: newOtp,
+          expiryIn: expiryIn,
+        }
+      }, { new: true }
+    )
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, {}, "Otp sent Through Email to user"))
+
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while sending otp to user");
+  }
+
+})
 
 const otpVerification = asyncHandler(async (req, res) => {
 
@@ -550,6 +621,64 @@ const otpVerification = asyncHandler(async (req, res) => {
   }
 
 })
+
+const otpVerificationForgotPassword = asyncHandler(async (req, res) => {
+
+  const { email, otp } = req.body
+
+  if (!otp) {
+    throw new ApiErrors(400, "Otp is requried for email verification  to change password ");
+  }
+
+   if (!email) {
+    throw new ApiErrors(400, "email is required")
+  }
+
+  const user = await User.findOne({
+         email
+  })
+
+  if (!user) {
+    throw new ApiErrors(404, "User does not exists");
+  }
+
+  const clearOtp = async () => {
+    await User.findByIdAndUpdate(user?._id,
+      {
+        $set: {
+          otp: "",
+          expiryIn: null
+        }
+      }, { new: true }
+    )
+  }
+  try {
+
+    if (Date.now() > parseInt(user.expiryIn)) {
+      await clearOtp();
+      throw new ApiErrors(400, "Error: Otp expired or Invalid. Try again");
+    }
+
+    const securedOtp = await bcrypt.compare(otp.toString(), user.otp)
+
+    if (!securedOtp) {
+      throw new ApiErrors(401, "Error: Otp expired or Invalid. Try again");
+    }
+
+    const resetToken = await user.generateResetToken(user._id)
+
+    await clearOtp()
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, { resetToken }, "OTP verified successfully"));
+  } catch (error) {
+    clearOtp()
+    throw new ApiErrors(500, error.message || "Internal server error while verying otp")
+  }
+
+})
+
 
 
 const getUserChannel = asyncHandler(async (req, res) => {
@@ -744,6 +873,45 @@ const fetchUserVideos = asyncHandler( async (req, res) =>{
 })
 
 
+const forgotPassword = asyncHandler(async (req, res) => {
+
+  const { email, newPassword } = req.body
+
+  if (!email) {
+    throw new ApiErrors(400, "email is required")
+  }
+  
+  if (!newPassword) {
+    throw new ApiErrors(400, "password field is required");
+  }
+
+  const users = await User.findOne({
+         email
+  })
+
+  if (!users) {
+    throw new ApiErrors(404, "User does not exists");
+  }
+
+  try {
+    const currUser = await User.findById(users?._id)
+    
+    if (!currUser) {
+    throw new ApiErrors(404, "User does not exists")  
+    }
+
+    currUser.password = newPassword;
+    await currUser.save({ validateBeforeSave: false })
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, {}, "Password was changed Successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while changing password");
+  }
+})
+
+
 
 export {
   registerUser,
@@ -760,5 +928,8 @@ export {
   otpVerification,
   getUserChannel,
   getUserWatchHistory,
-  fetchUserVideos
+  fetchUserVideos,
+  otpVerificationForgotPassword,
+  sendOtpforgotpassword,
+  forgotPassword
 }

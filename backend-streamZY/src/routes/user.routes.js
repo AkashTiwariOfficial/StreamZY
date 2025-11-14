@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { changePassword, deleteAccount, fetchUserVideos, getCurrentUser, getUserChannel, getUserWatchHistory, logoutUser, otpVerification, refreshAccessandRefreshTokens, registerUser, sendOtp, upadteAvatar, upadtecoverImage, updateAccountDetails } from "../controllers/user.controller.js";
+import { changePassword, deleteAccount, fetchUserVideos, forgotPassword, getCurrentUser, getUserChannel, getUserWatchHistory, logoutUser, otpVerification, otpVerificationForgotPassword, refreshAccessandRefreshTokens, registerUser, sendOtp, sendOtpforgotpassword, upadteAvatar, upadtecoverImage, updateAccountDetails } from "../controllers/user.controller.js";
 import { loginUser } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyResetToken } from "../middlewares/forgotPass.middleware.js";
 
 const router = Router();
 
@@ -86,5 +87,17 @@ router.route("/fetch-videos/:username").get(
     fetchUserVideos
 )
 
+router.route("/send-otp-forgot-password").post(
+    sendOtpforgotpassword
+)
+
+router.route("/verify-otp-forgot-password").patch(
+    otpVerificationForgotPassword
+)
+
+router.route("/request-forgot-password-reset").post(
+    verifyResetToken,
+    forgotPassword
+)
 
 export default router
