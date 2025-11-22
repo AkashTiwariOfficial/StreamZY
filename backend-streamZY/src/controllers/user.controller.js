@@ -289,9 +289,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
 
-  const { fullName, email } = req.body
+  const { fullName, email, username } = req.body
 
-  if (!(fullName || email)) {
+  if (!(fullName || email || username)) {
     throw new ApiErrors(400, "Atleast one field is required")
   }
 
@@ -300,7 +300,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
       {
         $set: {
           fullName,
-          email
+          email,
+          username
         }
       },
       { new: true }
@@ -448,6 +449,20 @@ const transporter = nodemailer.createTransport({
 
 const sendOtp = asyncHandler(async (req, res) => {
 
+   const { username, email} = req.body
+
+  if (!(username || email)) {
+    throw new ApiErrors(400, "username or email is required")
+  }
+
+  const user = await User.findOne({
+    $or: [{ username }, { email }]
+  })
+
+  if (!user) {
+    throw new ApiErrors(404, "User does not exists");
+  }
+
   const { otp, expiryIn, expTime } = generateOtp()
 
   if (!(otp && expiryIn)) {
@@ -507,14 +522,14 @@ const sendOtp = asyncHandler(async (req, res) => {
 
 const sendOtpforgotpassword = asyncHandler(async (req, res) => {
 
-  const { email } = req.body
+ const { username, email} = req.body
 
-  if (!email) {
-    throw new ApiErrors(400, "email is required")
+  if (!(username || email)) {
+    throw new ApiErrors(400, "username or email is required")
   }
 
   const user = await User.findOne({
-         email
+    $or: [{ username }, { email }]
   })
 
   if (!user) {
@@ -624,18 +639,14 @@ const otpVerification = asyncHandler(async (req, res) => {
 
 const otpVerificationForgotPassword = asyncHandler(async (req, res) => {
 
-  const { email, otp } = req.body
+  const { username, email, otp } = req.body
 
-  if (!otp) {
-    throw new ApiErrors(400, "Otp is requried for email verification  to change password ");
-  }
-
-   if (!email) {
-    throw new ApiErrors(400, "email is required")
+  if (!(username || email)) {
+    throw new ApiErrors(400, "username or email is required")
   }
 
   const user = await User.findOne({
-         email
+    $or: [{ username }, { email }]
   })
 
   if (!user) {
@@ -875,24 +886,24 @@ const fetchUserVideos = asyncHandler( async (req, res) =>{
 
 const forgotPassword = asyncHandler(async (req, res) => {
 
-  const { email, newPassword } = req.body
+  const { username, email, newPassword } = req.body
 
-  if (!email) {
-    throw new ApiErrors(400, "email is required")
+  if (!(username || email)) {
+    throw new ApiErrors(400, "username or email is required")
   }
-  
-  if (!newPassword) {
+
+    if (!newPassword) {
     throw new ApiErrors(400, "password field is required");
   }
 
   const users = await User.findOne({
-         email
+    $or: [{ username }, { email }]
   })
 
   if (!users) {
     throw new ApiErrors(404, "User does not exists");
   }
-
+  
   try {
     const currUser = await User.findById(users?._id)
     

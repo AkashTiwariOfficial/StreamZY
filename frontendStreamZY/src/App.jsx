@@ -14,6 +14,13 @@ import Getsartpage from './components/Getsartpage.jsx'
 import Login from './components/User Login/Login.jsx'
 import SignUp from './components/User Login/SignUp.jsx'
 import Forgotpassword from './components/User Login/Forgotpassword.jsx'
+import ChangePassword from './components/User Login/ChangePassword.jsx'
+import Userchannel from './components/Userchannel.jsx'
+import Videoplayer from './components/Videoplayer.jsx'
+import Comment from './components/Comment.jsx'
+import Settings from './components/Settings.jsx'
+import About from './components/About.jsx'
+import Viewplaylists from './components/Viewplaylists.jsx'
 
 function App() {
 
@@ -42,7 +49,14 @@ function App() {
             <Route path="/" element={<Getsartpage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<SignUp />} />
-               <Route path="/forgot-password" element={<Forgotpassword />} />
+            <Route path="/forgot-password" element={<Forgotpassword />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/userChannel" element={<Userchannel />} />
+            <Route path="/videoPlay" element={<Videoplayer />} />
+            <Route path="/comments" element={<Comment />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/viewPlaylists" element={<Viewplaylists />} />
           </Routes>
         </Layout>
       </VideoState>

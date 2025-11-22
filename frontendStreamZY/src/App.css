@@ -1,3 +1,18 @@
 :root {
   --navbar-gap: calc(var(--navbar-height) * 1.2);
 }
+
+.myScroll::-webkit-scrollbar {
+  width: 8px;       /* scrollbar width */
+  background: transparent;   /* removes background */
+}
+
+.myScroll::-webkit-scrollbar-track {
+  background: transparent;   /* track background */
+}
+
+.myScroll::-webkit-scrollbar-thumb {
+  background-color: gray;    /* the draggable part */
+  border-radius: 10px;
+}
+

@@ -27,7 +27,7 @@ export default function Login() {
 
         try {
 
-            const response = await axios.post(`${host}/v1/users/send-otp`, body, {
+            const response = await axios.post(`${host}/v1/users/login`, body, {
                 headers: {
                     "Content-Type": "application/json",
                 }, timeout: 15000

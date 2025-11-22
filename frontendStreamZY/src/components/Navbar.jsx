@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx'
 import Tooltip from './Tooltip';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
 
@@ -9,6 +9,7 @@ export default function Navbar() {
   const { fetchAllVideoswithQuery } = Context;
   
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const tailwindClasses = (rMargin, newChanges) => {
 
@@ -255,10 +256,10 @@ export default function Navbar() {
               </Tooltip>
               <hr />
               <Tooltip text="Settings" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-                <div className={tailwindClasses("pr-[88px]", "mt-[11px]")} >
+                <Link to="/settings" className={tailwindClasses("pr-[88px]", "mt-[11px]")} >
                   <i className="fa-solid fa-gear text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Settings</label></li>
-                </div>
+                </Link>
               </Tooltip>
               <Tooltip text="Feedback" width="w-1/2" margin="mt-[10px]" changes="ml-12">
                 <div className={tailwindClasses("pr-[55px]")} >
@@ -267,10 +268,10 @@ export default function Navbar() {
                 </div>
               </Tooltip>
               <Tooltip text="About" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-                <div className={tailwindClasses("pr-[96px]", "mb-[12px]")} >
+                <Link to="/about" className={tailwindClasses("pr-[96px]", "mb-[12px]")} >
                   <i className="fa-solid fa-circle-info text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">About</label></li>
-                </div>
+                </Link>
               </Tooltip>
               <hr />
           </ul>
@@ -286,6 +287,7 @@ export default function Navbar() {
         ></label>
 
         {/* Sidebar */}
+        { location.pathname !== "/videoPlay"  ? (   
         <div className="hidden lg:flex fixed top-[70px] left-0 h-screen w-[64px] pl-2 pr-2 dark:text-[#f1f1f1] text-center">
           <div className="flex flex-col gap-6">
             <Tooltip text="Home" width="w-[50px]" direction="absolute left-full top-1/2 -translate-y-1/2 ml-[10px]">
@@ -325,11 +327,13 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-        </div>
-
+       ) : (
+         null
+         ) }
+  </div>
           ) :
           (
-
+        
             <div className="relative">
         <input type="checkbox" id="menu-toggle" className="hidden peer" />
         {/* Navbar */}
