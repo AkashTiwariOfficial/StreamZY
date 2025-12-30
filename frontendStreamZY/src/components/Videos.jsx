@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
 export default function Videos() {
 
    const Context = useContext(videoContext);
-   const { videos, setVideos, fetchAllVideos } = Context;
+   const { user, videos, setVideos, fetchAllVideos } = Context;
    const location = useLocation();
 
    useEffect(() => {

@@ -33,18 +33,15 @@ export default function SignUp() {
       const response = await axios.post(`${host}/v1/users/register`, body, {
         headers: {
           "Content-Type": "multipart/form-data",
-        }, timeout: 15000
+        }, timeout: 95000
       })
       
   
       if (response.data.success) {
         localStorage.setItem("accessToken", response.data.data.accessToken);
-        console.log("accessToken", response.data.data.accessToken)
-        console.log("accessToken", response.data.accessToken)
+        localStorage.setItem("refreshToken", response.data.data.refreshToken);
         const userDetails = response.data.data;
-            console.log("userdetalis : ", userDetails)
-        setUser(userDetails);
-        console.log(user)
+        localStorage.setItem("user", JSON.stringify(userDetails))
         navigate("/home");
       }
     } catch (error) {

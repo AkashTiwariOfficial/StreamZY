@@ -9,9 +9,10 @@ export default function VideoState(props) {
     const navigate = useNavigate();
     const [videos, setVideos] = useState(initialVideos);
     const host = import.meta.env.VITE_HOST_LINK;
-    const [user, setUser] = useState(null);
-
+    
     const token = localStorage.getItem("accessToken");
+    const user = localStorage.getItem("user");
+    const currUser = user ? JSON.parse(user) : "" ;
 
     // Fetchng all Videos :-
     const fetchAllVideos = async () => {
@@ -70,6 +71,8 @@ export default function VideoState(props) {
             
             if (response.data.success) {
                 localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                localStorage.removeItem("user");
                 navigate("/")
             }
 
@@ -82,8 +85,7 @@ export default function VideoState(props) {
 
         <VideoContext.Provider value={{
             videos,
-            user,
-            setUser,
+            currUser,
             setVideos,
             fetchAllVideos,
             fetchAllVideoswithQuery,

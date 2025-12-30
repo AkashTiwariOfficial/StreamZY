@@ -92,15 +92,23 @@ const registerUser = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessTokenandRefreshToken(user._id);
 
   const userCreated = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password"
   )
 
   if (!userCreated) {
     throw new ApiErrors(500, "Internal Server Error! while registering a new user. Please Try Again");
   }
 
-  return res.status(201).json(
-    new ApiResponses(200, {userCreated, accessToken}, "User registered successfully")
+   const options = {
+    httpOnly: true,
+    secure: true
+  }
+
+  return res.status(201)
+   .cookie("accessToken", accessToken, options)
+   .cookie("refreshToken", refreshToken, options)
+   .json(
+    new ApiResponses(200, {userCreated, accessToken, refreshToken}, "User registered successfully")
   )
 
 })
@@ -189,17 +197,13 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const refreshAccessandRefreshTokens = asyncHandler(async (req, res) => {
 
-  const { refreshToken } = req.body
-
-  const incoming = req.cookies?.refreshToken || refreshToken
+  const incoming = req.cookies?.refreshToken || req.header("refreshToken")
 
   const incomingRefreshToken = incoming?.trim();
 
   if (!incomingRefreshToken) {
     throw new ApiErrors(401, "Unauthorized Access! Access Denied")
   }
-
-  console.log(incomingRefreshToken)
 
   try {
     const decodedToken = await jwt.verify(incomingRefreshToken, process.env.REFRESH_JWT_TOKEN_SECRET)
@@ -219,16 +223,16 @@ const refreshAccessandRefreshTokens = asyncHandler(async (req, res) => {
       secure: true
     }
 
-    const { accessToken, newrefreshToken } = await generateAccessTokenandRefreshToken(user._id)
+    const { accessToken, refreshToken } = await generateAccessTokenandRefreshToken(user._id)
 
     return res
       .status(200)
       .cookie("AccessToken", accessToken, options)
-      .cookie("RefreshToken", newrefreshToken, options)
+      .cookie("RefreshToken", refreshToken, options)
       .json(
-        new ApiErrors(200, {
+        new ApiResponses(200, {
           accessToken,
-          refreshToken: newrefreshToken
+          refreshToken: refreshToken
         },
           "Access Token refreshed successfully"
         )

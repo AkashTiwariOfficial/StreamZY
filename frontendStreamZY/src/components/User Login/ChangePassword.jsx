@@ -169,7 +169,7 @@ export default function ChangePassword() {
                                         value={usernameORemail}
                                         onChange={(e) => setusernameORemail(e.target.value)}
                                         placeholder="example@gmail.com"
-                                        className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-4 py-2 rounded-xl border-[1px] border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
 
@@ -204,7 +204,7 @@ export default function ChangePassword() {
                                         value={digit}
                                         onChange={(e) => handleOtpChange(e.target.value, i)}
                                         maxLength="1"
-                                        className="w-12 h-12 text-center text-xl font-semibold dark:text-white bg-white dark:bg-[#222] border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-12 h-12 text-center text-xl font-semibold dark:text-white bg-white/90 dark:bg-[#222] border-[1px] border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 ))}
                             </div>
@@ -251,7 +251,7 @@ export default function ChangePassword() {
                                         value={oldPassword}
                                         onChange={handleChange}
                                         placeholder="*********"
-                                        className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-4 py-2 rounded-xl border-[1px] border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
 
@@ -265,7 +265,7 @@ export default function ChangePassword() {
                                         value={password}
                                         onChange={handleChange}
                                         placeholder="*********"
-                                        className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-4 py-2 rounded-xl border-[1px] border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
 
@@ -279,7 +279,7 @@ export default function ChangePassword() {
                                         value={confirmPassword}
                                         onChange={handleChange}
                                         placeholder="*********"
-                                        className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-4 py-2 rounded-xl border-[1px] border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-[#222] dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
 

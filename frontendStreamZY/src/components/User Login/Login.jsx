@@ -9,7 +9,7 @@ import axios from "axios";
 export default function Login() {
 
     const Context = useContext(videoContext);
-    const { user, setUser } = Context;
+    const { setUser } = Context;
     const host = import.meta.env.VITE_HOST_LINK;
 
     const navigate = useNavigate();
@@ -34,9 +34,10 @@ export default function Login() {
             })
 
             if (response.data.success) {
-                const userDetails = response.data.data;
+                const userDetails = response.data.data.data;
                 localStorage.setItem("accessToken", response.data.data.accessToken);
-                setUser(userDetails);
+                localStorage.setItem("refreshToken", response.data.data.refreshToken);
+                localStorage.setItem("user", JSON.stringify(userDetails))
                 navigate("/home");
             }
         } catch (error) {

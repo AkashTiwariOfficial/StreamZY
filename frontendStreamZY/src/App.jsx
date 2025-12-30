@@ -21,6 +21,8 @@ import Comment from './components/Comment.jsx'
 import Settings from './components/Settings.jsx'
 import About from './components/About.jsx'
 import Viewplaylists from './components/Viewplaylists.jsx'
+import Createvideo from './components/Create/Createvideo.jsx'
+import UpdateVideo from './components/UpdateVideo.jsx'
 
 function App() {
 
@@ -57,6 +59,8 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
             <Route path="/viewPlaylists" element={<Viewplaylists />} />
+            <Route path="/uploadVideo" element={<Createvideo />} />
+            <Route path="/updateVideo/:id" element={<UpdateVideo /> } />
           </Routes>
         </Layout>
       </VideoState>
