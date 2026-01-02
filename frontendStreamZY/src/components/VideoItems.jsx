@@ -1,8 +1,10 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 export default function VideoItems(props) {
 
   const { video } = props;
+  const navigate = useNavigate();
 
   function timeAgo(dateString) {
     const now = new Date();
@@ -17,9 +19,13 @@ export default function VideoItems(props) {
     return `${Math.floor(diff / 31104000)} yr ago`;
   }
 
+  const handleClick = () => {
+    navigate(`/video/${video._id}`)
+  }
+
   return (
     <div>
-      <div className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
+      <div onClick={handleClick} className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
 
         <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
           <img
@@ -51,7 +57,7 @@ export default function VideoItems(props) {
             </span>
 
             <div className="flex items-center text-sm text-gray-500 dark:text-gray-600 mt-1 truncate">
-              <span className="dark:text-white/60 text-sm font-[400] truncate">100M views • 2 days ago</span>
+              <span className="dark:text-white/60 text-sm font-[400] truncate">{video?.views} • {timeAgo(video?.createdAt)}</span>
             </div>
           </div>
 

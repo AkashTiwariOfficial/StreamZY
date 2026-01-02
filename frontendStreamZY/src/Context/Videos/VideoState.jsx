@@ -8,6 +8,7 @@ export default function VideoState(props) {
     const initialVideos = [];
     const navigate = useNavigate();
     const [videos, setVideos] = useState(initialVideos);
+    const [issubscribed, setIsSubscribed] = useState(false);
     const host = import.meta.env.VITE_HOST_LINK;
     
     const token = localStorage.getItem("accessToken");
@@ -81,11 +82,41 @@ export default function VideoState(props) {
          }
     }
 
+     const fetchIsSubscribers = async (id) => {
+        console.log(id)
+      try {
+        const response = await axios.patch(`${host}/v1/subscriber/toggleSubcscribe/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+            console.log(response.data.data)
+            console.log(response.data.data.isSubscribed)
+            if (response.data.data.isSubscribed === true) {
+                setIsSubscribed(true);
+            } else {
+                setIsSubscribed(false);
+            }
+         setSubscribers(response.data.data);
+          console.log("Video toggle subscriiption fetched successfully");
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
     return (
 
         <VideoContext.Provider value={{
             videos,
             currUser,
+            issubscribed,
+            fetchIsSubscribers,
             setVideos,
             fetchAllVideos,
             fetchAllVideoswithQuery,

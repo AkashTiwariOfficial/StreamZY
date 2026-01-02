@@ -3,6 +3,8 @@ import Comment from './Comment.jsx';
 import VideoItems from "./VideoItems.jsx";
 import { useContext } from 'react';
 import videoContext from '../Context/Videos/videoContext.jsx';
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 export default function Videoplayer({ video }) {
   const vidRef = useRef(null);
@@ -19,10 +21,14 @@ export default function Videoplayer({ video }) {
   const [settings, setSettings] = useState("");
   const [quality, setQuality] = useState("360");
   const [open, setOpen] = useState(false);
+  const [details, setDetails] = useState("");
+  const [subscribers, setSubscribers] = useState("");
+  const { id } = useParams();
+  const host = import.meta.env.VITE_HOST_LINK;
 
-     const Context = useContext(videoContext);
-     const { videos, setVideos, fetchAllVideos } = Context;
-   
+  const Context = useContext(videoContext);
+  const { videos, fetchIsSubscribers, issubscribed } = Context;
+
 
   useEffect(() => {
     const handleClickOutside = () => setOpen(false);
@@ -148,9 +154,65 @@ export default function Videoplayer({ video }) {
     return `${m}:${sec}`;
   };
 
+  useEffect(() => {
 
+    const fetchDetails = async () => {
+      try {
+        const response = await axios.get(`${host}/v1/videos/get-video/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
 
+        if (response.data.success) {
+         setDetails(response.data.data);
+        }
 
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+    fetchDetails();
+
+ const fetchSubscribers = async () => {
+      try {
+        const response = await axios.get(`${host}/v1/subscriber/subscribers/${details?.video?.owner?._id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+         setSubscribers(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+   
+    fetchSubscribers();
+    fetchIsSubscribers(details?.video?.owner?._id);
+    console.log(issubscribed);
+  }, [id])
+
+ function timeAgo(dateString) {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diff = (now - past) / 1000;
+
+    if (diff < 60) return `${Math.floor(diff)} sec ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)} day ago`;
+    if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
+    return `${Math.floor(diff / 31104000)} yr ago`;
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#121212] text-white">
@@ -165,7 +227,7 @@ export default function Videoplayer({ video }) {
           >
             <video
               ref={vidRef}
-              src={`https://res.cloudinary.com/dirkdiysg/video/upload/h_${quality}/v1763509245/wrp9bbubnm0vizbi4wgq.mp4`}
+              src={`${details?.video?.videoFile}`}
               poster={video?.poster}
               className="w-full h-full"
               playsInline
@@ -176,9 +238,9 @@ export default function Videoplayer({ video }) {
             {!isPlaying && (
               <button
                 onClick={togglePlay}
-                className="absolute inset-0 flex items-center justify-center text-6xl bg-black/30 backdrop-blur-sm  hover:bg-black/40 transition rounded-lg"
+                className="absolute inset-0 flex items-center justify-center text-5xl bg-black/30 backdrop-blur-sm  hover:bg-black/40 transition rounded-lg"
               >
-                <i class="fa-solid fa-play py-3 px-[26px] rounded-full bg-black/5 backdrop-blur-[4px]"></i>
+                <i class="fa-solid fa-play py-3 px-4 rounded-full bg-black/5 backdrop-blur-[1px]"></i>
               </button>
             )}
 
@@ -333,18 +395,18 @@ export default function Videoplayer({ video }) {
           </div>
 
           {/* TITLE + META */}
-          <h1 className="text-xl font-semibold mt-[10px] ml-2 dark:text-white/90 text-black/80  line-clamp-2">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est corrupti quibusdam tempore ea facilis eveniet eum maiores similique? Quam temporibus non cumque nobis. Mollitia doloremque quisquam ex optio, sunt dignissimos.</h1>
+          <h1 className="text-xl font-semibold mt-[10px] ml-2 dark:text-white/90 text-black/80  line-clamp-2">{details?.video?.title}</h1>
 
 
           <div className="flex flex-wrap items-center dark:text-white/90 text-black/80 ml-2 justify-between mr-1">
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex flex-wrap gap-2 py-2">
+              <div className="flex flex-wrap gap-2 py-3">
                 <div className="sm:h-[45px] sm:w-[45px] h-[30px] w-[30px] rounded-full relative  overflow-hidden">
-                  <img src="https://sdmntprukwest.oaiusercontent.com/files/00000000-e434-6243-a7c8-e6ec8cd76e5c/raw?se=2025-11-20T04%3A05%3A55Z&sp=r&sv=2024-08-04&sr=b&scid=5e5c7fbc-1787-459b-8fa0-53a690af1e93&skoid=6980ab1e-b994-4668-84de-ad0444c9d08b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-11-19T17%3A38%3A13Z&ske=2025-11-20T17%3A38%3A13Z&sks=b&skv=2024-08-04&sig=zpJwhHCQKgBYUIAtKXTo0yllgsekI0hT81L/ebSM/i4%3D" alt="Profile photo" className="h-full w-full object-cover rounded-full" />
+                  <img src={`${details?.video?.owner?.avatar}`} alt="Profile photo" className="h-full w-full object-cover rounded-full" />
                 </div>
                 <div className="flex flex-col w-auto flex-wrap">
-                  <span className="text-base dark:text-white/90 font-[500]">Akash Tiwari</span>
-                  <span className="dark:text-white/60 text-xs font-[400]">10M subscribers</span>
+                  <span className="text-base dark:text-white/90 font-[500]">{details?.video?.owner?.username}</span>
+                  <span className="dark:text-white/60 text-xs font-[400]">{subscribers?.length} subscribers</span>
                 </div>
               </div>
               <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
@@ -379,43 +441,43 @@ export default function Videoplayer({ video }) {
             </div> */}
             </div>
             <div className="flex gap-2">
-              <div className="flex dark:bg-white/10 rounded-full bg-slate-200">
-                <button className="px-3 rounded-full dark:hover:bg-white/20 hover:bg-gray-300 bg-slate-200 rounded-r-none"><i class="fa-regular fa-thumbs-up mr-2"></i>
+              <div className="flex rounded-full dark:bg-white/10 bg-slate-200 ">
+                <button className="px-3 rounded-full dark:hover:bg-white/20 hover:bg-gray-300  rounded-r-none"><i class="fa-regular fa-thumbs-up mr-2"></i>
                   <span className="dark:text-white/80 text-xs">{"24k"}</span>
                 </button>
-                <div className="h-5 w-[1px] bg-gray-400 dark:bg-white/20 my-2 mx-[1px]"></div>
-                <button className="px-3 py-2 rounded-full dark:hover:bg-white/20 hover:bg-gray-300 bg-slate-200 rounded-l-none"><i class="fa-regular fa-thumbs-down"></i></button>
+                <div className="h-5 w-[1px] bg-gray-400 dark:bg-white/30 my-2 mx-[1px]"></div>
+                <button className="px-3 py-2 rounded-full dark:hover:bg-white/20  hover:bg-gray-300 rounded-l-none"><i class="fa-regular fa-thumbs-down"></i></button>
               </div>
               <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i class="fa-solid fa-share mr-2 text-sm"></i>
                 <span className="dark:text-white/80 text-sm">Share</span>
               </button>
               <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i class={`fa-regular fa-bookmark mr-2 text-sm`}></i>
-                <span className="dark:text-white/80 text-sm">Share</span>
+                <span className="dark:text-white/80 text-sm">Save</span>
               </button>
             </div>
           </div>
 
           <div className="flex flex-col mt-3 bg-gray-200 dark:bg-white/10 px-3 pt-2 pb-3 rounded-xl ml-2">
             <div className="flex text-sm font-[600] text-gray-700 dark:text-white/100">
-              <span className="mr-2">{"10m"}{" views"}</span>
-              <span className="">10 years ago</span>
+              <span className="mr-2">{details?.video?.views}{" views"}</span>
+              <span className="">{timeAgo(details?.video?.createdAt)}</span>
             </div>
-            <p className="mt-[2px] text-sm font-[500] dark:white/80 text-gray-700">Lorem ipsum dolor sit amet consectetur adipisicing elit. Est cupiditate quo tenetur dolore praesentium. Quia quae porro quaerat ipsa, tenetur, excepturi praesentium, iure vitae possimus magni perspiciatis totam corporis fuga!</p>
+            <p className="mt-[2px] text-sm font-[500] dark:white/80 text-white/70">{details?.video?.description}</p>
           </div>
 
-          <div className="">
+          <div className="mt-3">
             <Comment />
           </div>
         </div>
-     
+
         <aside className="lg:col-span-2 text-gray-700 dark:text-white/90">
           <h3 className="text-lg font-semibold mb-3">Up next</h3>
           <div className="space-y-4 grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-1">
-         { 
-                   videos.map((video) => {
-                  return <VideoItems video={video} key={video._id}/>
-                 }) 
-                 }
+            {
+              videos.map((video) => {
+                return <VideoItems video={video} key={video._id} />
+              })
+            }
           </div>
         </aside>
 

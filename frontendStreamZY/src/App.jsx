@@ -33,15 +33,7 @@ function App() {
         <Navbar />
         <Layout>
           <Routes >
-            <Route path="/home" element={<Home />} />
-            <Route path="/Music" element={<Home />} />
-            <Route path="/Cartoon" element={<Home />} />
-            <Route path="/Films" element={<Home />} />
-            <Route path="/Sports" element={<Home />} />
-            <Route path="/Kids" element={<Home />} />
-            <Route path="/Knowledge" element={<Home />} />
-            <Route path="/News" element={<Home />} />
-            <Route path="/others" element={<Home />} />
+            <Route path="/:category" element={<Home /> } />
             <Route path="/playlists" element={<Playlists />} />
             <Route path="/watchHistory" element={<History />} />
             <Route path="/likes" element={<Likes />} />
@@ -54,7 +46,7 @@ function App() {
             <Route path="/forgot-password" element={<Forgotpassword />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/userChannel" element={<Userchannel />} />
-            <Route path="/videoPlay" element={<Videoplayer />} />
+            <Route path="/video/:id" element={<Videoplayer />} />
             <Route path="/comments" element={<Comment />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />

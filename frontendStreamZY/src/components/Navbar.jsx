@@ -50,7 +50,7 @@ export default function Navbar() {
       <div className="relative">
         <input type="checkbox" id="menu-toggle" className="hidden peer" />
         {/* Navbar */}
-        <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-sm bg-opacity-90">
+        <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-lg bg-opacity-90">
           <div className="flex flex-wrap items-center">
             <div className="ml-6 mr-[10px] h-10 w-10 text-center rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90">
               <label
@@ -231,7 +231,7 @@ export default function Navbar() {
                 </Link>
               </Tooltip>
               <Tooltip text="Cartoons" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-                <Link tio="/Cartoon" onClick={() => fetchAllVideoswithQuery("Cartoon")} className={tailwindClasses("pr-[85px]")} >
+                <Link to="/Cartoon" onClick={() => fetchAllVideoswithQuery("Cartoon")} className={tailwindClasses("pr-[85px]")} >
                   <i className="fa-regular fa-circle-play text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Cartoons</label></li>
                 </Link>
@@ -287,7 +287,7 @@ export default function Navbar() {
         ></label>
 
         {/* Sidebar */}
-        { location.pathname !== "/videoPlay"  ? (   
+        { !location.pathname.startsWith("/video/")  ? (   
         <div className="hidden lg:flex fixed top-[70px] left-0 h-screen w-[64px] pl-2 pr-2 dark:text-[#f1f1f1] text-center">
           <div className="flex flex-col gap-6">
             <Tooltip text="Home" width="w-[50px]" direction="absolute left-full top-1/2 -translate-y-1/2 ml-[10px]">

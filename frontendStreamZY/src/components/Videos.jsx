@@ -2,19 +2,22 @@ import React, { useEffect } from 'react'
 import { useContext } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx'
 import VideoItems from './VideoItems.jsx';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 
 export default function Videos() {
 
    const Context = useContext(videoContext);
-   const { user, videos, setVideos, fetchAllVideos } = Context;
+   const { user, videos, setVideos, newpage, fetchAllVideos, fetchAllVideoswithQuery } = Context;
    const location = useLocation();
+   const { category } = useParams();
 
    useEffect(() => {
-    if(location.pathname === "/home") fetchAllVideos();
-   }, [location.pathname])
+    if(location.pathname === "/home") { fetchAllVideos(); }
+    else if (category) { fetchAllVideoswithQuery(`${category}`); }
+   }, [location.pathname, category])
 
+   
   return (
     <div>
       <div className="w-full">

@@ -161,7 +161,7 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
             id="sort"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-gray-700 dark:bg-gray-900/10 dark:text-white/80 border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="bg-gray-700 dark:bg-black/40 dark:text-white/80 border-[1px] dark:border-white/20 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="top">Top comments</option>
             <option value="newest">Newest first</option>
@@ -179,7 +179,7 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Add a public comment..."
             rows={2}
-            className="w-full h-14 resize-none dark:bg-black/5 dark:text-white border rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full h-14 resize-none dark:bg-black/5 dark:text-white border-[1px] dark:border-white/20 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             aria-label="Add a public comment"
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -195,7 +195,7 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
               <button
                 onClick={() => setInputText("")}
                 disabled={!inputText || isPosting}
-                className="text-sm px-3 py-1 rounded-md hover:bg-gray-100 bg-gray-500 dark:hover:bg-white/5 focus:outline-none"
+                className="text-sm px-3 py-1 rounded-md hover:bg-gray-100 bg-gray-500 dark:bg-white/20 cursor-pointer dark:hover:bg-white/5 focus:outline-none"
               >
                 Cancel
               </button>
@@ -234,7 +234,7 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
         {showCount < comments.length ? (
           <button
             onClick={() => setShowCount((s) => s + 5)}
-            className="px-4 py-2 rounded-md border hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none"
+            className="px-4 py-2 rounded-md border-[1px] dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none"
           >
             Load more replies
           </button>
@@ -242,7 +242,7 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
           comments.length > 0 && (
             <button
               onClick={() => setShowCount(5)}
-              className="px-4 py-2 rounded-md border hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none"
+              className="px-4 py-2 rounded-md border-[1px] dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none"
             >
               Show less
             </button>
