@@ -10,10 +10,10 @@ export default function VideoState(props) {
     const [videos, setVideos] = useState(initialVideos);
     const [issubscribed, setIsSubscribed] = useState(false);
     const host = import.meta.env.VITE_HOST_LINK;
-    
+
     const token = localStorage.getItem("accessToken");
     const user = localStorage.getItem("user");
-    const currUser = user ? JSON.parse(user) : "" ;
+    const currUser = user ? JSON.parse(user) : "";
 
     // Fetchng all Videos :-
     const fetchAllVideos = async () => {
@@ -61,15 +61,15 @@ export default function VideoState(props) {
     }
 
     const handleLogout = async () => {
-         
-         try {
-            const response = await axios.post(`${host}/v1/users/logout`, {} , {
-                 headers: {
+
+        try {
+            const response = await axios.post(`${host}/v1/users/logout`, {}, {
+                headers: {
                     Authorization: `Bearer ${token}`
                 },
                 withCredentials: true
             });
-            
+
             if (response.data.success) {
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
@@ -77,34 +77,59 @@ export default function VideoState(props) {
                 navigate("/")
             }
 
-         } catch (error) {
-                     console.log("Error while fetching vidoes", error.response?.data || error.message);
-         }
+        } catch (error) {
+            console.log("Error while fetching vidoes", error.response?.data || error.message);
+        }
     }
 
-     const fetchIsSubscribers = async (id) => {
- 
-   try {
-   
-        const response = await axios.patch(`${host}/v1/subscriber/toggleSubcscribe/${id}`, {} , {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
+    const fetchIsSubscribers = async (id) => {
 
-        if (response.data.success) {
-            if ( response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined ) {
-                setIsSubscribed(true);
-            } else if ( response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined){  
-                setIsSubscribed(false);
+        try {
+
+            const response = await axios.patch(`${host}/v1/subscriber/toggleSubcscribe/${id}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
+
+            if (response.data.success) {
+                if (response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined) {
+                    setIsSubscribed(true);
+                } else if (response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined) {
+                    setIsSubscribed(false);
+                }
             }
+
+        } catch (error) {
+            console.log("Error while fetching vidoes", error.response?.data || error.message);
         }
-      
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      } 
+    }
+
+    const toggleLikedVideo = async (id) => {
+
+        try {
+
+            const response = await axios.patch(`${host}/v1/likes/toggle-video-like/${id}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
+
+            if (response.data.success) {
+                if (response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined) {
+                    setIsSubscribed(true);
+                } else if (response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined) {
+                    setIsSubscribed(false);
+                }
+            }
+
+        } catch (error) {
+            console.log("Error while fetching vidoes", error.response?.data || error.message);
+        }
     }
 
     return (

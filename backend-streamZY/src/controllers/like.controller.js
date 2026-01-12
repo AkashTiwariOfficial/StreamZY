@@ -30,10 +30,10 @@ const toggleUserVideoLike = asyncHandler(async (req, res) => {
         const isLikedByUser = await Like.findOne({
             video: videoId,
             likedBy: req.user?._id,
-            isVideoLiked: true
         })
 
         if (isLikedByUser) {
+            if (isLikedByUser?.isVideoLiked == true) {
             toggleVideoLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
                 $set: {
                     isVideoLiked: false
@@ -44,6 +44,18 @@ const toggleUserVideoLike = asyncHandler(async (req, res) => {
                 throw new ApiErrors(500, "Internal Server Error while toggling Video like")
             }
         }
+          if (isLikedByUser?.isVideoLiked == false) {
+            toggleVideoLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                $set: {
+                    isVideoLiked: true
+                }
+            }, { new: true })
+
+            if (!toggleVideoLike) {
+                throw new ApiErrors(500, "Internal Server Error while toggling Video like")
+            }
+        }
+    }
 
         if (!isLikedByUser) {
             likeVideo = await Like.create({
@@ -87,18 +99,30 @@ const toggleUserTweetLike = asyncHandler(async (req, res) => {
         const isLikedByUser = await Like.findOne({
             tweet: tweetId,
             likedBy: req.user?._id,
-            isTweetLiked: true
         })
 
         if (isLikedByUser) {
-            toggleTweetLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
-                $set: {
-                    isTweetLiked: false
-                }
-            }, { new: true })
+            if (isLikedByUser?.isTweetLiked == true) {
+                toggleTweetLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isTweetLiked: false
+                    }
+                }, { new: true })
 
-            if (!toggleTweetLike) {
-                throw new ApiErrors(500, "Internal Server Error while toggling Tweet like")
+                if (!toggleTweetLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Tweet like")
+                }
+            }
+            if (isLikedByUser?.isTweetLiked == false) {
+                toggleTweetLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isTweetLiked: true
+                    }
+                }, { new: true })
+
+                if (!toggleTweetLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Tweet like")
+                }
             }
         }
 
@@ -144,18 +168,31 @@ const toggleUserCommentLike = asyncHandler(async (req, res) => {
         const isLikedByUser = await Like.findOne({
             comment: commentId,
             likedBy: req.user?._id,
-            isCommentLiked: true
         })
 
         if (isLikedByUser) {
-            toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
-                $set: {
-                    isCommentLiked: false
-                }
-            }, { new: true })
+            if (isLikedByUser?.isCommentLiked == true) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isCommentLiked: false
+                    }
+                }, { new: true })
 
-            if (!toggleCommentLike) {
-                throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
+            }
+
+            if (isLikedByUser?.isCommentLiked == false) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isCommentLiked: true
+                    }
+                }, { new: true })
+
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
             }
         }
 
@@ -208,23 +245,21 @@ const isVideoLiked = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "videoId is missing!")
     }
 
-      let isLiked;
+    let isLiked;
 
     try {
-        
+
         const validId = await Video.findById(videoId)
 
         if (!validId) {
             throw new ApiErrors(404, "Video not found!")
         }
-      
+
         const userLiked = await Like.findOne({
             likedBy: req.user?._id,
             video: videoId,
             isVideoLiked: true
         })
-
-        console.log(userLiked)
 
         if (userLiked) {
             isLiked = true;
@@ -252,7 +287,7 @@ const userCommentLike = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "commentId is missing!")
     }
 
-      let isLiked;
+    let isLiked;
 
     try {
         const validId = await Comment.findById(commentId)

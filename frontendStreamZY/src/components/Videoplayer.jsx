@@ -24,6 +24,7 @@ export default function Videoplayer({ video }) {
   const [details, setDetails] = useState("");
   const [subscribers, setSubscribers] = useState("");
   const [dosubscribed, setDoSubscribed] = useState(false);
+  const [liked, setLiked] = useState(false);
   const { id } = useParams();
   const host = import.meta.env.VITE_HOST_LINK;
 
@@ -169,7 +170,7 @@ export default function Videoplayer({ video }) {
         });
 
         if (response.data.success) {
-         setDetails(response.data.data);
+          setDetails(response.data.data);
         }
 
       } catch (error) {
@@ -181,13 +182,13 @@ export default function Videoplayer({ video }) {
 
   }, [id])
 
-  const ownerId = details?.video?.owner?._id ;
+  const ownerId = details?.video?.owner?._id;
 
   useEffect(() => {
     if (!ownerId) {
-      return ;
+      return;
     }
-  const fetchSubscribers = async () => {
+    const fetchSubscribers = async () => {
 
       try {
         const response = await axios.get(`${host}/v1/subscriber/subscribers/${ownerId}`, {
@@ -199,18 +200,18 @@ export default function Videoplayer({ video }) {
         });
 
         if (response.data.success) {
-         setSubscribers(response.data.data);
+          setSubscribers(response.data.data);
         }
 
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
     }
-   
+
     fetchSubscribers();
 
-     const fetchChannelIsSubscribed = async () => {
-   
+    const fetchChannelIsSubscribed = async () => {
+
       try {
         const response = await axios.get(`${host}/v1/subscriber/isSubscribed/${ownerId}`, {
           headers: {
@@ -221,24 +222,53 @@ export default function Videoplayer({ video }) {
         });
 
         if (response.data.success) {
-          console.log("ischannelsubscribed :", response.data.data)
-         setDoSubscribed(response.data.data);
+          setDoSubscribed(response.data.data);
         }
 
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
-  }
+    }
 
-  fetchChannelIsSubscribed();
+    fetchChannelIsSubscribed();
   }, [ownerId, issubscribed])
 
   useEffect(() => {
     console.log(dosubscribed)
-}, [issubscribed, dosubscribed]);
+  }, [issubscribed, dosubscribed]);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    const fetechisVideoLiked = async () => {
+
+      try {
+        const response = await axios.get(`${host}/v1/likes/fetch-user-like/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          console.log(response.data.data)
+          setLiked(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+    fetechisVideoLiked();
+
+  }, [id])
 
 
- function timeAgo(dateString) {
+  function timeAgo(dateString) {
     const now = new Date();
     const past = new Date(dateString);
     const diff = (now - past) / 1000;
@@ -254,21 +284,20 @@ export default function Videoplayer({ video }) {
   const handleSubscriber = (e) => {
     e.preventDefault();
 
-      if (!ownerId) {
-      return ;
+    if (!ownerId) {
+      return;
     }
 
     fetchIsSubscribers(ownerId);
+
     if (issubscribed) {
-      setDoSubscribed(true) 
-      console.log("issub true:",dosubscribed)
+      setDoSubscribed(true);
     } else {
-      setDoSubscribed(false)
-        console.log("issub false:",dosubscribed)
+      setDoSubscribed(false);
     }
   }
 
-  const newVideos = videos.filter(video => video._id != details?.video?._id );
+  const newVideos = videos.filter(video => video._id != details?.video?._id);
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#121212] text-white">
@@ -465,12 +494,12 @@ export default function Videoplayer({ video }) {
                   <span className="dark:text-white/60 text-xs font-[400]">{subscribers?.length} subscribers</span>
                 </div>
               </div>
-             { dosubscribed && <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
+              {dosubscribed && <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
                 <i className="fa fa-bell">
                 </i>
                 <div className="relative inline-block text-left ">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setOpen(!open);}}
+                    onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
                     className="text-sm dark:text-white rounded-md  focus:outline-none"
                   >
                     Subscribed
@@ -489,12 +518,12 @@ export default function Videoplayer({ video }) {
                     </div>
                   )}
                 </div>
-              </div>   }
-          { !dosubscribed  && <div onClick={handleSubscriber} className="h-max text-sm cursor-pointer text-[#f1f1f1] dark:text-[#1f1f1f]/90 rounded-3xl px-3 py-2 bg-slate-800 dark:bg-white/90 hover:bg-gray-500 dark:hover:bg-white/90 items-center ">
-              <span>
-                Subscribe
-              </span>
-            </div> }
+              </div>}
+              {!dosubscribed && <div onClick={handleSubscriber} className="h-max text-sm cursor-pointer text-[#f1f1f1] dark:text-[#1f1f1f]/90 rounded-3xl px-3 py-2 bg-slate-800 dark:bg-white/90 hover:bg-gray-500 dark:hover:bg-white/90 items-center ">
+                <span>
+                  Subscribe
+                </span>
+              </div>}
             </div>
             <div className="flex gap-2">
               <div className="flex rounded-full dark:bg-white/10 bg-slate-200 ">

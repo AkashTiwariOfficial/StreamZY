@@ -26,20 +26,34 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     const doUserSubscribedCurrentChannel = await Subscription.findOne({
         subscriber: req.user?._id,
         channel: userChannel?._id,
-        isSubscribed: true
     })
 
     if (doUserSubscribedCurrentChannel) {
-        toggleSubscribe = await Subscription.findByIdAndUpdate(doUserSubscribedCurrentChannel._id,
-            {
-                $set: {
-                    isSubscribed: false
-                }
-            }, { new: true }
-        )
+        if (doUserSubscribedCurrentChannel?.isSubscribed == true) {
+            toggleSubscribe = await Subscription.findByIdAndUpdate(doUserSubscribedCurrentChannel._id,
+                {
+                    $set: {
+                        isSubscribed: false
+                    }
+                }, { new: true }
+            )
 
-        if (!doUserSubscribedCurrentChannel) {
-              throw new ApiErrors(500, "Internal Server Error while toggling Subscribe")
+            if (!doUserSubscribedCurrentChannel) {
+                throw new ApiErrors(500, "Internal Server Error while toggling Subscribe")
+            }
+        }
+        if (doUserSubscribedCurrentChannel?.isSubscribed == false) {
+            toggleSubscribe = await Subscription.findByIdAndUpdate(doUserSubscribedCurrentChannel._id,
+                {
+                    $set: {
+                        isSubscribed: true
+                    }
+                }, { new: true }
+            )
+
+            if (!doUserSubscribedCurrentChannel) {
+                throw new ApiErrors(500, "Internal Server Error while toggling Subscribe")
+            }
         }
     }
 
@@ -122,8 +136,8 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
 })
 
 const getIsSubscribed = asyncHandler(async (req, res) => {
- 
-      const { channelId } = req.params
+
+    const { channelId } = req.params
 
     if (!channelId) {
         throw new ApiErrors(400, "channelId is missing!")
@@ -135,7 +149,7 @@ const getIsSubscribed = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Channel not found! or Invalid channelId")
     }
 
-     let subscriber;
+    let subscriber;
 
     const doUserSubscribedCurrentChannel = await Subscription.findOne({
         subscriber: req.user?._id,
@@ -143,15 +157,15 @@ const getIsSubscribed = asyncHandler(async (req, res) => {
         isSubscribed: true
     })
 
-        if (doUserSubscribedCurrentChannel) {
-           subscriber = true ;
-        } else {
-            subscriber = false ;
-        }
+    if (doUserSubscribedCurrentChannel) {
+        subscriber = true;
+    } else {
+        subscriber = false;
+    }
 
     return res
         .status(200)
-        .json(new ApiResponses(200, subscriber , "Feteched successfully"))
+        .json(new ApiResponses(200, subscriber, "Feteched successfully"))
 
 })
 
