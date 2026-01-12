@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js"
-import { getSubscribedChannels, getUserChannelSubscribers, toggleSubscription } from "../controllers/subscription.controller.js";
+import { getIsSubscribed, getSubscribedChannels, getUserChannelSubscribers, toggleSubscription } from "../controllers/subscription.controller.js";
 
 
 
@@ -22,6 +22,11 @@ router.route("/subscribers/:channelId").get(
 router.route("/subscribed-channel/:subscriberId").get(
     verifyJWT,
     getSubscribedChannels
+)
+
+router.route("/isSubscribed/:channelId").get(
+    verifyJWT,
+    getIsSubscribed
 )
 
 

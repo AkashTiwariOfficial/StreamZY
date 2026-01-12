@@ -23,6 +23,7 @@ export default function Videoplayer({ video }) {
   const [open, setOpen] = useState(false);
   const [details, setDetails] = useState("");
   const [subscribers, setSubscribers] = useState("");
+  const [dosubscribed, setDoSubscribed] = useState(false);
   const { id } = useParams();
   const host = import.meta.env.VITE_HOST_LINK;
 
@@ -157,6 +158,7 @@ export default function Videoplayer({ video }) {
   useEffect(() => {
 
     const fetchDetails = async () => {
+
       try {
         const response = await axios.get(`${host}/v1/videos/get-video/${id}`, {
           headers: {
@@ -177,9 +179,18 @@ export default function Videoplayer({ video }) {
 
     fetchDetails();
 
- const fetchSubscribers = async () => {
+  }, [id])
+
+  const ownerId = details?.video?.owner?._id ;
+
+  useEffect(() => {
+    if (!ownerId) {
+      return ;
+    }
+  const fetchSubscribers = async () => {
+
       try {
-        const response = await axios.get(`${host}/v1/subscriber/subscribers/${details?.video?.owner?._id}`, {
+        const response = await axios.get(`${host}/v1/subscriber/subscribers/${ownerId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -197,9 +208,35 @@ export default function Videoplayer({ video }) {
     }
    
     fetchSubscribers();
-    fetchIsSubscribers(details?.video?.owner?._id);
-    console.log(issubscribed);
-  }, [id])
+
+     const fetchChannelIsSubscribed = async () => {
+   
+      try {
+        const response = await axios.get(`${host}/v1/subscriber/isSubscribed/${ownerId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          console.log("ischannelsubscribed :", response.data.data)
+         setDoSubscribed(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+  }
+
+  fetchChannelIsSubscribed();
+  }, [ownerId, issubscribed])
+
+  useEffect(() => {
+    console.log(dosubscribed)
+}, [issubscribed, dosubscribed]);
+
 
  function timeAgo(dateString) {
     const now = new Date();
@@ -213,6 +250,25 @@ export default function Videoplayer({ video }) {
     if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
     return `${Math.floor(diff / 31104000)} yr ago`;
   }
+
+  const handleSubscriber = (e) => {
+    e.preventDefault();
+
+      if (!ownerId) {
+      return ;
+    }
+
+    fetchIsSubscribers(ownerId);
+    if (issubscribed) {
+      setDoSubscribed(true) 
+      console.log("issub true:",dosubscribed)
+    } else {
+      setDoSubscribed(false)
+        console.log("issub false:",dosubscribed)
+    }
+  }
+
+  const newVideos = videos.filter(video => video._id != details?.video?._id );
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#121212] text-white">
@@ -240,7 +296,7 @@ export default function Videoplayer({ video }) {
                 onClick={togglePlay}
                 className="absolute inset-0 flex items-center justify-center text-5xl bg-black/30 backdrop-blur-sm  hover:bg-black/40 transition rounded-lg"
               >
-                <i class="fa-solid fa-play py-3 px-4 rounded-full bg-black/5 backdrop-blur-[1px]"></i>
+                <i className="fa-solid fa-play py-3 px-4 rounded-full bg-black/5 backdrop-blur-[1px]"></i>
               </button>
             )}
 
@@ -271,13 +327,13 @@ export default function Videoplayer({ video }) {
                 <div className="flex items-center gap-5">
                   <div className="flex  justify-center bg-black/30  backdrop-blur-[2px] rounded-3xl h-11 w-11 hover:scale-110 transition items-center">
                     <button onClick={togglePlay} className="text-2xl hover:bg-white/20 rounded-full h-9 w-9">
-                      {isPlaying ? <i class="fa-solid fa-pause"></i> : <i className="fa-solid fa-play ml-1"></i>}
+                      {isPlaying ? <i className="fa-solid fa-pause"></i> : <i className="fa-solid fa-play ml-1"></i>}
                     </button>
                   </div>
                   <div className="px-1 py-1 rounded-full  bg-black/30  backdrop-blur-[1px] ">
                     <div onMouseEnter={() => setShowVolDrag(true)} onMouseLeave={() => setShowVolDrag(false)} onTouchStart={() => setShowVolDrag(true)} className="flex gap-2  hover:bg-white/20 items-center rounded-full px-2 py-1">
                       <button onClick={toggleMute} className={`text-xl `}>
-                        {isMuted ? <i class="fa-solid fa-volume-xmark"></i> : <i class="fa-solid fa-volume-high"></i>}
+                        {isMuted ? <i className="fa-solid fa-volume-xmark"></i> : <i className="fa-solid fa-volume-high"></i>}
                       </button>
                       {showVolDrag && <input
                         type="range"
@@ -301,7 +357,7 @@ export default function Videoplayer({ video }) {
                 <div className="flex items-center relative">
                   <div className="flex gap-2 justify-center bg-black/20  backdrop-blur-[1px] rounded-3xl px-2 py-1 items-center">
                     <div className="px-3 hover:bg-white/20 rounded-3xl py-[2px] hover:scale-110 transition" onClick={(e) => { e.stopPropagation(1); setSettings("showSettings") }}>
-                      <button><i class="fa-solid fa-gear text-xl"></i></button>
+                      <button><i className="fa-solid fa-gear text-xl"></i></button>
                     </div>
                     {
                       settings === "showSettings" &&
@@ -311,7 +367,7 @@ export default function Videoplayer({ video }) {
                        ">
                         <div onClick={(e) => { e.stopPropagation(); setSettings("showSpeed") }} className="flex justify-between p-3 gap-5 hover:bg-white/10 rounded-xl cursor-pointer">
                           <div className="flex gap-3">
-                            <span><i class="fa-solid fa-gauge-simple-high"></i></span>
+                            <span><i className="fa-solid fa-gauge-simple-high"></i></span>
                             <span>Playback speed</span>
                           </div>
                           <div className="flex gap-2 items-center text-gray-100/60">
@@ -321,7 +377,7 @@ export default function Videoplayer({ video }) {
                         </div>
                         <div onClick={(e) => { e.stopPropagation(); setSettings("showQuality") }} className="flex justify-between p-3 gap-5 hover:bg-white/10 rounded-xl cursor-pointer">
                           <div className="flex gap-3">
-                            <span><i class="fa-solid fa-sliders"></i></span>
+                            <span><i className="fa-solid fa-sliders"></i></span>
                             <span>Quality</span>
                           </div>
                           <div className="flex gap-2 items-center text-gray-100/60">
@@ -409,12 +465,12 @@ export default function Videoplayer({ video }) {
                   <span className="dark:text-white/60 text-xs font-[400]">{subscribers?.length} subscribers</span>
                 </div>
               </div>
-              <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
+             { dosubscribed && <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
                 <i className="fa fa-bell">
                 </i>
                 <div className="relative inline-block text-left ">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+                    onClick={(e) => { e.stopPropagation(); setOpen(!open);}}
                     className="text-sm dark:text-white rounded-md  focus:outline-none"
                   >
                     Subscribed
@@ -425,7 +481,7 @@ export default function Videoplayer({ video }) {
                     <div className="absolute right-[1/2] mt-[11px] w-40 bg-slate-200 dark:bg-[#1f1f1f] rounded-md shadow-lg ring-1 ring-black/5 z-20">
                       <ul className="py-1 text-sm text-gray-700 dark:text-gray-200">
                         <li>
-                          <button className="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100  dark:hover:bg-gray-700">
+                          <button onClick={handleSubscriber} className="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100  dark:hover:bg-gray-700">
                             Unsubscribe
                           </button>
                         </li>
@@ -433,25 +489,25 @@ export default function Videoplayer({ video }) {
                     </div>
                   )}
                 </div>
-              </div>
-              {/*  <div className="h-max text-sm  text-[#f1f1f1] dark:text-[#1f1f1f]/90 rounded-3xl px-3 py-2 bg-slate-800 dark:bg-white hover:bg-gray-500 dark:hover:bg-white/90 items-center ">
+              </div>   }
+          { !dosubscribed  && <div onClick={handleSubscriber} className="h-max text-sm cursor-pointer text-[#f1f1f1] dark:text-[#1f1f1f]/90 rounded-3xl px-3 py-2 bg-slate-800 dark:bg-white/90 hover:bg-gray-500 dark:hover:bg-white/90 items-center ">
               <span>
                 Subscribe
               </span>
-            </div> */}
+            </div> }
             </div>
             <div className="flex gap-2">
               <div className="flex rounded-full dark:bg-white/10 bg-slate-200 ">
-                <button className="px-3 rounded-full dark:hover:bg-white/20 hover:bg-gray-300  rounded-r-none"><i class="fa-regular fa-thumbs-up mr-2"></i>
+                <button className="px-3 rounded-full dark:hover:bg-white/20 hover:bg-gray-300  rounded-r-none"><i className="fa-regular fa-thumbs-up mr-2"></i>
                   <span className="dark:text-white/80 text-xs">{"24k"}</span>
                 </button>
                 <div className="h-5 w-[1px] bg-gray-400 dark:bg-white/30 my-2 mx-[1px]"></div>
-                <button className="px-3 py-2 rounded-full dark:hover:bg-white/20  hover:bg-gray-300 rounded-l-none"><i class="fa-regular fa-thumbs-down"></i></button>
+                <button className="px-3 py-2 rounded-full dark:hover:bg-white/20  hover:bg-gray-300 rounded-l-none"><i className="fa-regular fa-thumbs-down"></i></button>
               </div>
-              <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i class="fa-solid fa-share mr-2 text-sm"></i>
+              <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i className="fa-solid fa-share mr-2 text-sm"></i>
                 <span className="dark:text-white/80 text-sm">Share</span>
               </button>
-              <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i class={`fa-regular fa-bookmark mr-2 text-sm`}></i>
+              <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i className={`fa-regular fa-bookmark mr-2 text-sm`}></i>
                 <span className="dark:text-white/80 text-sm">Save</span>
               </button>
             </div>
@@ -474,7 +530,7 @@ export default function Videoplayer({ video }) {
           <h3 className="text-lg font-semibold mb-3">Up next</h3>
           <div className="space-y-4 grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-1">
             {
-              videos.map((video) => {
+              newVideos.map((video) => {
                 return <VideoItems video={video} key={video._id} />
               })
             }

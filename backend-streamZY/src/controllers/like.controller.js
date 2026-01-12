@@ -200,6 +200,90 @@ const getLikedVideos = asyncHandler(async (req, res) => {
 
 
 
+const isVideoLiked = asyncHandler(async (req, res) => {
+
+    const { videoId } = req.params
+
+    if (!videoId) {
+        throw new ApiErrors(400, "videoId is missing!")
+    }
+
+      let isLiked;
+
+    try {
+        
+        const validId = await Video.findById(videoId)
+
+        if (!validId) {
+            throw new ApiErrors(404, "Video not found!")
+        }
+      
+        const userLiked = await Like.findOne({
+            likedBy: req.user?._id,
+            video: videoId,
+            isVideoLiked: true
+        })
+
+        console.log(userLiked)
+
+        if (userLiked) {
+            isLiked = true;
+        }
+
+        if (!userLiked) {
+            isLiked = false;
+        }
+
+    } catch (error) {
+        throw new ApiErrors(500, `Internal Server Error : ${error.message} `)
+    }
+    return res
+        .status(200)
+        .json(new ApiResponses(200, isLiked, "User's liked videos fetched successfully"))
+
+})
+
+
+const userCommentLike = asyncHandler(async (req, res) => {
+
+    const { commentId } = req.params
+
+    if (!commentId) {
+        throw new ApiErrors(400, "commentId is missing!")
+    }
+
+      let isLiked;
+
+    try {
+        const validId = await Comment.findById(commentId)
+
+        if (!validId) {
+            throw new ApiErrors(404, "comment not found!")
+        }
+
+        const isLikedByUser = await Like.findOne({
+            comment: commentId,
+            likedBy: req.user?._id,
+            isCommentLiked: true
+        })
+
+        if (isLikedByUser) {
+            isLiked = true;
+        }
+
+        if (!isLikedByUser) {
+            isLiked = false;
+        }
+
+    } catch (error) {
+        throw new ApiErrors(500, `Internal Server Error : ${error.message} `)
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, isLiked, "Comment liked successfully"))
+
+})
 
 export {
 
@@ -207,5 +291,7 @@ export {
     toggleUserTweetLike,
     toggleUserCommentLike,
     getLikedVideos,
-    
+    userCommentLike,
+    isVideoLiked,
+
 }

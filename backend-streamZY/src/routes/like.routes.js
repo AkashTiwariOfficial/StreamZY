@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js"
-import { getLikedVideos, toggleUserCommentLike, toggleUserTweetLike, toggleUserVideoLike } from "../controllers/like.controller.js";
+import { getLikedVideos, isVideoLiked, toggleUserCommentLike, toggleUserTweetLike, toggleUserVideoLike, userCommentLike } from "../controllers/like.controller.js";
 
 
 
@@ -29,6 +29,15 @@ router.route("/fetch-user-likes-videos").get(
     getLikedVideos
 )
 
+router.route("/fetch-user-like/:videoId").get(
+    verifyJWT,
+    isVideoLiked
+)
+
+router.route("/fetch-user-comment-like/:commentId").get(
+    verifyJWT,
+    userCommentLike
+)
 
 
 

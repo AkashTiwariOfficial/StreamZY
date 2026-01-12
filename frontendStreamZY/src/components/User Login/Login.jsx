@@ -79,7 +79,7 @@ export default function Login() {
                                 onChange={handleChange}
                                 value={credentials.usernameORemail}
                                 placeholder="Enter your username or email"
-                                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border-[1px] border-gray-300 dark:border-white/20 focus:ring-2 focus:ring-blue-500 outline-none"
                             />
                         </div>
 
@@ -93,7 +93,7 @@ export default function Login() {
                                 onChange={handleChange}
                                 value={credentials.password}
                                 placeholder="Enter your password"
-                                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border-[1px] border-gray-300 dark:border-white/20 focus:ring-2 focus:ring-blue-500 outline-none"
                             />
                         </div>
 

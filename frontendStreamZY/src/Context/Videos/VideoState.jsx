@@ -83,9 +83,10 @@ export default function VideoState(props) {
     }
 
      const fetchIsSubscribers = async (id) => {
-        console.log(id)
-      try {
-        const response = await axios.patch(`${host}/v1/subscriber/toggleSubcscribe/${id}`, {
+ 
+   try {
+   
+        const response = await axios.patch(`${host}/v1/subscriber/toggleSubcscribe/${id}`, {} , {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -94,20 +95,16 @@ export default function VideoState(props) {
         });
 
         if (response.data.success) {
-            console.log(response.data.data)
-            console.log(response.data.data.isSubscribed)
-            if (response.data.data.isSubscribed === true) {
+            if ( response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined ) {
                 setIsSubscribed(true);
-            } else {
+            } else if ( response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined){  
                 setIsSubscribed(false);
             }
-         setSubscribers(response.data.data);
-          console.log("Video toggle subscriiption fetched successfully");
         }
-
+      
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
+      } 
     }
 
     return (

@@ -88,7 +88,7 @@ export default function SignUp() {
                 onChange={handleChange}
                 value={signupfields.fullName}
                 placeholder="Enter your full name"
-                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border-[1px] border-gray-300 dark:border-white/20 focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               />
             </div>
@@ -103,7 +103,7 @@ export default function SignUp() {
                 onChange={handleChange}
                 value={signupfields.username}
                 placeholder="Choose a username"
-                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border-[1px] border-gray-300 dark:border-white/20 focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               />
             </div>
@@ -117,7 +117,7 @@ export default function SignUp() {
                 onChange={handleChange}
                 value={signupfields.email}
                 placeholder="Enter your email"
-                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border-[1px] border-gray-300 dark:border-white/20 focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               />
             </div>
@@ -132,7 +132,7 @@ export default function SignUp() {
                 value={signupfields.password}
                 autoComplete="password"
                 placeholder="Enter your password"
-                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-[#1a1a1a]/60 border-[1px] border-gray-300 dark:border-white/20 focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               />
             </div>
@@ -144,7 +144,7 @@ export default function SignUp() {
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
-                className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                className="w-full text-sm text-gray-600 border-[1px] dark:border-white/20 rounded-2xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
               />
              
              { preview &&
