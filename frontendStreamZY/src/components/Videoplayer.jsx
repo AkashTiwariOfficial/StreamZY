@@ -22,14 +22,14 @@ export default function Videoplayer({ video }) {
   const [quality, setQuality] = useState("360");
   const [open, setOpen] = useState(false);
   const [details, setDetails] = useState("");
-  const [subscribers, setSubscribers] = useState("");
-  const [dosubscribed, setDoSubscribed] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [disliked, setdisliked] = useState(false);
+  const [totalLikes, setTotalLikes] = useState(0);
   const { id } = useParams();
   const host = import.meta.env.VITE_HOST_LINK;
 
   const Context = useContext(videoContext);
-  const { videos, fetchIsSubscribers, issubscribed } = Context;
+  const { videos, fetchIsSubscribers, dosubscribed, subscribers, fetchChannelIsSubscribed, fetchSubscribers } = Context;
 
 
   useEffect(() => {
@@ -184,58 +184,22 @@ export default function Videoplayer({ video }) {
 
   const ownerId = details?.video?.owner?._id;
 
+   useEffect(() => {
+    if (!ownerId) {
+      return;
+    }
+    fetchChannelIsSubscribed(ownerId);
+  }, [ownerId])
+
   useEffect(() => {
     if (!ownerId) {
       return;
     }
-    const fetchSubscribers = async () => {
-
-      try {
-        const response = await axios.get(`${host}/v1/subscriber/subscribers/${ownerId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
-
-        if (response.data.success) {
-          setSubscribers(response.data.data);
-        }
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
-    }
-
-    fetchSubscribers();
-
-    const fetchChannelIsSubscribed = async () => {
-
-      try {
-        const response = await axios.get(`${host}/v1/subscriber/isSubscribed/${ownerId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
-
-        if (response.data.success) {
-          setDoSubscribed(response.data.data);
-        }
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
-    }
-
-    fetchChannelIsSubscribed();
-  }, [ownerId, issubscribed])
+    fetchSubscribers(ownerId);
+  }, [ownerId, dosubscribed])
 
   useEffect(() => {
-    console.log(dosubscribed)
-  }, [issubscribed, dosubscribed]);
+  }, [dosubscribed]);
 
   useEffect(() => {
     if (!id) {
@@ -243,7 +207,6 @@ export default function Videoplayer({ video }) {
     }
 
     const fetechisVideoLiked = async () => {
-
       try {
         const response = await axios.get(`${host}/v1/likes/fetch-user-like/${id}`, {
           headers: {
@@ -254,8 +217,8 @@ export default function Videoplayer({ video }) {
         });
 
         if (response.data.success) {
-          console.log(response.data.data)
-          setLiked(response.data.data);
+          setLiked(response.data.data.isLiked);
+          setdisliked(response.data.data.dislike);
         }
 
       } catch (error) {
@@ -264,8 +227,37 @@ export default function Videoplayer({ video }) {
     }
 
     fetechisVideoLiked();
-
+    
   }, [id])
+
+   useEffect(() => {
+
+    if (!id) {
+      return;
+    }
+
+    const fetechTotalLikes = async () => {
+      try {
+        const response = await axios.get(`${host}/v1/likes/fetch-total-like/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setTotalLikes(response.data.data?.length)
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+    fetechTotalLikes();
+
+  }, [id, liked, disliked])
 
 
   function timeAgo(dateString) {
@@ -289,12 +281,82 @@ export default function Videoplayer({ video }) {
     }
 
     fetchIsSubscribers(ownerId);
+  }
+  
 
-    if (issubscribed) {
-      setDoSubscribed(true);
-    } else {
-      setDoSubscribed(false);
+  const handleToggleLike = (e) => {
+    e.preventDefault();
+
+    if (!id) {
+      return;
     }
+
+    const toggleLikedVideo = async () => {
+
+      try {
+
+        const response = await axios.patch(`${host}/v1/likes/toggle-video-like/${id}`, {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          if ((response.data.data.likeVideo?.isVideoLiked == true && response.data.data.toggleVideoLike?.isVideoLiked == undefined) || (response.data.data.toggleVideoLike?.isVideoLiked == true && response.data.data.likeVideo?.isVideoLiked == undefined)) {
+            setLiked(true);
+            setdisliked(false);
+          } else if (response.data.data.toggleVideoLike?.isVideoLiked == false && response.data.data.likeVideo?.isVideoLiked == undefined) {
+            setLiked(false);
+          }
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+    toggleLikedVideo();
+
+  }
+
+  const handleToggleDisLike = (e) => {
+    e.preventDefault();
+
+
+    if (!id) {
+      return;
+    }
+
+    const toggleDisLike = async () => {
+
+       try {
+
+        const response = await axios.patch(`${host}/v1/likes/toggle-video-like&dislike/${id}`, {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          if ((response.data.data.dislikeVideo?.isVideoDisLiked == true && response.data.data.toggleVideoLike?.isVideoDisLiked == undefined) || (response.data.data.toggleVideoLike?.isVideoDisLiked == true && response.data.data.dislikeVideo?.isVideoDisLiked == undefined)) {
+            setdisliked(true);
+            setLiked(false);
+          } else if (response.data.data.toggleVideoLike?.isVideoDisLiked == false && response.data.data.dislikeVideo?.isVideoDisLiked == undefined) {
+            setdisliked(false);
+          }
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+   
+    toggleDisLike();
+
   }
 
   const newVideos = videos.filter(video => video._id != details?.video?._id);
@@ -527,11 +589,11 @@ export default function Videoplayer({ video }) {
             </div>
             <div className="flex gap-2">
               <div className="flex rounded-full dark:bg-white/10 bg-slate-200 ">
-                <button className="px-3 rounded-full dark:hover:bg-white/20 hover:bg-gray-300  rounded-r-none"><i className="fa-regular fa-thumbs-up mr-2"></i>
-                  <span className="dark:text-white/80 text-xs">{"24k"}</span>
+                <button onClick={handleToggleLike} className="px-3 rounded-full dark:hover:bg-white/20 hover:bg-gray-300  rounded-r-none"><i className={`fa-${liked ? "solid" : "regular"} fa-thumbs-up mr-2`}></i>
+                  <span className="dark:text-white/80 text-xs">{totalLikes}</span>
                 </button>
                 <div className="h-5 w-[1px] bg-gray-400 dark:bg-white/30 my-2 mx-[1px]"></div>
-                <button className="px-3 py-2 rounded-full dark:hover:bg-white/20  hover:bg-gray-300 rounded-l-none"><i className="fa-regular fa-thumbs-down"></i></button>
+                <button onClick={handleToggleDisLike} className="px-3 py-2 rounded-full dark:hover:bg-white/20  hover:bg-gray-300 rounded-l-none"><i className={`fa-${disliked ? "solid" : "regular"} fa-thumbs-down`}></i></button>
               </div>
               <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i className="fa-solid fa-share mr-2 text-sm"></i>
                 <span className="dark:text-white/80 text-sm">Share</span>

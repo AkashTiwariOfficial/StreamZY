@@ -8,7 +8,8 @@ export default function VideoState(props) {
     const initialVideos = [];
     const navigate = useNavigate();
     const [videos, setVideos] = useState(initialVideos);
-    const [issubscribed, setIsSubscribed] = useState(false);
+    const [subscribers, setSubscribers] = useState("");
+    const [dosubscribed, setDoSubscribed] = useState(false);
     const host = import.meta.env.VITE_HOST_LINK;
 
     const token = localStorage.getItem("accessToken");
@@ -95,10 +96,10 @@ export default function VideoState(props) {
             });
 
             if (response.data.success) {
-                if (response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined) {
-                    setIsSubscribed(true);
+                if ((response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined) || (response.data.data.toggleSubscribe?.isSubscribed == true && response.data.data.subsCribe?.isSubscribed == undefined) ) {
+                    setDoSubscribed(true);
                 } else if (response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined) {
-                    setIsSubscribed(false);
+                    setDoSubscribed(false);
                 }
             }
 
@@ -107,29 +108,45 @@ export default function VideoState(props) {
         }
     }
 
-    const toggleLikedVideo = async (id) => {
 
-        try {
+      const fetchSubscribers = async (ownerId) => {
 
-            const response = await axios.patch(`${host}/v1/likes/toggle-video-like/${id}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                },
-                withCredentials: true,
-                timeout: 150000
-            });
+      try {
+        const response = await axios.get(`${host}/v1/subscriber/subscribers/${ownerId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
 
-            if (response.data.success) {
-                if (response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined) {
-                    setIsSubscribed(true);
-                } else if (response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined) {
-                    setIsSubscribed(false);
-                }
-            }
-
-        } catch (error) {
-            console.log("Error while fetching vidoes", error.response?.data || error.message);
+        if (response.data.success) {
+          setSubscribers(response.data.data);
         }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+     const fetchChannelIsSubscribed = async (ownerId) => {
+
+      try {
+        const response = await axios.get(`${host}/v1/subscriber/isSubscribed/${ownerId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setDoSubscribed(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
     }
 
     return (
@@ -137,8 +154,12 @@ export default function VideoState(props) {
         <VideoContext.Provider value={{
             videos,
             currUser,
-            issubscribed,
+            dosubscribed,
+            subscribers,
             fetchIsSubscribers,
+            fetchSubscribers,
+            setDoSubscribed,
+            fetchChannelIsSubscribed,
             setVideos,
             fetchAllVideos,
             fetchAllVideoswithQuery,

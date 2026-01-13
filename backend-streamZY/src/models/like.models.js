@@ -29,9 +29,15 @@ const likeSchema = new mongoose.Schema({
      isTweetLiked: {
         type: Boolean,
         default: false
-    }
-
-
+    }, 
+     isVideoDisLiked: {
+        type: Boolean,
+        default: false
+     },
+     isCommentDisLiked: {
+        type: Boolean,
+        default: false
+     },  
 
 }, { timestamps: true })
 

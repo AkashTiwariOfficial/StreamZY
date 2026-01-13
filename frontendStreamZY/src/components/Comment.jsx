@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
-
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
+import videoContext from '../Context/Videos/videoContext.jsx';
+import axios from "axios";
 // YouTube-like Comment Section (single-file React component)
 // - Tailwind CSS utility classes (no external CSS required)
 // - Default export: YouTubeComments
@@ -75,37 +77,53 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
   const [inputText, setInputText] = useState("");
   const [isPosting, setIsPosting] = useState(false);
   const inputRef = useRef(null);
+  const { id } = useParams();
+  const host = import.meta.env.VITE_HOST_LINK;
+
+    const Context = useContext(videoContext);
+    const { currUser } = Context;
 
   useEffect(() => {
     // Focus the input on mount for better UX
     if (inputRef.current) inputRef.current.focus();
   }, []);
 
-  function handlePost() {
+ const handlePost = async  (e) => {
+  e.preventDefault();
+
     if (!inputText.trim()) return;
     setIsPosting(true);
 
-    // Optimistic UI: append comment locally while "posting"
-    const newComment = {
-      id: `c_${Date.now()}`,
-      author: "You (demo)",
-      avatar: `https://i.pravatar.cc/48?u=${Date.now()}`,
-      text: inputText.trim(),
-      timeAgo: "just now",
-      likes: 0,
-      liked: false,
-      replies: []
-    };
+   const body = { 
+      comment: inputText
+    }
+     
+    console.log(body);
 
-    setComments((prev) => [newComment, ...prev]);
-    setInputText("");
+  try {
+        const response = await axios.post(`${host}/v1/comments/add-comment/${id}`,  body , {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
 
-    // Simulate network latency and server confirmation
-    setTimeout(() => {
-      setIsPosting(false);
-      // In real app, replace optimistic ID with server ID or reconcile errors
-    }, 800);
-  }
+        if (response.data.success) {
+          console.log(response.data.data);
+          console.log("done addig comment");
+         // setComments((prev) => [, ...prev]);
+          setInputText("");
+          setIsPosting(false);
+        }
+
+      } catch (error) {
+        setIsPosting(false);
+        console.log("Error while poating vidoe comment", error.response?.data || error.message);
+      }
+    }
+ 
+  
 
   function toggleLike(commentId, replyId) {
     setComments((prev) =>
@@ -141,12 +159,40 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
   function sortedComments() {
     const copy = [...comments];
     if (sortBy === "top") {
-      copy.sort((a, b) => b.likes - a.likes || new Date(b.id.slice(2)) - new Date(a.id.slice(2)));
+     // copy.sort((a, b) => b.likes - a.likes || new Date(b.id.slice(2)) - new Date(a.id.slice(2)));
     } else {
-      copy.sort((a, b) => new Date(b.id.slice(2)) - new Date(a.id.slice(2)));
+    //  copy.sort((a, b) => new Date(b.id.slice(2)) - new Date(a.id.slice(2)));
     }
     return copy;
   }
+
+  useEffect(() => {
+  if (!id) {
+    return;
+  }
+
+  const getComments = async () => {
+  try {
+        const response = await axios.get(`${host}/v1/comments/getAll-comments/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          console.log(response.data.data);
+          setComments(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+    getComments();
+  }, [])
 
   return (
     <section aria-labelledby="comments-heading" className="w-full mx-auto px-3 py-2">
@@ -171,7 +217,7 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
 
       {/* Composer */}
       <div className="flex gap-3 mb-4">
-        <Avatar src={`https://i.pravatar.cc/48?u=user`} alt="Your avatar" size={10} />
+        <Avatar src={`${currUser?.avatar}`} alt="Your avatar" size={10} />
         <div className="flex-1">
           <textarea
             ref={inputRef}
