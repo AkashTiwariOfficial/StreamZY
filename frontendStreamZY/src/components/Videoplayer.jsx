@@ -324,13 +324,11 @@ export default function Videoplayer({ video }) {
   const handleToggleDisLike = (e) => {
     e.preventDefault();
 
-
     if (!id) {
       return;
     }
 
     const toggleDisLike = async () => {
-
        try {
 
         const response = await axios.patch(`${host}/v1/likes/toggle-video-like&dislike/${id}`, {}, {

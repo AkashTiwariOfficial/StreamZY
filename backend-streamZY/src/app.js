@@ -11,7 +11,7 @@ import likesRouter from "./routes/like.routes.js"
 import serverResponse from "./routes/healthCheckup.routes.js"
 import dashBoard from "./routes/dashboard.routes.js"
 import searchMech from "./routes/searchEngine.routes.js"
-
+import replyCommentRouter from "./routes/replyComment.routes.js"
 
 
 
@@ -39,6 +39,7 @@ app.use("/api/v1/likes", likesRouter)
 app.use("/api/v1/server", serverResponse)
 app.use("/api/v1/dashboard", dashBoard)
 app.use("/api/v1/streamZY", searchMech)
+app.use("/api/v1/replyComment", replyCommentRouter)
 
 
 

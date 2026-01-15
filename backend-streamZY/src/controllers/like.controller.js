@@ -5,6 +5,7 @@ import { Tweet } from "../models/tweet.models.js";
 import { Like } from "../models/like.models.js";
 import { Comment } from "../models/comment.models.js"
 import { ApiResponses } from "../utils/ApiResponses.js";
+import { ReplyComment } from "../models/replyComment.models.js";
 
 
 
@@ -416,7 +417,7 @@ const totalCommentLike = asyncHandler(async (req, res) => {
             throw new ApiErrors(404, "comment not found!")
         }
 
-        const likes = await Like.findOne({
+        const likes = await Like.find({
             comment: commentId,
             isCommentLiked: true
         })
@@ -582,7 +583,201 @@ const toggleLikeAndDisLikeComment = asyncHandler(async (req, res) => {
                 isCommentDisLiked: true
             })
 
+            if (!dislikeComment) {
+                throw new ApiErrors(500, "Internal Server Error while liking Comment")
+            }
+        }
+
+        return res
+            .status(200)
+            .json(new ApiResponses(200, { toggleCommentLike, dislikeComment }, "Comment liked successfully"))
+    } catch (error) {
+        throw new ApiErrors(500, `Internal Server Error : ${error.message} `)
+    }
+
+})
+
+
+const totalReplyCommentLike = asyncHandler(async (req, res) => {
+
+    const { replyCommentId } = req.params
+
+    if (!replyCommentId) {
+        throw new ApiErrors(400, "commentId is missing!")
+    }
+
+        const validId = await ReplyComment.findById(replyCommentId)
+
+        if (!validId) {
+            throw new ApiErrors(404, "comment not found!")
+        }
+
+        const likes = await Like.find({
+            replyComment: replyCommentId,
+            isReplyLiked: true
+        })
+
+          if (!likes) {
+            throw new ApiErrors(500, "Internal Server Error while fetching user's liked Video")
+        }
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, likes, "Comment's liked successfully fetched"))
+
+})
+
+
+const toggleReplyCommentLike = asyncHandler(async (req, res) => {
+
+    const { replyCommentId } = req.params
+
+    if (!replyCommentId) {
+        throw new ApiErrors(400, "commentId is missing!")
+    }
+
+    try {
+        const validId = await ReplyComment.findById(replyCommentId)
+
+        if (!validId) {
+            throw new ApiErrors(404, "comment not found!")
+        }
+
+        let likeComment, toggleCommentLike;
+
+        const isLikedByUser = await Like.findOne({
+            replyComment: replyCommentId,
+            likedBy: req.user?._id,
+        })
+
+        if (isLikedByUser) {
+            if (isLikedByUser?.isReplyLiked == true) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isReplyLiked: false
+                    }
+                }, { new: true })
+
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
+            }
+
+            if (isLikedByUser?.isReplyLiked == false) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isReplyLiked: true
+                    }
+                }, { new: true })
+
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
+            }
+                   if (isLikedByUser?.isReplyDisLiked == true) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isReplyLiked: true,
+                        isReplyDisLiked: false
+                    }
+                }, { new: true })
+
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
+            }
+        }
+
+        if (!isLikedByUser) {
+            likeComment = await Like.create({
+                replyComment: replyCommentId,
+                likedBy: req.user?._id,
+                isReplyLiked: true
+            })
+
             if (!likeComment) {
+                throw new ApiErrors(500, "Internal Server Error while liking Comment")
+            }
+    }
+
+        return res
+            .status(200)
+            .json(new ApiResponses(200, { toggleCommentLike, likeComment }, "Comment liked successfully"))
+    } catch (error) {
+        throw new ApiErrors(500, `Internal Server Error : ${error.message} `)
+    }
+
+})
+
+
+const toggleLikeAndDisLikeCommentReply = asyncHandler(async (req, res) => {
+
+    const { replyCommentId } = req.params
+
+    if (!replyCommentId) {
+        throw new ApiErrors(400, "commentId is missing!")
+    }
+
+    try {
+        const validId = await ReplyComment.findById(replyCommentId)
+
+        if (!validId) {
+            throw new ApiErrors(404, "comment not found!")
+        }
+
+        let dislikeComment, toggleCommentLike;
+
+        const isLikedByUser = await Like.findOne({
+            replyComment: replyCommentId,
+            likedBy: req.user?._id,
+        })
+
+        if (isLikedByUser) {
+            if (isLikedByUser?.isReplyLiked == true) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isReplyLiked: false,
+                        isReplyDisLiked: true
+                    }
+                }, { new: true })
+
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
+            }
+
+            if (isLikedByUser?.isReplyDisLiked == false) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isReplyDisLiked: true
+                    }
+                }, { new: true })
+
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
+            }
+             if (isLikedByUser?.isReplyDisLiked == true) {
+                toggleCommentLike = await Like.findByIdAndUpdate(isLikedByUser?._id, {
+                    $set: {
+                        isReplyDisLiked: false
+                    }
+                }, { new: true })
+
+                if (!toggleCommentLike) {
+                    throw new ApiErrors(500, "Internal Server Error while toggling Comment like")
+                }
+            }
+        }
+
+        if (!isLikedByUser) {
+            dislikeComment = await Like.create({
+                replyComment: replyCommentId,
+                likedBy: req.user?._id,
+                isReplyDisLiked: true
+            })
+
+            if (!dislikeComment) {
                 throw new ApiErrors(500, "Internal Server Error while liking Comment")
             }
         }
@@ -608,6 +803,10 @@ export {
     totalCommentLike,
     totalLikes,
     toggleLikeAndDisLike,
-    toggleLikeAndDisLikeComment
+    toggleLikeAndDisLikeComment,
+    totalReplyCommentLike,
+    toggleReplyCommentLike,
+    toggleLikeAndDisLikeCommentReply
+
 
 }

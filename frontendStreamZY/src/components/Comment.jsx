@@ -160,8 +160,8 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
     const copy = [...comments];
     if (sortBy === "top") {
      // copy.sort((a, b) => b.likes - a.likes || new Date(b.id.slice(2)) - new Date(a.id.slice(2)));
-    } else {
-    //  copy.sort((a, b) => new Date(b.id.slice(2)) - new Date(a.id.slice(2)));
+    // } else {
+     copy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
     return copy;
   }
@@ -267,7 +267,7 @@ export default function Comment({ initialComments = SAMPLE_COMMENTS }) {
           .slice(0, showCount)
           .map((c) => (
             <CommentCard
-              key={c.id}
+              key={c._id}
               comment={c}
               onLike={() => toggleLike(c.id)}
               onLikeReply={(rid) => toggleLike(c.id, rid)}

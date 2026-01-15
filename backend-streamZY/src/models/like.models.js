@@ -18,6 +18,10 @@ const likeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tweet"
     },
+    replyComment: {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "ReplyComment"
+    },
     isCommentLiked: {
         type: Boolean,
         default: false
@@ -37,7 +41,15 @@ const likeSchema = new mongoose.Schema({
      isCommentDisLiked: {
         type: Boolean,
         default: false
-     },  
+     }, 
+      isReplyLiked: {
+            type: Boolean,
+            default:false
+      },
+        isReplyDisLiked: {
+            type: Boolean,
+            default:false
+      },
 
 }, { timestamps: true })
 

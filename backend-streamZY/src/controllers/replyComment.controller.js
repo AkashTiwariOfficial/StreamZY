@@ -1,14 +1,14 @@
 import { ApiErrors } from "../utils/ApiErrors.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponses } from "../utils/ApiResponses.js";
-import { Video } from "../models/video.models.js";
 import { Comment } from "../models/comment.models.js";
 import { User } from "../models/user.models.js"
+import { ReplyComment } from "../models/replyComment.models.js";
  
 
-const getVideoComment = asyncHandler(async (req, res) => {
+const getCommentReply = asyncHandler(async (req, res) => {
 
-    const { videoId } = req.params
+    const { commentId } = req.params
 
     const { page = 1, limit = 10, sortBy = "createdAt", sortType = "desc" } = req.query
 
@@ -21,46 +21,48 @@ const getVideoComment = asyncHandler(async (req, res) => {
         sort[sortBy] = sortType === "desc" ? -1 : 1;
     }
 
-    if (!videoId) {
-        throw new ApiErrors(400, "videoId is missing!")
+    if (!commentId) {
+        throw new ApiErrors(400, "commentId is missing!")
     }
 
-    const video = await Video.findById(videoId);
+    const comment = await Comment.findById(commentId);
 
-    if (!video) {
+    if (!comment) {
         throw new ApiErrors(404, "Video not found! or Invalid videoId");
     }
 
-    const fetchAllComment = await Comment.find({ video: videoId })
+    const fetchAllCommentReply = await ReplyComment.find({ comment: commentId })
     .sort(sort)
     .skip((pageNumber - 1) * 10)
     .limit(limitNumber)
-    .populate( "owner", "username avatar" )
+    .populate(
+        "owner",  "username avatar"
+    )
 
 
-    if (!fetchAllComment) {
+    if (!fetchAllCommentReply) {
         throw new ApiErrors(500, "Internal Server Error while fetching comments")
     }
 
     return res
         .status(200)
-        .json(new ApiResponses(200, fetchAllComment, "Comment added on Video Successfully"))
+        .json(new ApiResponses(200, fetchAllCommentReply, "Comment added on Video Successfully"))
 
 })
 
 
-const addComment = asyncHandler(async (req, res) => {
+const addCommentReply = asyncHandler(async (req, res) => {
 
-    const { videoId } = req.params
+    const { commentId } = req.params
 
-    if (!videoId) {
+    if (!commentId) {
         throw new ApiErrors(400, "videoId is missing!")
     }
 
-    const video = await Video.findById(videoId);
+    const isComment = await Comment.findById(commentId);
 
-    if (!video) {
-        throw new ApiErrors(404, "Video not found! or Invalid videoId");
+    if (!isComment) {
+        throw new ApiErrors(404, "Comment not found! or Invalid CommentId");
     }
 
     const { comment } = req.body
@@ -69,32 +71,32 @@ const addComment = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "Comment field is required!")
     }
 
-    const addCommentOnVideo = Comment.create({
+    const addCommentOnVideo = ReplyComment.create({
         content: comment,
         owner: req.user?._id,
-        video: videoId
+        comment: commentId
     })
 
     if (!addCommentOnVideo) {
-        throw new ApiErrors(500, "Internal Server Error while adding comment on the video")
+        throw new ApiErrors(500, "Internal Server Error while adding comment's reply")
     }
 
     return res
         .status(200)
-        .json(new ApiResponses(200, addCommentOnVideo, "Comment added on Video Successfully"))
+        .json(new ApiResponses(200, addCommentOnVideo, "Replied Comment added on Comment Successfully"))
 
 })
 
 
 const updateComment = asyncHandler(async (req, res) => {
 
-    const { commentId } = req.params
+    const { replyCommentId } = req.params
 
-    if (!commentId) {
+    if (!replyCommentId) {
         throw new ApiErrors(400, "commentId is missing!")
     }
 
-    const validCommentId = await Comment.findById(commentId)
+    const validCommentId = await ReplyComment.findById(replyCommentId)
 
     if (!validCommentId) {
         throw new ApiErrors(404, "Invalid commentId! or comment do not exists")
@@ -106,7 +108,7 @@ const updateComment = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "Comment field is required!")
     }
 
-    const changedComment = await Comment.findByIdAndUpdate(commentId, {
+    const changedComment = await ReplyComment.findByIdAndUpdate(replyCommentId, {
         $set: {
             content: comment
         }
@@ -125,19 +127,19 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
 
-    const { commentId } = req.params
+    const { replyCommentId } = req.params
 
-    if (!commentId) {
+    if (!replyCommentId) {
         throw new ApiErrors(400, "commentId is missing!")
     }
 
-    const validCommentId = await Comment.findById(commentId)
+    const validCommentId = await ReplyComment.findById(replyCommentId)
 
     if (!validCommentId) {
         throw new ApiErrors(404, "Invalid commentId! or comment do not exists")
     }
 
-    const delComment = await Comment.findByIdAndDelete(commentId)
+    const delComment = await ReplyComment.findByIdAndDelete(replyCommentId)
 
     if (!delComment) {
         throw new ApiErrors(500, "Internal Server Error while deleting comment on the video")
@@ -156,8 +158,8 @@ const deleteComment = asyncHandler(async (req, res) => {
 
 export {
 
-    getVideoComment,
-    addComment,
+    getCommentReply,
+    addCommentReply,
     updateComment,
     deleteComment
 
