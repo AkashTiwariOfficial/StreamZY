@@ -29,7 +29,7 @@ export default function Videoplayer({ video }) {
   const host = import.meta.env.VITE_HOST_LINK;
 
   const Context = useContext(videoContext);
-  const { videos, fetchIsSubscribers, dosubscribed, subscribers, fetchChannelIsSubscribed, fetchSubscribers } = Context;
+  const { videos, fetchIsSubscribers, dosubscribed, subscribers, fetchChannelIsSubscribed, fetchSubscribers, timeAgo } = Context;
 
 
   useEffect(() => {
@@ -258,20 +258,6 @@ export default function Videoplayer({ video }) {
     fetechTotalLikes();
 
   }, [id, liked, disliked])
-
-
-  function timeAgo(dateString) {
-    const now = new Date();
-    const past = new Date(dateString);
-    const diff = (now - past) / 1000;
-
-    if (diff < 60) return `${Math.floor(diff)} sec ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
-    if (diff < 2592000) return `${Math.floor(diff / 86400)} day ago`;
-    if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
-    return `${Math.floor(diff / 31104000)} yr ago`;
-  }
 
   const handleSubscriber = (e) => {
     e.preventDefault();

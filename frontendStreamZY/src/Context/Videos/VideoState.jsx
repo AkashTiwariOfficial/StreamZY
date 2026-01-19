@@ -148,6 +148,20 @@ export default function VideoState(props) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
     }
+    
+    
+  const timeAgo = (dateString) => {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diff = (now - past) / 1000;
+
+    if (diff < 60) return `${Math.floor(diff)} sec ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)} day ago`;
+    if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
+    return `${Math.floor(diff / 31104000)} yr ago`;
+  }
 
     return (
 
@@ -156,6 +170,7 @@ export default function VideoState(props) {
             currUser,
             dosubscribed,
             subscribers,
+            timeAgo,
             fetchIsSubscribers,
             fetchSubscribers,
             setDoSubscribed,

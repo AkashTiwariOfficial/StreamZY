@@ -791,6 +791,58 @@ const toggleLikeAndDisLikeCommentReply = asyncHandler(async (req, res) => {
 
 })
 
+const userReplyCommentLike = asyncHandler(async (req, res) => {
+
+    const { replyCommentId } = req.params
+
+    if (!replyCommentId) {
+        throw new ApiErrors(400, "commentId is missing!")
+    }
+
+    let isLiked;
+
+        const validId = await ReplyComment.findById(replyCommentId)
+
+        if (!validId) {
+            throw new ApiErrors(404, "comment not found!")
+        }
+
+        const isLikedByUser = await Like.findOne({
+            comment: replyCommentId,
+            likedBy: req.user?._id,
+            isReplyLiked: true
+        })
+
+        if (isLikedByUser) {
+            isLiked = true;
+        }
+
+        if (!isLikedByUser) {
+            isLiked = false;
+        }
+
+        let dislike;
+
+         const isDisLikedByUser = await Like.findOne({
+            comment: replyCommentId,
+            likedBy: req.user?._id,
+            isReplyDisLiked: true
+        })
+
+         if (isDisLikedByUser) {
+            dislike = true;
+        }
+
+        if (!isDisLikedByUser) {
+            dislike = false;
+        }
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, {isLiked, dislike}, "Comment liked successfully"))
+
+})
+
 
 export {
 
@@ -806,7 +858,8 @@ export {
     toggleLikeAndDisLikeComment,
     totalReplyCommentLike,
     toggleReplyCommentLike,
-    toggleLikeAndDisLikeCommentReply
+    toggleLikeAndDisLikeCommentReply,
+    userReplyCommentLike
 
 
 }

@@ -71,11 +71,21 @@ const addCommentReply = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "Comment field is required!")
     }
 
-    const addCommentOnVideo = ReplyComment.create({
+    const addCommentOnVideo = await ReplyComment.create({
         content: comment,
         owner: req.user?._id,
         comment: commentId
     })
+
+    if (addCommentOnVideo) {
+        await Comment.findByIdAndUpdate(commentId, {
+            $inc: {
+                replies: 1
+            }
+        })
+    }
+
+     await addCommentOnVideo.populate("owner", "username avatar");
 
     if (!addCommentOnVideo) {
         throw new ApiErrors(500, "Internal Server Error while adding comment's reply")
@@ -140,6 +150,14 @@ const deleteComment = asyncHandler(async (req, res) => {
     }
 
     const delComment = await ReplyComment.findByIdAndDelete(replyCommentId)
+
+          if (delComment) {
+                await Comment.findByIdAndUpdate(validCommentId?.comment, {
+            $inc: {
+                replies: -1
+            }
+        })
+          }
 
     if (!delComment) {
         throw new ApiErrors(500, "Internal Server Error while deleting comment on the video")

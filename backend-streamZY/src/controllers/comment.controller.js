@@ -4,6 +4,7 @@ import { ApiResponses } from "../utils/ApiResponses.js";
 import { Video } from "../models/video.models.js";
 import { Comment } from "../models/comment.models.js";
 import { User } from "../models/user.models.js"
+import mongoose from "mongoose";
  
 
 const getVideoComment = asyncHandler(async (req, res) => {
@@ -69,7 +70,7 @@ const addComment = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "Comment field is required!")
     }
 
-    const addCommentOnVideo = Comment.create({
+    const addCommentOnVideo = await Comment.create({
         content: comment,
         owner: req.user?._id,
         video: videoId
@@ -78,6 +79,8 @@ const addComment = asyncHandler(async (req, res) => {
     if (!addCommentOnVideo) {
         throw new ApiErrors(500, "Internal Server Error while adding comment on the video")
     }
+
+    await addCommentOnVideo.populate("owner", "username avatar");
 
     return res
         .status(200)
@@ -148,11 +151,6 @@ const deleteComment = asyncHandler(async (req, res) => {
         .json(new ApiResponses(200, {}, "Comment deleted Successfully"))
 
 })
-
-
-
-
-
 
 export {
 

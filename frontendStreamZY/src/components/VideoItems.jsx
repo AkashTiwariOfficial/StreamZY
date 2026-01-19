@@ -1,33 +1,23 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
+import videoContext from '../Context/Videos/videoContext.jsx';
 
 export default function VideoItems(props) {
 
   const { video } = props;
   const navigate = useNavigate();
 
-  function timeAgo(dateString) {
-    const now = new Date();
-    const past = new Date(dateString);
-    const diff = (now - past) / 1000;
-
-    if (diff < 60) return `${Math.floor(diff)} sec ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
-    if (diff < 2592000) return `${Math.floor(diff / 86400)} day ago`;
-    if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
-    return `${Math.floor(diff / 31104000)} yr ago`;
-  }
-
   const handleClick = () => {
     navigate(`/video/${video._id}`)
   }
+  
+    const Context = useContext(videoContext);
+    const {  timeAgo } = Context;
 
   return (
     <div>
       <div onClick={handleClick} className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
-
-        <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
+       <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
           <img
             src={video.thumbnail}
             alt="Video thumbnail"

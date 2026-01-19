@@ -28,10 +28,6 @@ export default function Navbar() {
     } else {
       setOpen(false)
     }
-
-    if (open) {
-      
-    }
   }
 
   const handleRegister = () => {
