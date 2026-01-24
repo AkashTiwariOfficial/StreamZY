@@ -4,15 +4,15 @@ import videoContext from '../Context/Videos/videoContext.jsx';
 
 export default function VideoItems(props) {
 
-  const { video } = props;
+  const { video, category } = props;
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/video/${video._id}`)
+    navigate(`/video/${category}/${video._id}`)
   }
   
     const Context = useContext(videoContext);
-    const {  timeAgo } = Context;
+    const { timeAgo } = Context;
 
   return (
     <div>

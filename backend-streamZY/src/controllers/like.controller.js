@@ -808,7 +808,7 @@ const userReplyCommentLike = asyncHandler(async (req, res) => {
         }
 
         const isLikedByUser = await Like.findOne({
-            comment: replyCommentId,
+            replyComment: replyCommentId,
             likedBy: req.user?._id,
             isReplyLiked: true
         })
@@ -824,7 +824,7 @@ const userReplyCommentLike = asyncHandler(async (req, res) => {
         let dislike;
 
          const isDisLikedByUser = await Like.findOne({
-            comment: replyCommentId,
+            replyComment: replyCommentId,
             likedBy: req.user?._id,
             isReplyDisLiked: true
         })

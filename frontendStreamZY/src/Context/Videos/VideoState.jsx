@@ -75,6 +75,7 @@ export default function VideoState(props) {
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
                 localStorage.removeItem("user");
+                localStorage.removeItem("timeofAT");
                 navigate("/")
             }
 
@@ -171,6 +172,7 @@ export default function VideoState(props) {
             dosubscribed,
             subscribers,
             timeAgo,
+            setVideos,
             fetchIsSubscribers,
             fetchSubscribers,
             setDoSubscribed,

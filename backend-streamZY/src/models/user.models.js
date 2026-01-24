@@ -34,14 +34,32 @@ const userSchema = new mongoose.Schema(
         },
         watchHistory: [
             {
+               video: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Video"
+                },
+                watchedAt: {
+                    type: Date,
+                    default: Date.now
+                }
             }
         ],
         password: {
             type: String,
             required: [true, 'Password is required']
         },
+           savedVideos: [
+            {
+               video: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Video"
+                },
+                savedAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ],
         refreshToken: {
             type: String
         },

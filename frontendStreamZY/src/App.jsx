@@ -46,7 +46,7 @@ function App() {
             <Route path="/forgot-password" element={<Forgotpassword />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/userChannel" element={<Userchannel />} />
-            <Route path="/video/:id" element={<Videoplayer />} />
+            <Route path="/video/:category/:id" element={<Videoplayer />} />
             <Route path="/comments" element={<Comment />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />

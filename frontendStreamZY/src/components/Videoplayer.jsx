@@ -3,7 +3,7 @@ import Comment from './Comment.jsx';
 import VideoItems from "./VideoItems.jsx";
 import { useContext } from 'react';
 import videoContext from '../Context/Videos/videoContext.jsx';
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 
 export default function Videoplayer({ video }) {
@@ -26,10 +26,12 @@ export default function Videoplayer({ video }) {
   const [disliked, setdisliked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(0);
   const { id } = useParams();
+  const { category } = useParams();
   const host = import.meta.env.VITE_HOST_LINK;
 
+
   const Context = useContext(videoContext);
-  const { videos, fetchIsSubscribers, dosubscribed, subscribers, fetchChannelIsSubscribed, fetchSubscribers, timeAgo } = Context;
+  const { videos, fetchIsSubscribers, dosubscribed, subscribers, fetchChannelIsSubscribed, fetchSubscribers, timeAgo, fetchAllVideos, fetchAllVideoswithQuery } = Context;
 
 
   useEffect(() => {
@@ -37,6 +39,11 @@ export default function Videoplayer({ video }) {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+     useEffect(() => {
+      if(category === "home")   { fetchAllVideos(); }
+      else { fetchAllVideoswithQuery(`${category}`); }
+     }, [category])
 
 
   // Auto-hide controls
@@ -593,7 +600,7 @@ export default function Videoplayer({ video }) {
               <span className="mr-2">{details?.video?.views}{" views"}</span>
               <span className="">{timeAgo(details?.video?.createdAt)}</span>
             </div>
-            <p className="mt-[2px] text-sm font-[500] dark:white/80 text-white/70">{details?.video?.description}</p>
+            <p className="mt-[2px] text-sm font-[500] dark:white/80 dark:text-white/70 text-black/80">{details?.video?.description}</p>
           </div>
 
           <div className="mt-3">

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React, { useState, useRef, useEffect, useContext, useLayoutEffect } from "react";
 import { useParams } from "react-router-dom";
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from "axios";
@@ -31,11 +31,12 @@ function IconButton({ children, label, onClick, active }) {
 }
 
 export default function Comment() {
-  const [comments, setComments] = useState("");
-  const [sortBy, setSortBy] = useState("top"); // 'top' or 'newest'
+  const [comments, setComments] = useState([]);
   const [showCount, setShowCount] = useState(5);
   const [inputText, setInputText] = useState("");
   const [isPosting, setIsPosting] = useState(false);
+  const [state, setState] = useState("");
+  const [type, setTpye] = useState("asc");
   const inputRef = useRef(null);
   const { id } = useParams();
   const host = import.meta.env.VITE_HOST_LINK;
@@ -80,24 +81,16 @@ export default function Comment() {
     }
   }
 
-  function sortedComments() {
-    const copy = [...comments];
-    if (sortBy === "top") {
-      // copy.sort((a, b) => b.likes - a.likes || new Date(b.id.slice(2)) - new Date(a.id.slice(2)));
-      // } else {
-      copy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-    return copy;
-  }
-
   useEffect(() => {
+
     if (!id) {
       return;
     }
 
     const getComments = async () => {
       try {
-        const response = await axios.get(`${host}/v1/comments/getAll-comments/${id}`, {
+        
+        const response = await axios.get(`${host}/v1/comments/getAll-comments/${id}?page=1&limit=10&sortBy=${state}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -115,8 +108,17 @@ export default function Comment() {
     }
 
     getComments();
-  }, [id, comments])
+  }, [id, state])
 
+
+  const removeComments = (_id_) => {
+    setComments(prev =>
+      prev.filter(comment => comment._id !== _id_)
+    );
+  };
+ 
+const sortType = state.includes("desc") ? "desc" : "asc";
+                 
   return (
     <section aria-labelledby="comments-heading" className="w-full mx-auto px-3 py-2">
       <div className="flex items-center justify-between mb-3">
@@ -128,13 +130,18 @@ export default function Comment() {
           <label htmlFor="sort" className="sr-only dark:bg-gray-900/10">Sort comments</label>
           <select
             id="sort"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            value={state}
+            onChange={(e) => { setState(e.target.value); }}
             className="bg-gray-700 dark:bg-black/40 dark:text-white/80 border-[1px] dark:border-white/20 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            <option value="top">Top comments</option>
-            <option value="newest">Newest first</option>
-          </select>
+            <option value="replies" >Top Replied Comment</option>
+            <option value="CreatedAt">Newest first</option>
+            <option value={sortType === "asc" ? "&sortType=desc" : "&sortType=asc"}>
+          {sortType === "asc"
+            ? "Descending Order"
+            : "Ascending Order"}
+        </option>
+        </select>
         </div>
       </div>
 
@@ -185,7 +192,7 @@ export default function Comment() {
 
       {/* Comments list */}
       <div className="space-y-4">
-        {sortedComments()
+        {comments
           .slice(0, showCount)
           .map((c) => (
             <CommentCard
@@ -193,11 +200,12 @@ export default function Comment() {
               comment={c}
               onLike={() => toggleLike(c.id)}
               onLikeReply={(rid) => toggleLike(c.id, rid)}
+              removeComments={removeComments}
             />
           ))}
       </div>
 
-      <div className="mt-4 text-center">
+      <div className="mt-4 text-center text-black/80 dark:text-white">
         {showCount < comments.length ? (
           <button
             onClick={() => setShowCount((s) => s + 5)}
@@ -220,7 +228,7 @@ export default function Comment() {
   );
 }
 
-function CommentCard({ comment  }) {
+function CommentCard({ comment }) {
 
   const [replyOpen, setReplyOpen] = useState(false);
   const [replying, setReplying] = useState(false);
@@ -230,17 +238,20 @@ function CommentCard({ comment  }) {
   const [totalLike, setTotalLike] = useState(0);
   const [opens, setOpens] = useState(true);
   const [replycomment, setReplyComment] = useState("");
-  const [cmenu, setCMenu] = useState(false)
+  const [cmenu, setCMenu] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editedText, setEditedText] = useState(comment?.content);
   const host = import.meta.env.VITE_HOST_LINK;
 
   const Context = useContext(videoContext);
   const { currUser, timeAgo } = Context;
   const menuRef = useRef(null);
+  const editRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenu(false);
+        setCMenu(false);
       }
     };
 
@@ -248,35 +259,34 @@ function CommentCard({ comment  }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-const reduceComments = (_id_) => {
-  setReplyComment(prev =>
-    prev.filter(comment => comment._id !== _id_)
-  );
-};
+  const reduceComments = (_id_) => {
+    setReplyComment(prev =>
+      prev.filter(comment => comment._id !== _id_)
+    );
+  };
 
- const deleteComment = async () => {
+  const deleteComment = async () => {
 
     if (!comment?._id) {
       return;
     }
-    console.log(comment?._id)
-       try {
-          const response = await axios.delete(`${host}/v1/replyComment/delete-comment/${comment?._id}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-            withCredentials: true,
-            timeout: 150000
-          });
-    
-          if (response.data.success) { 
-            console.log("deleted the comment - reply")
-           reduceComments(comment?._id)
-          }
-        }catch (error) {
+
+    try {
+      const response = await axios.delete(`${host}/v1/comments/delete-comment/${comment?._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removeComments(comment?._id)
+      }
+    } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
-      }
+  }
 
 
 
@@ -461,141 +471,230 @@ const reduceComments = (_id_) => {
     }
   }
 
+  const handleEditings = async () => {
+
+    if (!editedText.trim()) {
+      return;
+    }
+
+    const body = {
+      comment: editedText
+    }
+
+    try {
+      const response = await axios.patch(`${host}/v1/comments/update-comment/${comment?._id}`, body, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        setEditing(false);
+      }
+    } catch (error) {
+      setEditing(false);
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+  }
+
+  useLayoutEffect(() => {
+    if (editing && editRef.current) {
+      editRef.current.style.height = "auto";
+      editRef.current.style.height =
+        editRef.current.scrollHeight + "px";
+    }
+  }, [editing, editedText]);
+
+
 
   return (
     <article className="flex justify-between" aria-labelledby={`comment-${comment?._id}`}>
-        <div className="flex gap-3">
-      <Avatar src={comment?.owner?.avatar} alt={`${comment?.owner?.username} avatar`} size={10} />
+      <div className="flex gap-3">
+        <Avatar src={comment?.owner?.avatar} alt={`${comment?.owner?.username} avatar`} size={10} />
 
-      <div className="flex-1">
-        <header className="flex flex-col items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 id={`comment-${comment?._id}`} className="text-sm font-medium text-black/70 dark:text-white">
-                {comment?.owner?.username}
-              </h3>
-              <div className="text-xs text-gray-500 dark:text-gray-400 overflow-hidden">{timeAgo(comment?.createdAt)}</div>
+        <div className="flex-1">
+          <header className="flex flex-col items-start justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 id={`comment-${comment?._id}`} className="text-sm font-medium text-black/70 dark:text-white">
+                  {comment?.owner?.username}
+                </h3>
+                <div className="text-xs text-gray-500 dark:text-gray-400 overflow-hidden">{timeAgo(comment?.createdAt)}</div>
+              </div>
+              {!editing ? (
+                <div
+                  className="
+      text-sm text-gray-600 dark:text-gray-300 mt-1
+      w-full
+      sm:max-w-[80vw]
+      md:max-w-[70vw]
+      lg:max-w-[52vw]
+      xs:max-w-[82vw]
+      whitespace-pre-wrap
+      break-words
+      overflow-hidden
+    "
+                >
+                  {editedText}
+                </div>
+              ) : (
+                <div className="flex gap-2 items-start">
+                  <textarea
+                    ref={editRef}
+                    value={editedText}
+                    onChange={(e) => setEditedText(e.target.value)}
+                    rows={1}
+                    className="
+    px-3 py-2 mt-1
+    text-black/90 bg-gray-200 dark:bg-black/40 dark:text-white/80
+    border border-white/20 rounded-md text-sm
+    focus:outline-none focus:ring-2 focus:ring-blue-400
+    md:w-[470px] sm:w-[3700px] max-w-[90vw]
+    resize-none overflow-hidden
+  "
+                  />
+                 <div className="flex flex-col">
+                <button
+                  onClick={handleEditings}
+                  className="bg-blue-600 text-white text-xs px-2 py-2 mt-2 rounded-lg h-fit"
+                >
+                  Save
+                </button>
+                <button
+                    onClick={() => {
+                    setEditedText(comment?.content)
+                    setEditing(false);
+                    }}
+                    className="ptext-white text-xs px-2 py-2 mt-2 rounded-lg h-fit hover:bg-gray-700 bg-gray-500 dark:hover:bg-white/5 focus:outline-none text-white"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                </div>
+
+              )}
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{comment?.content}</p>
-          </div>
 
-          <div className="flex-shrink-0 flex items-start gap-1 my-2">
-            <IconButton label={totalLike} onClick={handleToggleLikeComment} >
-              <i className={`fa-${liked ? "solid" : "regular"} fa-thumbs-up`}></i>
-            </IconButton>
-            <IconButton onClick={handleToggleDisLikeComment} >
-              <i className={`fa-${disliked ? "solid" : "regular"} fa-thumbs-down pt-1 ml-1`}></i>
-            </IconButton>
-            <IconButton label="Reply" onClick={() => setReplyOpen((s) => !s)}>
-            </IconButton>
-          </div>
-        </header>
-        {/* Replies */}
+            <div className="flex-shrink-0 flex items-start gap-1 my-2">
+              <IconButton label={totalLike} onClick={handleToggleLikeComment} >
+                <i className={`fa-${liked ? "solid" : "regular"} fa-thumbs-up`}></i>
+              </IconButton>
+              <IconButton onClick={handleToggleDisLikeComment} >
+                <i className={`fa-${disliked ? "solid" : "regular"} fa-thumbs-down pt-1 ml-1`}></i>
+              </IconButton>
+              <IconButton label="Reply" onClick={() => setReplyOpen((s) => !s)}>
+              </IconButton>
+            </div>
+          </header>
+          {/* Replies */}
 
-        {opens == false && (
-          <div className="mt-3 border-l dark:border-white/20  pl-4 space-y-3">
-            {replycomment.map((r) => (
-              <ReplyCommentCard key={r?._id} reply_Comment={r}  reduceComments={reduceComments}/>
-            ))}
-          </div>
-        )}
+          {opens == false && (
+            <div className="mt-3 border-l dark:border-white/20  pl-4 space-y-3">
+              {replycomment.map((r) => (
+                <ReplyCommentCard key={r?._id} reply_Comment={r} reduceComments={reduceComments} />
+              ))}
+            </div>
+          )}
 
-        {comment.replies != 0 && (
-          <button className="my-2 flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-6 pr-[70px] rounded-lg hover:bg-black/10 dark:hover:bg-white/5" onClick={toggleOpen}>
-            <label htmlFor="menu-toggle" className="cursor-pointer block text-sm">{opens ? (
-              `${comment?.replies} replies`
-            ) : ("Hide Replies")}</label>
-            <i className={`fa-solid fa-angle-${opens ? "down" : "up"} text-sm`}></i>
-          </button>
+          {comment.replies != 0 && (
+            <button className="mt-1 mb-2 text-black/80 dark:text-white flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-6 pr-[70px] rounded-lg hover:bg-black/10 dark:hover:bg-white/5" onClick={toggleOpen}>
+              <label htmlFor="menu-toggle" className="cursor-pointer block text-sm">{opens ? (
+                `${comment?.replies} replies`
+              ) : ("Hide Replies")}</label>
+              <i className={`fa-solid fa-angle-${opens ? "down" : "up"} text-sm`}></i>
+            </button>
 
-        )}
+          )}
 
-        {/* Reply composer (collapsed) */}
-        {replyOpen && (
-          <div className="mt-3 flex gap-3 items-start">
-            <Avatar src={`${currUser?.avatar}`} alt="You" size={8} />
-            <div className="flex-1">
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                rows={2}
-                className="w-full resize-none dark:bg-black/5 dark:text-white border-[1px] dark:border-white/20 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Add a public reply..."
-                aria-label="Add a public reply"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    addReply(replyText);
-                    setReplyText("");
-                    setReplyOpen(false);
-                  }
-                }}
-              />
-
-              <div className="flex items-center justify-end gap-2 mt-2">
-                <button
-                  onClick={() => {
-                    setReplyOpen(false);
-                    setReplyText("");
+          {/* Reply composer (collapsed) */}
+          {replyOpen && (
+            <div className="mt-3 flex gap-3 items-start">
+              <Avatar src={`${currUser?.avatar}`} alt="You" size={8} />
+              <div className="flex-1">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  rows={2}
+                  className="w-full resize-none dark:bg-black/5 dark:text-white border-[1px] dark:border-white/20 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Add a public reply..."
+                  aria-label="Add a public reply"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                      addReply(replyText);
+                      setReplyText("");
+                      setReplyOpen(false);
+                    }
                   }}
-                  className="px-3 py-1 rounded-md text-sm hover:bg-gray-100 bg-gray-500 dark:hover:bg-white/5 focus:outline-none dark:text-white/70"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    addReply(replyText);
-                    setReplyText("");
-                    setReplyOpen(false);
-                  }}
-                  disabled={!replyText.trim() || replying}
-                  className={`px-3 py-1 rounded-md text-sm font-medium focus:outline-none ${!replyText.trim() ? "bg-gray-700" : "bg-blue-600 text-white"
-                    }`}
-                >
-                  Reply
-                </button>
+                />
+
+                <div className="flex items-center justify-end gap-2 mt-2">
+                  <button
+                    onClick={() => {
+                      setReplyOpen(false);
+                      setReplyText("");
+                    }}
+                    className="px-3 py-1 rounded-md text-sm hover:bg-gray-100 bg-gray-500 dark:hover:bg-white/5 focus:outline-none dark:text-white/70"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      addReply(replyText);
+                      setReplyText("");
+                      setReplyOpen(false);
+                    }}
+                    disabled={!replyText.trim() || replying}
+                    className={`px-3 py-1 rounded-md text-sm font-medium focus:outline-none ${!replyText.trim() ? "bg-gray-700" : "bg-blue-600 text-white"
+                      }`}
+                  >
+                    Reply
+                  </button>
+                </div>
               </div>
             </div>
+          )}
+        </div>
+      </div>
+
+      <div className="relative text-black/80 dark:text-white">
+        {currUser?._id === comment?.owner?._id && (
+          <div
+            onClick={() => setCMenu((prev) => !prev)}
+            className="flex w-7 h-7 items-center justify-center rounded-full cursor-pointer 
+                 hover:bg-gray-200 hover:dark:bg-white/20"
+          >
+            <i className="fa-solid fa-ellipsis-vertical"></i>
+          </div>
+        )}
+
+
+        {cmenu && (
+          <div ref={menuRef} className="absolute right-full top-10 mt-2 w-32 
+                    dark:bg-white/5 bg-gray-200 border-[1px] border-gray-200 rounded shadow-md z-50 dark:border-white/20">
+            <div
+              onClick={() => {
+                setEditing(true);
+                setCMenu(false);
+              }}
+              className="px-4 py-2 cursor-pointer hover:bg-gray-200 hover:dark:bg-black/40"
+            >
+              Edit
+            </div>
+
+            <div
+              onClick={() => {
+                deleteComment();
+                setCMenu(false);
+              }}
+              className="px-4 py-2 cursor-pointer text-red-600 hover:bg-gray-200 hover:dark:bg-black/40"
+            >
+              Delete
+            </div>
           </div>
         )}
       </div>
-       </div>
-   
-       <div className="relative">
-  {currUser?._id === comment?.owner?._id && (
-    <div
-      onClick={() => setCMenu((prev) => !prev)}
-      className="flex w-7 h-7 items-center justify-center rounded-full cursor-pointer 
-                 hover:bg-gray-200 hover:dark:bg-white/20"
-    >
-      <i className="fa-solid fa-ellipsis-vertical"></i>
-    </div>
-  )}
-     </div>
-
-  {cmenu && (
-    <div  className="absolute right-full top-10 mt-2 w-32 
-                    bg-white/5 border-[1px] rounded shadow-md z-50 dark:border-white/20">
-      <div
-        onClick={() => {
-          console.log("Edit clicked");
-          setCMenu(false);
-        }}
-        className="px-4 py-2 cursor-pointer hover:bg-gray-200 hover:dark:bg-black/40"
-      >
-        Edit
-      </div>
-
-      <div
-        onClick={() => {
-        deleteComment();
-        setCMenu(false);
-        }}
-        className="px-4 py-2 cursor-pointer text-red-600 hover:bg-gray-200 hover:dark:bg-black/40"
-      >
-        Delete
-      </div>
-    </div>
-  )}
     </article>
   );
 }
@@ -608,6 +707,9 @@ function ReplyCommentCard({ reply_Comment, reduceComments }) {
   const [disrliked, setRdisliked] = useState(false);
   const [totalReplyLike, setTotalReplyLike] = useState(0);
   const [menu, setMenu] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editedText, setEditedText] = useState(reply_Comment?.content);
+
   const host = import.meta.env.VITE_HOST_LINK;
 
   const Context = useContext(videoContext);
@@ -746,82 +848,172 @@ function ReplyCommentCard({ reply_Comment, reduceComments }) {
     if (!reply_Comment?._id) {
       return;
     }
-    console.log(reply_Comment?._id)
-       try {
-          const response = await axios.delete(`${host}/v1/replyComment/delete-comment-reply/${reply_Comment?._id}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-            withCredentials: true,
-            timeout: 150000
-          });
-    
-          if (response.data.success) { 
-            console.log("deleted the comment - reply")
-           reduceComments(reply_Comment?._id)
-          }
-        }catch (error) {
+
+    try {
+      const response = await axios.delete(`${host}/v1/replyComment/delete-comment-reply/${reply_Comment?._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        reduceComments(reply_Comment?._id)
+      }
+    } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
+  }
+
+  const handleEditing = async () => {
+
+    if (!editedText.trim()) {
+      return;
+    }
+
+    const body = {
+      comment: editedText
+    }
+
+    try {
+      const response = await axios.patch(`${host}/v1/replyComment/update-comment-reply/${reply_Comment?._id}`, body, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        setEditing(false);
       }
+    } catch (error) {
+      setEditing(false)
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+  }
+
+  const editRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (editing && editRef.current) {
+      editRef.current.style.height = "auto";
+      editRef.current.style.height =
+        editRef.current.scrollHeight + "px";
+    }
+  }, [editing, editedText]);
 
   return (
     <>
-    <div key={reply_Comment?._id} className="flex  justify-between">
-      <div className="flex gap-3">
-      <Avatar src={reply_Comment?.owner?.avatar} alt={`${reply_Comment.owner.username} avatar`} size={8} />
-      <div className="flex-1">
-        <div className="text-sm font-medium text-black/70 dark:text-white">{reply_Comment?.owner?.username}</div>
-        <div className="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{reply_Comment?.content}</div>
-        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
-          <IconButton label={totalReplyLike} onClick={handleToggleLikeCommentReply} >
-            <i className={`fa-${rliked ? "solid" : "regular"} fa-thumbs-up text-xs`}></i>
-          </IconButton>
-          <IconButton onClick={handleToggleDisLikeCommentReply} >
-            <i className={`fa-${disrliked ? "solid" : "regular"} fa-thumbs-down pt-1 ml-1 text-xs`}></i>
-          </IconButton>
-          <span>{timeAgo(reply_Comment?.createdAt)}</span>
+      <div key={reply_Comment?._id} className="flex w-full justify-between gap-3">
+        <div className="flex gap-3">
+          <Avatar src={reply_Comment?.owner?.avatar} alt={`${reply_Comment.owner.username} avatar`} size={8} />
+          <div className="flex-1">
+            <div className="text-sm font-medium text-black/70 dark:text-white">{reply_Comment?.owner?.username}</div>
+            {!editing ? (
+              <div
+                className="
+      text-sm text-gray-600 dark:text-gray-300 mt-1
+      w-full
+      sm:max-w-[50vw]
+      md:max-w-[45vw]
+      lg:max-w-[40vw]
+      xs:max-w-[50vw]
+      whitespace-pre-wrap
+      break-words
+      overflow-hidden
+    "
+              >
+                {editedText}
+              </div>
+            ) : (
+              <div className="flex gap-2 items-start">
+                <textarea
+                  ref={editRef}
+                  value={editedText}
+                  onChange={(e) => setEditedText(e.target.value)}
+                  rows={1}
+                  className="
+    px-3 py-2 mt-1
+    text-black/90 bg-gray-200 dark:bg-black/40 dark:text-white/80
+    border border-white/20 rounded-md text-sm
+    focus:outline-none focus:ring-2 focus:ring-blue-400
+    w-[450px] sm:w-[350px] max-w-[90vw]
+    resize-none overflow-hidden
+  "
+                />
+                <div className="flex flex-col">
+                <button
+                  onClick={handleEditing}
+                  className="bg-blue-600 text-white text-xs px-2 py-2 mt-2 rounded-lg h-fit"
+                >
+                  Save
+                </button>
+                <button
+                    onClick={() => {
+                    setEditedText(reply_Comment?.content)
+                    setEditing(false);
+                    }}
+                    className="ptext-white text-xs px-2 py-2 mt-2 rounded-lg h-fit hover:bg-gray-700 bg-gray-500 dark:hover:bg-white/5 focus:outline-none text-white"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+            )}
+
+
+            <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <IconButton label={totalReplyLike} onClick={handleToggleLikeCommentReply} >
+                <i className={`fa-${rliked ? "solid" : "regular"} fa-thumbs-up text-xs`}></i>
+              </IconButton>
+              <IconButton onClick={handleToggleDisLikeCommentReply} >
+                <i className={`fa-${disrliked ? "solid" : "regular"} fa-thumbs-down pt-1 ml-1 text-xs`}></i>
+              </IconButton>
+              <span>{timeAgo(reply_Comment?.createdAt)}</span>
+            </div>
+          </div>
+        </div>
+        <div className="relative text-black/80 dark:text-white">
+          {currUser?._id === reply_Comment?.owner?._id && (
+            <div
+              onClick={() => setMenu((prev) => !prev)}
+              className="flex w-7 h-7 items-center justify-center rounded-full cursor-pointer 
+                 hover:bg-gray-200 hover:dark:bg-white/20"
+            >
+              <i className="fa-solid fa-ellipsis-vertical"></i>
+            </div>
+          )}
+
+          {menu && (
+            <div ref={menuRef} className="absolute right-full top-10 mt-2 w-32 
+                    bg-gray-200 dark:bg-white/5  border-[1px] rounded shadow-md z-50 dark:border-white/20">
+              <div
+                onClick={() => {
+                  setEditing(true)
+                  setMenu(false);
+                }}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-200 hover:dark:bg-black/40"
+              >
+                Edit
+              </div>
+
+              <div
+                onClick={() => {
+                  deleteReplyComment()
+                  setMenu(false);
+                }}
+                className="px-4 py-2 cursor-pointer text-red-600 hover:bg-gray-200 hover:dark:bg-black/40"
+              >
+                Delete
+              </div>
+            </div>
+          )}
         </div>
       </div>
-      </div>
-      <div className="relative">
-  {currUser?._id === reply_Comment?.owner?._id && (
-    <div
-      onClick={() => setMenu((prev) => !prev)}
-      className="flex w-7 h-7 items-center justify-center rounded-full cursor-pointer 
-                 hover:bg-gray-200 hover:dark:bg-white/20"
-    >
-      <i className="fa-solid fa-ellipsis-vertical"></i>
-    </div>
-  )}
 
-  {menu && (
-    <div ref={menuRef} className="absolute right-full top-10 mt-2 w-32 
-                    bg-white/5 border-[1px] rounded shadow-md z-50 dark:border-white/20">
-      <div
-        onClick={() => {
-          console.log("Edit clicked");
-          setMenu(false);
-        }}
-        className="px-4 py-2 cursor-pointer hover:bg-gray-200 hover:dark:bg-black/40"
-      >
-        Edit
-      </div>
-
-      <div
-        onClick={() => {
-          deleteReplyComment()
-          setMenu(false);
-        }}
-        className="px-4 py-2 cursor-pointer text-red-600 hover:bg-gray-200 hover:dark:bg-black/40"
-      >
-        Delete
-      </div>
-    </div>
-  )}
-</div>
-</div>
-
-</>
+    </>
   );
 }

@@ -17,7 +17,8 @@ const commentSchema = new mongoose.Schema({
     },
     replies: {
         type: Number,
-        default: 0
+        default: 0,
+        index: true
     }
 
 }, { timestamps: true })

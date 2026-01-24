@@ -5,6 +5,7 @@ import { ApiErrors } from "../utils/ApiErrors.js";
 import { ApiResponses } from "../utils/ApiResponses.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { deleteFromCloudinary, uploadOnCloudinary, uploadVideoOnCloudinary } from "../utils/cloudinary.js";
+import { User } from "../models/user.models.js";
 
  
 
@@ -505,6 +506,175 @@ const increaseViewCount = asyncHandler(async (req, res) => {
 })
 
 
+const savedVideo = asyncHandler( async (req, res)  => { 
+    const { videoId } = req.params
+
+      if (!videoId) {
+        throw new ApiErrors(400, "video id is missing!")
+    }
+
+    const video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiErrors(404, "Video does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+        "savedVideos.video": videoId
+    });
+
+    let newAdd ;
+
+    if (!exists) {
+      newAdd = await User.findByIdAndUpdate(req.user?._id, {
+        $push: {
+            savedVideos: {
+                video: videoId,
+                savedAt: new Date()
+            }
+        },
+      }, { new: true } );
+    }
+
+    if (exists) {
+      await User.findByIdAndUpdate(req.user?._id, {
+        $pull: {
+            savedVideos: {
+                video: videoId,
+            }
+        },
+      }, { new: true } );
+    } 
+    
+    
+    return res
+        .status(200)
+        .json(new ApiResponses(200, newAdd, "Video  saved successfully"))
+
+
+})
+
+
+const watchedVideo = asyncHandler( async (req, res)  => { 
+    const { videoId } = req.params
+
+      if (!videoId) {
+        throw new ApiErrors(400, "video id is missing!")
+    }
+
+    const video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiErrors(404, "Video does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+        "watchHistory.video": videoId
+    });
+
+    let newAdd ;
+
+    if (!exists) {
+       newAdd = await User.findByIdAndUpdate(req.user?._id, {
+        $push: {
+            watchHistory: {
+                video: videoId,
+                watchedAt: new Date()
+            }
+        },
+      }, { new: true } );
+    }
+
+    let updateAdd ;
+
+    if (exists) {
+    updateAdd = await User.findByIdAndUpdate({
+         _id: req.user?._id,
+        "watchHistory.video": videoId
+      }, {
+        $set: {
+            "watchHistory.$.watchedAt": new Date()
+        },
+      }, { new: true } );
+    } 
+    
+    
+    return res
+        .status(200)
+        .json(new ApiResponses(200, {newAdd, updateAdd}, "Video  saved successfully"));
+
+})
+
+const deleteWatchedVideo = asyncHandler( async (req,res) => {
+     const { videoId } = req.params
+
+      if (!videoId) {
+        throw new ApiErrors(400, "video id is missing!")
+    }
+
+    const video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiErrors(404, "Video does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+        "watchHistory.video": videoId
+    });
+
+       let updateAdd ;
+
+    if (exists) {
+    updateAdd = await User.findByIdAndUpdate(req.user?._id, {
+        $pull: {
+            watchHistory: {
+                video: { 
+                    $in: videoId
+                },
+            }
+        },
+      }, { new: true } );
+    } 
+    
+    
+    return res
+        .status(200)
+        .json(new ApiResponses(200, updateAdd, "Video  delted from watch history successfully"));
+
+})
+
+
+const deleteAllWatchedVideo = asyncHandler( async (req,res) => {
+
+   const deleteAll = await User.findByIdAndUpdate(req.user?._id, {
+        $set: {
+            watchHistory: []
+        },
+      }, { new: true } );
+    
+    return res
+        .status(200)
+        .json(new ApiResponses(200, deleteAll, "watch history deleted successfully"));
+
+})
+
+
+const deleteAllSavedVideos = asyncHandler( async (req,res) => {
+
+   const deleteAll = await User.findByIdAndUpdate(req.user?._id, {
+        $set: {
+            savedVideos: []
+        },
+      }, { new: true } );
+    
+    return res
+        .status(200)
+        .json(new ApiResponses(200, deleteAll, "Saved Videos  deleted successfully"));
+
+})
 
 
 
@@ -517,5 +687,11 @@ export {
     updateVideoDetails,
     updateVideo,
     togglePublishVideo,
-    increaseViewCount
+    increaseViewCount,
+    savedVideo,
+    watchedVideo,
+    deleteAllSavedVideos,
+    deleteAllWatchedVideo,
+    deleteWatchedVideo
+
 }
