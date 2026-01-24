@@ -14,10 +14,7 @@
 <body class="bg-slate-100 dark:bg-[#121212]/100">
   <script>
     const saved = localStorage.getItem("mode");
-    const timeOutTime = localStorage.getItem("timeofAT");
-    console.log(timeOutTime);
-    console.log("Present Date", Date.now())
-    console.log("Upcoming time Date",(timeOutTime + (23.5 * 60 * 60 * 1000)));
+    const timeOutTime = Number(localStorage.getItem("timeofAT"));
 
     if (Date.now() >= (timeOutTime + (23.5 * 60 * 60 * 1000))) {
       localStorage.removeItem("accessToken");

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { deleteAllSavedVideos, deleteAllWatchedVideo, deleteVideoById, deleteWatchedVideo, getAllVideos, getVideoById, increaseViewCount, publishAVideo, savedVideo, togglePublishVideo, updateVideo, updateVideoDetails, uploadManyVideos, watchedVideo } from "../controllers/video.controller.js";
-import { verify } from "jsonwebtoken";
+
 
 
 

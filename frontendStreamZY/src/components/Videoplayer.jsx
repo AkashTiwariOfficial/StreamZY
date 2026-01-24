@@ -163,6 +163,46 @@ export default function Videoplayer({ video }) {
     return `${m}:${sec}`;
   };
 
+      const addToWatchlist = async () => {
+
+         try {
+        const response = await axios.patch(`${host}/v1/videos/update-watch-history/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          console.log("add to watch list");
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+
+    }
+
+    const increseViews = async () => {
+   try {
+        const response = await axios.patch(`${host}/v1/videos/views/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          console.log("view api runs successfully");
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
   useEffect(() => {
 
     const fetchDetails = async () => {
@@ -178,6 +218,8 @@ export default function Videoplayer({ video }) {
 
         if (response.data.success) {
           setDetails(response.data.data);
+          addToWatchlist();
+          increseViews();
         }
 
       } catch (error) {

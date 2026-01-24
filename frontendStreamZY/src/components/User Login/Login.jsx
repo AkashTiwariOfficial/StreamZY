@@ -38,7 +38,7 @@ export default function Login() {
                 localStorage.setItem("accessToken", response.data.data.accessToken);
                 localStorage.setItem("refreshToken", response.data.data.refreshToken);
                 localStorage.setItem("user", JSON.stringify(userDetails));
-                localStorage.setItem("timeofAT", Date.now);
+                localStorage.setItem("timeofAT", Date.now());
                 navigate("/home");
             }
         } catch (error) {

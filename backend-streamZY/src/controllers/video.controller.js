@@ -534,7 +534,9 @@ const savedVideo = asyncHandler( async (req, res)  => {
                 savedAt: new Date()
             }
         },
-      }, { new: true } );
+      }, { new: true } ).select(
+    "-password -refreshToken"
+  );
     }
 
     if (exists) {
@@ -550,8 +552,7 @@ const savedVideo = asyncHandler( async (req, res)  => {
     
     return res
         .status(200)
-        .json(new ApiResponses(200, newAdd, "Video  saved successfully"))
-
+        .json(new ApiResponses(200, newAdd, "Video  saved successfully"));
 
 })
 
@@ -584,20 +585,27 @@ const watchedVideo = asyncHandler( async (req, res)  => {
                 watchedAt: new Date()
             }
         },
-      }, { new: true } );
+      }, { new: true } ).select(
+    "-password -refreshToken"
+  );
     }
 
     let updateAdd ;
 
+    const videoObjectId = new mongoose.Types.ObjectId(videoId);
+
+
     if (exists) {
-    updateAdd = await User.findByIdAndUpdate({
+    updateAdd = await User.findOneAndUpdate({
          _id: req.user?._id,
-        "watchHistory.video": videoId
+        "watchHistory.video": videoObjectId
       }, {
         $set: {
             "watchHistory.$.watchedAt": new Date()
         },
-      }, { new: true } );
+      }, { new: true } ).select(
+    "-password -refreshToken"
+  );
     } 
     
     
@@ -636,7 +644,9 @@ const deleteWatchedVideo = asyncHandler( async (req,res) => {
                 },
             }
         },
-      }, { new: true } );
+      }, { new: true } ).select(
+    "-password -refreshToken"
+  );
     } 
     
     
@@ -653,7 +663,9 @@ const deleteAllWatchedVideo = asyncHandler( async (req,res) => {
         $set: {
             watchHistory: []
         },
-      }, { new: true } );
+      }, { new: true } ).select(
+    "-password -refreshToken"
+  );
     
     return res
         .status(200)
@@ -668,7 +680,9 @@ const deleteAllSavedVideos = asyncHandler( async (req,res) => {
         $set: {
             savedVideos: []
         },
-      }, { new: true } );
+      }, { new: true } ).select(
+    "-password -refreshToken"
+  );
     
     return res
         .status(200)
