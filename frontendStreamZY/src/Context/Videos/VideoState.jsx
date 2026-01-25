@@ -177,7 +177,6 @@ export default function VideoState(props) {
             fetchSubscribers,
             setDoSubscribed,
             fetchChannelIsSubscribed,
-            setVideos,
             fetchAllVideos,
             fetchAllVideoswithQuery,
             handleLogout,

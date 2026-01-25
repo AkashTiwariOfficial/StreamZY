@@ -89,7 +89,7 @@ const registerUser = asyncHandler(async (req, res) => {
     public_id_coverImage: coverImage?.public_id || "",
   });
 
-    const { accessToken, refreshToken } = await generateAccessTokenandRefreshToken(user._id);
+  const { accessToken, refreshToken } = await generateAccessTokenandRefreshToken(user._id);
 
   const userCreated = await User.findById(user._id).select(
     "-password"
@@ -99,17 +99,17 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiErrors(500, "Internal Server Error! while registering a new user. Please Try Again");
   }
 
-   const options = {
+  const options = {
     httpOnly: true,
     secure: true
   }
 
   return res.status(201)
-   .cookie("accessToken", accessToken, options)
-   .cookie("refreshToken", refreshToken, options)
-   .json(
-    new ApiResponses(200, {userCreated, accessToken, refreshToken}, "User registered successfully")
-  )
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponses(200, { userCreated, accessToken, refreshToken }, "User registered successfully")
+    )
 
 })
 
@@ -453,7 +453,7 @@ const transporter = nodemailer.createTransport({
 
 const sendOtp = asyncHandler(async (req, res) => {
 
-   const { username, email} = req.body
+  const { username, email } = req.body
 
   if (!(username || email)) {
     throw new ApiErrors(400, "username or email is required")
@@ -526,7 +526,7 @@ const sendOtp = asyncHandler(async (req, res) => {
 
 const sendOtpforgotpassword = asyncHandler(async (req, res) => {
 
- const { username, email} = req.body
+  const { username, email } = req.body
 
   if (!(username || email)) {
     throw new ApiErrors(400, "username or email is required")
@@ -578,7 +578,7 @@ const sendOtpforgotpassword = asyncHandler(async (req, res) => {
 
     const newOtp = await bcrypt.hash(otp.toString(), 10)
 
-       await User.findByIdAndUpdate(user._id,
+    await User.findByIdAndUpdate(user._id,
       {
         $set: {
           otp: newOtp,
@@ -704,7 +704,7 @@ const getUserChannel = asyncHandler(async (req, res) => {
     throw new ApiErrors(400, "username is missing")
   }
 
-try {
+  try {
     const channel = await User.aggregate([
       {
         $match: {
@@ -727,7 +727,7 @@ try {
           as: "subscribedTo"
         }
       },
-      { 
+      {
         $addFields: {
           subscribersCount: {
             $size: "$subscribers"
@@ -758,40 +758,43 @@ try {
         }
       }
     ])
-  
+
     console.log(channel)
     if (!channel?.length) {
       throw new ApiErrors(404, "Channel does not exists");
     }
-  
+
     return res
       .status(200)
       .json(
-        new ApiResponses(200, channel[0] , "User channel fetched successfully")
+        new ApiResponses(200, channel[0], "User channel fetched successfully")
       )
-  
-} catch (error) {
+
+  } catch (error) {
     throw new ApiErrors(500, error.message || "Internal Server Error while fetching user's channel")
-}
+  }
 
 })
 
 
 const getUserWatchHistory = asyncHandler(async (req, res) => {
-try {
-  
+  try {
+
     const user = await User.aggregate([
       {
         $match: {
           _id: new mongoose.Types.ObjectId(req.user?._id)
         }
       },
-        {
+      {
+        $unwind: "$watchHistory"
+      },
+      {
         $lookup: {
           from: "videos",
-          localField: "_id",
-          foreignField: "watchHistory",
-          as: "watchHistory",
+          foreignField: "_id",
+          localField: "watchHistory.video",
+          as: "watchHistory.video",
           pipeline: [
             {
               $lookup: {
@@ -810,7 +813,7 @@ try {
                 ]
               }
             },
-              {
+            {
               $addFields: {
                 owner: {
                   $first: "$owner"
@@ -820,35 +823,36 @@ try {
           ]
         }
       }
-    ]) 
-  
+    ])
+
     return res
-    .status(200)
-    .json( new ApiResponses(200, user[0].watchHistory, "User watch History fetched successfully"))
-} catch (error) {
-  throw new ApiErrors(500, error.message || "Internal Server Error while fetching user watch history")
-}
+      .status(200)
+      .json(new ApiResponses(200, user.map(u => u.watchHistory) , "User watch History fetched successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while fetching user watch history")
+  }
 })
 
 
-const fetchUserVideos = asyncHandler( async (req, res) =>{
 
-   const { username } = req.params
+const fetchUserVideos = asyncHandler(async (req, res) => {
 
-     const { page = 1, limit = 10, query, sortBy = "views", sortType = "desc" } = req.query
+  const { username } = req.params
 
-   if(!username){
-     throw new ApiErrors(400, "username is missing")
-   }
+  const { page = 1, limit = 10, query, sortBy = "views", sortType = "desc" } = req.query
+
+  if (!username) {
+    throw new ApiErrors(400, "username is missing")
+  }
 
   try {
-     const user = await User.findOne({username: username}).select(
+    const user = await User.findOne({ username: username }).select(
       "-password -refreshToken -otp"
-     )
-  
-     if (!user) {
+    )
+
+    if (!user) {
       throw new ApiErrors(404, "User does not exists")
-     }
+    }
 
     const limitNumber = parseInt(limit, 10)
     const pageNumber = parseInt(page, 10)
@@ -856,35 +860,35 @@ const fetchUserVideos = asyncHandler( async (req, res) =>{
     const filter = {}
 
     if (query) {
-        filter.$or = [
-            { title: { $regex: query, $options: "i" } },
-            { description: { $regex: query, $options: "i" } },
-            { tag: { $regex: query, $options: "i" } }
-        ]
+      filter.$or = [
+        { title: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+        { tag: { $regex: query, $options: "i" } }
+      ]
     }
 
     const sort = {}
 
     if (sortBy) {
-        sort[sortBy] = sortType === "desc" ? -1 : 1;
+      sort[sortBy] = sortType === "desc" ? -1 : 1;
     }
-  
-     const userVideos = await Video.find({owner: new mongoose.Types.ObjectId(user?._id)})
-     .sort(sort)
-     .skip((pageNumber - 1) * 10)
-     .limit(limitNumber)
-      
-     if (userVideos.length === 0) {
-        userVideos =  "No vidoes found for this user!"
-     }
-  
-     return res
-     .status(200)
-     .json( new ApiResponses(200, {userVideos, user} , "user's videos fetched successfully"))
+
+    const userVideos = await Video.find({ owner: new mongoose.Types.ObjectId(user?._id) })
+      .sort(sort)
+      .skip((pageNumber - 1) * 10)
+      .limit(limitNumber)
+
+    if (userVideos.length === 0) {
+      userVideos = "No vidoes found for this user!"
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, { userVideos, user }, "user's videos fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, "Internal Server Error while fetcing user videos")
   }
-    
+
 })
 
 
@@ -896,7 +900,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     throw new ApiErrors(400, "username or email is required")
   }
 
-    if (!newPassword) {
+  if (!newPassword) {
     throw new ApiErrors(400, "password field is required");
   }
 
@@ -907,12 +911,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
   if (!users) {
     throw new ApiErrors(404, "User does not exists");
   }
-  
+
   try {
     const currUser = await User.findById(users?._id)
-    
+
     if (!currUser) {
-    throw new ApiErrors(404, "User does not exists")  
+      throw new ApiErrors(404, "User does not exists")
     }
 
     currUser.password = newPassword;

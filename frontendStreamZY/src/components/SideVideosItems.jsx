@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
+import videoContext from '../Context/Videos/videoContext.jsx';
 
-export default function SideVideosItems() {
+export default function SideVideosItems(props) {
 
   const location = useLocation();
+  const { video } = props ;
+  const Context = useContext(videoContext);
+   const { timeAgo } = Context;
 
   const diffCSS = () => {
     if (location.pathname === "/likes") {
@@ -33,8 +37,7 @@ export default function SideVideosItems() {
 
           <div className={`relative ${diffCSS()} aspect-video rounded-xl overflow-hidden flex-shrink-0`}>
             <img
-              src="https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-9040-51f7-9bbf-29c12c7c53ed/raw?se=2025-11-08T00%3A57%3A40Z&sp=r&sv=2024-08-04&sr=b&scid=821bd99e-aba2-49f6-ad05-b384ed024d23&skoid=1e4bb9ed-6bb5-424a-a3aa-79f21566e722&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-11-07T17%3A05%3A39Z&ske=2025-11-08T17%3A05%3A39Z&sks=b&skv=2024-08-04&sig=izW93pSxeyq4G0Mk8bY5jkI5hgjqZ0ENu80F1QIKENQ%3D"
-              alt="Video thumbnail"
+              src={video.video[0].thumbnail}
               className="absolute inset-0 h-full w-full object-cover rounded-xl transform transition-transform duration-300 ease-in-out hover:scale-105"
             />
           </div>
@@ -43,42 +46,53 @@ export default function SideVideosItems() {
             <div>
               <div className={`${location.pathname === "/likes" ? "mb-1" : "mb-2"}`}>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 min-w-0 overflow-hidden">
-                  Lorem ipsum dolor sit amet consect   Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit adipisci quibusdam ipsam temporibus cumque aperia
+                  {video.video[0].description}
                 </h3>
 
                 <div className="flex items-center xs:text-xs text-[12px] text-gray-500 dark:text-gray-400 mt-1 overflow-hidden">
-                  <span>100M views</span>
+                  <span>{video.video[0].views} views</span>
                   <span className="px-1 text-[8px]">&#9679;</span>
-                  <span>2 days ago</span>
+                <span>{timeAgo(video.video[0].createdAt)}</span>
                 </div>
               </div>
               <div className="flex flex-col sm:gap-3">
                 <div className="flex items-center mt-1">
                   <div className="h-[34px] w-[34px] rounded-full overflow-hidden mr-2 flex-shrink-0">
                     <img
-                      src="https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-74e0-51f7-925f-fa5dff284004/raw?se=2025-11-08T11%3A01%3A37Z&sp=r&sv=2024-08-04&sr=b&scid=0762954c-a062-461e-bc4b-4a369de58516&skoid=9063adf3-a524-4acf-b70a-8731b33f2f50&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-11-08T00%3A36%3A26Z&ske=2025-11-09T00%3A36%3A26Z&sks=b&skv=2024-08-04&sig=vZ5R6vB1QzGogSuexTei1cfMSzFjEXuw6XiX7%2BsQoTY%3D"
-                      alt="Channel avatar"
+                      src={video.video[0]?.owner?.avatar}
                       className="h-full w-full object-cover"
                     />
                   </div>
                   <span className="text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200 font-medium truncate">
-                    Channel Name
+                    {video.video[0]?.owner?.username}
                   </span>
                 </div>
                  {location.pathname === "/likes" ? (
           null
           ) : ( <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-1 min-w-0 overflow-hidden">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit adipisci quibusdam ipsam temporibus cumque aperiam minima eaque quaerat facilis sed possimus recusandae dignissimos fugiat assumenda, corporis, quod, voluptatem corrupti. Culpa.
+                  {video.video[0].description}
                 </p> )}
               </div>
+                {location.pathname === "/likes" ? (
+          null
+          ) : ( 
+               <div className="flex items-center xs:text-xs text-[12px] text-gray-500 dark:text-gray-400 mt-2 overflow-hidden">
+                  <span>Watched {timeAgo(video.watchedAt)}</span>
+                </div>
+                 )}
             </div>
           </div>
 
-          <div className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2">
+          <div className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2 px-3">
             <i className="fa-solid fa-ellipsis-vertical text-black/80 dark:text-gray-200"></i>
           </div>
         </div>
       </div>
+      {location.pathname !== "/likes" ? ( 
+        <div className="py-3 dark:text-white">
+          <hr />
+        </div>  ) : (
+        null )}
 
     </div>
   )
