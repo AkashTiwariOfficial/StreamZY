@@ -7,7 +7,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { deleteFromCloudinary, uploadOnCloudinary, uploadVideoOnCloudinary } from "../utils/cloudinary.js";
 import { User } from "../models/user.models.js";
 
- 
+
 
 const getAllVideos = asyncHandler(async (req, res) => {
 
@@ -85,7 +85,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         if (!thumbnail) {
             throw new ApiErrors(400, "thumbnail not found!")
         }
-        
+
         const uploadedVideoFile = await Video.create({
             videoFile: videoFile.url,
             thumbnail: thumbnail.url,
@@ -219,7 +219,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     let viewDetails;
     const video = await Video.findById(videoId)
-    .populate("owner", "username avatar")
+        .populate("owner", "username avatar")
 
     if (!video) {
         throw new ApiErrors(404, "Video does not exists");
@@ -492,13 +492,11 @@ const increaseViewCount = asyncHandler(async (req, res) => {
             if (!updateViewsDetails) {
                 throw new ApiErrors(400, "Upadte Count views Model Details failed");
             }
-        } else {
-            throw new ApiErrors(400, "Cannot increase Views as User rectenly watched Video")
         }
 
         return res
             .status(200)
-            .json(new ApiResponses(200, { updateViewsDetails, updateViews }, "View count increased Successfully"))
+            .json(new ApiResponses(200, {}, "View count increased Successfully"))
     } catch (error) {
         throw new ApiErrors(500, `Internal Server Error While Incresing The count of Views : ${error.message}`);
     }
@@ -506,10 +504,10 @@ const increaseViewCount = asyncHandler(async (req, res) => {
 })
 
 
-const savedVideo = asyncHandler( async (req, res)  => { 
+const savedVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
-      if (!videoId) {
+    if (!videoId) {
         throw new ApiErrors(400, "video id is missing!")
     }
 
@@ -524,32 +522,32 @@ const savedVideo = asyncHandler( async (req, res)  => {
         "savedVideos.video": videoId
     });
 
-    let newAdd ;
+    let newAdd;
 
     if (!exists) {
-      newAdd = await User.findByIdAndUpdate(req.user?._id, {
-        $push: {
-            savedVideos: {
-                video: videoId,
-                savedAt: new Date()
-            }
-        },
-      }, { new: true } ).select(
-    "-password -refreshToken"
-  );
+        await User.findByIdAndUpdate(req.user?._id, {
+            $push: {
+                savedVideos: {
+                    video: videoId,
+                    savedAt: new Date()
+                }
+            },
+        }, { new: true });
+        newAdd = true
     }
 
     if (exists) {
-      await User.findByIdAndUpdate(req.user?._id, {
-        $pull: {
-            savedVideos: {
-                video: videoId,
-            }
-        },
-      }, { new: true } );
-    } 
-    
-    
+        await User.findByIdAndUpdate(req.user?._id, {
+            $pull: {
+                savedVideos: {
+                    video: videoId,
+                }
+            },
+        }, { new: true });
+        newAdd = false;
+    }
+
+
     return res
         .status(200)
         .json(new ApiResponses(200, newAdd, "Video  saved successfully"));
@@ -557,10 +555,10 @@ const savedVideo = asyncHandler( async (req, res)  => {
 })
 
 
-const watchedVideo = asyncHandler( async (req, res)  => { 
+const watchedVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
-      if (!videoId) {
+    if (!videoId) {
         throw new ApiErrors(400, "video id is missing!")
     }
 
@@ -575,50 +573,49 @@ const watchedVideo = asyncHandler( async (req, res)  => {
         "watchHistory.video": videoId
     });
 
-    let newAdd ;
+    let newAdd;
 
     if (!exists) {
-       newAdd = await User.findByIdAndUpdate(req.user?._id, {
-        $push: {
-            watchHistory: {
-                video: videoId,
-                watchedAt: new Date()
-            }
-        },
-      }, { new: true } ).select(
-    "-password -refreshToken"
-  );
+        newAdd = await User.findByIdAndUpdate(req.user?._id, {
+            $push: {
+                watchHistory: {
+                    video: videoId,
+                    watchedAt: new Date()
+                }
+            },
+        }, { new: true }).select(
+            "-password -refreshToken"
+        );
     }
 
-    let updateAdd ;
+    let updateAdd;
 
     const videoObjectId = new mongoose.Types.ObjectId(videoId);
 
 
     if (exists) {
-    updateAdd = await User.findOneAndUpdate({
-         _id: req.user?._id,
-        "watchHistory.video": videoObjectId
-      }, {
-        $set: {
-            "watchHistory.$.watchedAt": new Date()
-        },
-      }, { new: true } ).select(
-    "-password -refreshToken"
-  );
-    } 
-    
-    
+        updateAdd = await User.findOneAndUpdate({
+            _id: req.user?._id,
+            "watchHistory.video": videoObjectId
+        }, {
+            $set: {
+                "watchHistory.$.watchedAt": new Date()
+            },
+        }, { new: true }).select(
+            "-password -refreshToken"
+        );
+    }
+
     return res
         .status(200)
-        .json(new ApiResponses(200, {newAdd, updateAdd}, "Video  saved successfully"));
+        .json(new ApiResponses(200, {}, "Video  saved successfully"));
 
 })
 
-const deleteWatchedVideo = asyncHandler( async (req,res) => {
-     const { videoId } = req.params
+const deleteWatchedVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
 
-      if (!videoId) {
+    if (!videoId) {
         throw new ApiErrors(400, "video id is missing!")
     }
 
@@ -633,23 +630,23 @@ const deleteWatchedVideo = asyncHandler( async (req,res) => {
         "watchHistory.video": videoId
     });
 
-       let updateAdd ;
+    let updateAdd;
 
     if (exists) {
-    updateAdd = await User.findByIdAndUpdate(req.user?._id, {
-        $pull: {
-            watchHistory: {
-                video: { 
-                    $in: videoId
-                },
-            }
-        },
-      }, { new: true } ).select(
-    "-password -refreshToken"
-  );
-    } 
-    
-    
+        updateAdd = await User.findByIdAndUpdate(req.user?._id, {
+            $pull: {
+                watchHistory: {
+                    video: {
+                        $in: videoId
+                    },
+                }
+            },
+        }, { new: true }).select(
+            "-password -refreshToken"
+        );
+    }
+
+
     return res
         .status(200)
         .json(new ApiResponses(200, updateAdd, "Video  delted from watch history successfully"));
@@ -657,16 +654,16 @@ const deleteWatchedVideo = asyncHandler( async (req,res) => {
 })
 
 
-const deleteAllWatchedVideo = asyncHandler( async (req,res) => {
+const deleteAllWatchedVideo = asyncHandler(async (req, res) => {
 
-   const deleteAll = await User.findByIdAndUpdate(req.user?._id, {
+    const deleteAll = await User.findByIdAndUpdate(req.user?._id, {
         $set: {
             watchHistory: []
         },
-      }, { new: true } ).select(
-    "-password -refreshToken"
-  );
-    
+    }, { new: true }).select(
+        "-password -refreshToken"
+    );
+
     return res
         .status(200)
         .json(new ApiResponses(200, deleteAll, "watch history deleted successfully"));
@@ -674,16 +671,16 @@ const deleteAllWatchedVideo = asyncHandler( async (req,res) => {
 })
 
 
-const deleteAllSavedVideos = asyncHandler( async (req,res) => {
+const deleteAllSavedVideos = asyncHandler(async (req, res) => {
 
-   const deleteAll = await User.findByIdAndUpdate(req.user?._id, {
+    const deleteAll = await User.findByIdAndUpdate(req.user?._id, {
         $set: {
             savedVideos: []
         },
-      }, { new: true } ).select(
-    "-password -refreshToken"
-  );
-    
+    }, { new: true }).select(
+        "-password -refreshToken"
+    );
+
     return res
         .status(200)
         .json(new ApiResponses(200, deleteAll, "Saved Videos  deleted successfully"));
@@ -692,7 +689,42 @@ const deleteAllSavedVideos = asyncHandler( async (req,res) => {
 
 
 
+const isVideoSaved = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if (!videoId) {
+        throw new ApiErrors(400, "video id is missing!")
+    }
+
+    const video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiErrors(404, "Video does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+        "savedVideos.video": videoId
+    });
+
+    let newAdd;
+
+    if (exists) {
+        newAdd = true;
+    }
+    if (!exists) {
+        newAdd = false;
+    }
+
+ return res
+        .status(200)
+        .json(new ApiResponses(200, newAdd, "Saved Video fetched  successfully"));
+    
+})
+
+
 export {
+    
     getAllVideos,
     publishAVideo,
     uploadManyVideos,
@@ -706,6 +738,7 @@ export {
     watchedVideo,
     deleteAllSavedVideos,
     deleteAllWatchedVideo,
-    deleteWatchedVideo
+    deleteWatchedVideo,
+    isVideoSaved
 
 }

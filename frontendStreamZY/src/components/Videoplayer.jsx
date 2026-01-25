@@ -25,6 +25,7 @@ export default function Videoplayer({ video }) {
   const [liked, setLiked] = useState(false);
   const [disliked, setdisliked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(0);
+  const [save, setSave] = useState(false);
   const { id } = useParams();
   const { category } = useParams();
   const host = import.meta.env.VITE_HOST_LINK;
@@ -166,17 +167,13 @@ export default function Videoplayer({ video }) {
       const addToWatchlist = async () => {
 
          try {
-        const response = await axios.patch(`${host}/v1/videos/update-watch-history/${id}`, {
+        const response = await axios.patch(`${host}/v1/videos/update-watch-history/${id}`, {},  {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           withCredentials: true,
           timeout: 150000
         });
-
-        if (response.data.success) {
-          console.log("add to watch list");
-        }
 
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
@@ -186,7 +183,22 @@ export default function Videoplayer({ video }) {
 
     const increseViews = async () => {
    try {
-        const response = await axios.patch(`${host}/v1/videos/views/${id}`, {
+        const response = await axios.patch(`${host}/v1/videos/views/${id}`, {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+      const isVideoSaved = async () => {
+    try {
+        const response = await axios.get(`${host}/v1/videos/is-Saved-video/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -195,13 +207,14 @@ export default function Videoplayer({ video }) {
         });
 
         if (response.data.success) {
-          console.log("view api runs successfully");
+          setSave(response.data.data);
         }
 
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
-    }
+  }
+
 
   useEffect(() => {
 
@@ -276,6 +289,7 @@ export default function Videoplayer({ video }) {
     }
 
     fetechisVideoLiked();
+    isVideoSaved();
     
   }, [id])
 
@@ -389,6 +403,28 @@ export default function Videoplayer({ video }) {
     }
    
     toggleDisLike();
+
+  }
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+        try {
+        const response = await axios.patch(`${host}/v1/videos/saved-video/${id}`, {},  {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setSave(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
 
   }
 
@@ -631,7 +667,7 @@ export default function Videoplayer({ video }) {
               <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i className="fa-solid fa-share mr-2 text-sm"></i>
                 <span className="dark:text-white/80 text-sm">Share</span>
               </button>
-              <button className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i className={`fa-regular fa-bookmark mr-2 text-sm`}></i>
+              <button onClick={handleSave} className="px-3 py-1 hover:bg-gray-300 bg-slate-200 dark:bg-white/10 rounded-full dark:hover:bg-white/20"><i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-2 text-sm`}></i>
                 <span className="dark:text-white/80 text-sm">Save</span>
               </button>
             </div>
