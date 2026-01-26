@@ -4,12 +4,16 @@ import axios from 'axios';
 
 
 
-
 export default function History() {
 
 const [watVideo, setWAtVideo] = useState([]);
 const host = import.meta.env.VITE_HOST_LINK;
 
+  const removeVideos = (_id_) => {
+    setWAtVideo(prev =>
+      prev.filter(comment => comment._id !== _id_)
+    );
+  };
 
 useEffect(() => {
 
@@ -25,7 +29,6 @@ useEffect(() => {
       });
 
       if (response.data.success) {
-        console.log(response.data.data);
         setWAtVideo(response.data.data);
       }
 
@@ -45,7 +48,7 @@ useEffect(() => {
           <h1 className="text-3xl font-[700] text-black/70 dark:text-white/100">Watch History</h1>
         </div>
         {watVideo.map((video) => {
-          return <SideVideosItems key={video._id} video={video} />
+          return <SideVideosItems key={video._id} video={video} removeVideos={removeVideos} />
         })
         }
       </div>

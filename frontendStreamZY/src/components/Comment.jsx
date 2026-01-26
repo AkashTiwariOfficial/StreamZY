@@ -36,7 +36,6 @@ export default function Comment() {
   const [inputText, setInputText] = useState("");
   const [isPosting, setIsPosting] = useState(false);
   const [state, setState] = useState("");
-  const [type, setTpye] = useState("asc");
   const inputRef = useRef(null);
   const { id } = useParams();
   const host = import.meta.env.VITE_HOST_LINK;

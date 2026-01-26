@@ -1,14 +1,21 @@
 import React, { useContext } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import videoContext from '../Context/Videos/videoContext.jsx';
 
 export default function VideoItems(props) {
 
-  const { video, category } = props;
+  const { video } = props;
   const navigate = useNavigate();
+  const location = useLocation();
+  const { category } = useParams();
+
 
   const handleClick = () => {
-    navigate(`/video/${category}/${video._id}`)
+    if ( location.pathname.includes("/video")) {
+       navigate(`/video/${category}/${video._id}`);
+    } else {
+    navigate(`/video/${category}/${video._id}`);
+    }
   }
   
     const Context = useContext(videoContext);

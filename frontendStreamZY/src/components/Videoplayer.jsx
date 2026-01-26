@@ -6,7 +6,7 @@ import videoContext from '../Context/Videos/videoContext.jsx';
 import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 
-export default function Videoplayer() {
+export default function Videoplayer( { video }) {
   const vidRef = useRef(null);
   const wrapperRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -42,7 +42,8 @@ export default function Videoplayer() {
   }, []);
 
      useEffect(() => {
-      if(category === "home")   { fetchAllVideos(); }
+if(category === "home")   { fetchAllVideos(); }
+      else if( category === "undefined") { fetchAllVideos(); }
       else { fetchAllVideoswithQuery(`${category}`); }
      }, [category])
 
