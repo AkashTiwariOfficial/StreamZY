@@ -6,12 +6,13 @@ import axios from 'axios';
 export default function SideVideosItems(props) {
 
   const location = useLocation();
-  const { video, removeVideos, num } = props;
+  const { video, removeVideos, num, removeLikedVideos } = props;
   const Context = useContext(videoContext);
   const { timeAgo } = Context;
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const [menu, setMenu] = useState(false);
+  const [save, setSave] = useState(false);
   const host = import.meta.env.VITE_HOST_LINK;
 
   const diffCSS = () => {
@@ -47,12 +48,32 @@ export default function SideVideosItems(props) {
 
   const handleDelete = async () => {
 
-        if (!video.video?._id) {
-          return;
-        }
+    if (!video.video?._id) {
+      return;
+    }
 
+    try {
+      const response = await axios.patch(`${host}/v1/videos/delete-watched-Video/${video.video?._id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removeVideos(video._id);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+  }
+
+  useEffect(() => {
+    const isVideoSaved = async () => {
       try {
-        const response = await axios.patch(`${host}/v1/videos/delete-watched-Video/${video.video?._id}`, {},  {
+        const response = await axios.get(`${host}/v1/videos/is-Saved-video/${video?.video?._id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -61,12 +82,56 @@ export default function SideVideosItems(props) {
         });
 
         if (response.data.success) {
-         removeVideos(video._id);
+          setSave(response.data.data);
         }
 
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
+    }
+
+    isVideoSaved();
+  }, [])
+
+  const handleSave = async () => {
+
+    try {
+      const response = await axios.patch(`${host}/v1/videos/saved-video/${video?.video?._id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        setSave(response.data.data);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+
+  }
+
+  const handleDel = async () => {
+
+    try {
+      const response = await axios.delete(`${host}/v1/likes/remove-liked-video/${video?._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removeLikedVideos(video?._id);
+      }
+
+    } catch (error) {
+      console.log("Error while deleting liked videos", error.response?.data || error.message);
+    }
   }
 
   return (
@@ -127,31 +192,34 @@ export default function SideVideosItems(props) {
             </div>
           </div>
           <div className='relative'>
-            <div onClick={(e) => { e.stopPropagation(); setMenu((prev) => !prev);}} className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2 px-3">
+            <div onClick={(e) => { e.stopPropagation(); setMenu((prev) => !prev); }} className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2 px-3">
               <i className="fa-solid fa-ellipsis-vertical text-black/80 dark:text-gray-200"></i>
             </div>
             {menu && (
-              <div ref={menuRef} className="absolute right-full top-10 mt-2 w-32 
+              <div ref={menuRef} className="absolute right-full mt-2 min-w-32 w-full
                     bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
-               
+
                 <div
                   onClick={(e) => {
-                    e.stopPropagation(); 
+                    e.stopPropagation();
+                    handleSave();
                     setMenu(false);
                   }}
                   className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
                 >
+                  <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 `}></i>
                   Save
                 </div>
 
                 <div
                   onClick={(e) => {
-                    e.stopPropagation(); 
-                    handleDelete();
+                    e.stopPropagation();
+                    location.pathname === "/likes" ? (handleDel()) : (handleDelete())
                     setMenu(false);
                   }}
                   className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
                 >
+                  <i className="fa-solid fa-trash mr-3"></i>
                   Delete
                 </div>
               </div>
