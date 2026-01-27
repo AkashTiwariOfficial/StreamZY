@@ -822,7 +822,14 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
             }
           ]
         }
-      }
+      },
+        {
+            $addFields: {
+                "watchHistory.video": {
+                    $first: "$watchHistory.video"
+                }
+            }
+          }
     ])
 
     return res

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js"
-import { getLikedVideos, isVideoLiked, toggleLikeAndDisLike, toggleLikeAndDisLikeComment, toggleLikeAndDisLikeCommentReply, toggleReplyCommentLike, toggleUserCommentLike, toggleUserTweetLike, toggleUserVideoLike, totalCommentLike, totalLikes, totalReplyCommentLike, userCommentLike, userReplyCommentLike } from "../controllers/like.controller.js";
+import { getLikedVideos, isVideoLiked, removeFromLike, toggleLikeAndDisLike, toggleLikeAndDisLikeComment, toggleLikeAndDisLikeCommentReply, toggleReplyCommentLike, toggleUserCommentLike, toggleUserTweetLike, toggleUserVideoLike, totalCommentLike, totalLikes, totalReplyCommentLike, userCommentLike, userReplyCommentLike } from "../controllers/like.controller.js";
 
 
 
@@ -81,6 +81,11 @@ router.route("/toggle-comment-reply-like/:replyCommentId").patch(
 router.route("/fetch-user-comment-reply-like/:replyCommentId").get(
     verifyJWT,
     userReplyCommentLike
+)
+
+router.route("/remove-liked-video/:Id").delete(
+    verifyJWT,
+    removeFromLike
 )
 
 
