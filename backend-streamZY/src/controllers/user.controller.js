@@ -880,18 +880,19 @@ const fetchUserVideos = asyncHandler(async (req, res) => {
       sort[sortBy] = sortType === "desc" ? -1 : 1;
     }
 
-    const userVideos = await Video.find({ owner: new mongoose.Types.ObjectId(user?._id) })
+    const video = await Video.find({ owner: new mongoose.Types.ObjectId(user?._id) })
       .sort(sort)
       .skip((pageNumber - 1) * 10)
       .limit(limitNumber)
+      .populate("owner", "avatar username")
 
-    if (userVideos.length === 0) {
-      userVideos = "No vidoes found for this user!"
+    if (!video) {
+      throw new ApiErrors(500, "Internal Server Error while fetching the user video's")
     }
 
     return res
       .status(200)
-      .json(new ApiResponses(200, { userVideos, user }, "user's videos fetched successfully"))
+      .json(new ApiResponses(200, { video }, "user's videos fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, "Internal Server Error while fetcing user videos")
   }

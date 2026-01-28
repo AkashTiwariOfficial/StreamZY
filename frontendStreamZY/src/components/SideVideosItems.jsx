@@ -6,7 +6,7 @@ import axios from 'axios';
 export default function SideVideosItems(props) {
 
   const location = useLocation();
-  const { video, removeVideos, num, removeLikedVideos } = props;
+  const { video, removeVideos, num, removeLikedVideos, removeMyVideo } = props;
   const Context = useContext(videoContext);
   const { timeAgo } = Context;
   const menuRef = useRef(null);
@@ -134,6 +134,26 @@ export default function SideVideosItems(props) {
     }
   }
 
+  const handleDeleteVideo = async () => {
+
+    try {
+      const response = await axios.delete(`${host}/v1/videos/delete//${video.video?._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removeMyVideo(video.video?._id);
+      }
+
+    } catch (error) {
+      console.log("Error while deleting liked videos", error.response?.data || error.message);
+    }
+  }
+
   return (
     <div>
       <div onClick={handleClick} className={`w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer ${diffCSS2()} hover:bg-black/10 dark:hover:bg-white/5 transition-all duration-200`}>
@@ -181,7 +201,7 @@ export default function SideVideosItems(props) {
                     {video.video?.description}
                   </p>)}
                 </div>
-                {location.pathname === "/likes" ? (
+                {location.pathname === "/likes" || location.pathname === "/yourVideos" ? (
                   null
                 ) : (
                   <div className="flex items-center xs:text-xs text-[12px] text-gray-500 dark:text-gray-400 mt-2 overflow-hidden">
@@ -214,7 +234,15 @@ export default function SideVideosItems(props) {
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
-                    location.pathname === "/likes" ? (handleDel()) : (handleDelete())
+                    if (location.pathname === "/likes") {
+                      handleDel();
+                    }
+                    else if (location.pathname === "/watchHistory") {
+                      handleDelete();
+                    }
+                    else {
+                      handleDeleteVideo();
+                    }
                     setMenu(false);
                   }}
                   className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"

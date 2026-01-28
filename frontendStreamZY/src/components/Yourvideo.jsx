@@ -1,9 +1,48 @@
-import React from 'react'
 import SideVideosItems from './SideVideosItems'
 import { Link } from 'react-router-dom'
+import React, { useContext, useEffect, useState } from 'react'
+import videoContext from '../Context/Videos/videoContext.jsx';
+import axios from 'axios';
 
 export default function Yourvideo() {
-    
+
+    const Context = useContext(videoContext);
+    const { currUser } = Context;
+    const [myVideo, setMyVideo] = useState([]);
+    const host = import.meta.env.VITE_HOST_LINK;
+
+    const removeMyVideo = (_id_) => {
+        setMyVideo(prev =>
+            prev.filter(comment => comment._id !== _id_)
+        );
+    };
+
+    useEffect(() => {
+        const fetchMyVideos = async () => {
+
+            try {
+                const response = await axios.get(`${host}/v1/users/fetch-videos/${currUser.username}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                    withCredentials: true,
+                    timeout: 150000
+                });
+
+                if (response.data.success) {
+                    console.log(response.data.data);
+                    setMyVideo(response.data.data);
+                }
+
+            } catch (error) {
+                console.log("Error while fetching vidoes", error.response?.data || error.message);
+            }
+        }
+
+        fetchMyVideos();
+
+    }, [])
+
     return (
         <div className="lg:ml-24 ml-4 pr-3 py-1">
             <div className="flex flex-wrap ml-4">
@@ -40,35 +79,20 @@ export default function Yourvideo() {
                 <div className="py-4 dark:text-white">
                     <hr />
                 </div>
-                <SideVideosItems />
-                <div className="py-4 dark:text-white">
-                    <hr />
-                </div>
-                <SideVideosItems />
-                <div className="py-4 dark:text-white">
-                    <hr />
-                </div>
-                <SideVideosItems />
-                <div className="py-4 dark:text-white">
-                    <hr />
-                </div>
-                <SideVideosItems />
-                <div className="py-4 dark:text-white">
-                    <hr />
-                </div>
-                <SideVideosItems />
-                <div className="py-4 dark:text-white">
-                    <hr />
-                </div>
-                <SideVideosItems />
-                <div className="py-4 dark:text-white">
-                    <hr />
-                </div>
-                <SideVideosItems />
-                <div className="py-4 dark:text-white">
-                    <hr />
-                </div>
+                {myVideo.length > 0 ? (
+                    myVideo.map((video) => {
+                        return <SideVideosItems key={video?._id} video={video} removeMyVideo={removeMyVideo} />
+                    })
+                ) : (
+                    <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+                        <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
+                        <p className="text-sm mt-1">
+                            Start creating — your first video is one upload away ✨
+                        </p>
+                    </div>
 
+                )
+                }
             </div>
         </div>
     )
