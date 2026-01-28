@@ -71,6 +71,11 @@ export default function SideVideosItems(props) {
   }
 
   useEffect(() => {
+    
+      if (!video.video?._id) {
+      return;
+    }
+
     const isVideoSaved = async () => {
       try {
         const response = await axios.get(`${host}/v1/videos/is-Saved-video/${video?.video?._id}`, {
@@ -137,7 +142,7 @@ export default function SideVideosItems(props) {
   const handleDeleteVideo = async () => {
 
     try {
-      const response = await axios.delete(`${host}/v1/videos/delete//${video.video?._id}`, {
+      const response = await axios.delete(`${host}/v1/videos/delete/${video.video?._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -152,6 +157,10 @@ export default function SideVideosItems(props) {
     } catch (error) {
       console.log("Error while deleting liked videos", error.response?.data || error.message);
     }
+  }
+
+  const handleEdit = () => {
+    navigate(`/updateVideo/${video.video?._id}`)
   }
 
   return (
@@ -218,8 +227,20 @@ export default function SideVideosItems(props) {
             {menu && (
               <div ref={menuRef} className="absolute right-full mt-2 min-w-32 w-full
                     bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
-
+              { location.pathname === "/yourVideos" ? (
                 <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit();
+                    setMenu(false);
+                  }}
+                  className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                >
+                 <i className="fa-regular fa-pen-to-square mr-3"></i>
+                  Edit
+                </div>
+              ) : (
+                  <div
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSave();
@@ -227,9 +248,10 @@ export default function SideVideosItems(props) {
                   }}
                   className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
                 >
-                  <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 `}></i>
+                 <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3`}></i>
                   Save
                 </div>
+              )}
 
                 <div
                   onClick={(e) => {

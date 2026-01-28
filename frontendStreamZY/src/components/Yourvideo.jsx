@@ -30,7 +30,6 @@ export default function Yourvideo() {
                 });
 
                 if (response.data.success) {
-                    console.log(response.data.data);
                     setMyVideo(response.data.data);
                 }
 
@@ -47,11 +46,11 @@ export default function Yourvideo() {
         <div className="lg:ml-24 ml-4 pr-3 py-1">
             <div className="flex flex-wrap ml-4">
                 <div className="sm:h-[120px] sm:w-[120px] h-[72px] w-[72px] rounded-full relative  overflow-hidden">
-                    <img src="https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-74e0-51f7-925f-fa5dff284004/raw?se=2025-11-09T22%3A16%3A04Z&sp=r&sv=2024-08-04&sr=b&scid=d321b3b0-6200-4752-b496-5d78d3d588fc&skoid=9063adf3-a524-4acf-b70a-8731b33f2f50&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-11-08T22%3A38%3A30Z&ske=2025-11-09T22%3A38%3A30Z&sks=b&skv=2024-08-04&sig=sjVZpfVZesEysvYk1kjL3/uuqe4IHt2bAJ9fE4OJSQI%3D" alt="Profile photo" className="h-full w-full object-cover rounded-full" />
+                    <img src={currUser.avatar} alt="Profile photo" className="h-full w-full object-cover rounded-full" />
                 </div>
                 <div className="flex flex-col gap-2 w-auto mx-2 px-3 flex-wrap">
-                    <span className="text-4xl dark:text-white/90 font-[700]">Akash Tiwari</span>
-                    <span className="dark:text-white/60 text-base font-[400]">akashTiwari00624 • View Channel</span>
+                    <span className="text-4xl dark:text-white/90 font-[700]">{currUser.fullName}</span>
+                    <span className="dark:text-white/60 text-base font-[400]">{currUser.username} • View Channel</span>
                     <div className="flex gap-5 mt-2">
 
                         <div className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
@@ -79,9 +78,9 @@ export default function Yourvideo() {
                 <div className="py-4 dark:text-white">
                     <hr />
                 </div>
-                {myVideo.length > 0 ? (
+                { myVideo.length > 0 ? (
                     myVideo.map((video) => {
-                        return <SideVideosItems key={video?._id} video={video} removeMyVideo={removeMyVideo} />
+                        return <SideVideosItems key={video?._id} video={{ video: video }} removeMyVideo={removeMyVideo} />
                     })
                 ) : (
                     <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
@@ -90,7 +89,6 @@ export default function Yourvideo() {
                             Start creating — your first video is one upload away ✨
                         </p>
                     </div>
-
                 )
                 }
             </div>

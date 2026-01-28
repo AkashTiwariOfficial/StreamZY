@@ -892,7 +892,7 @@ const fetchUserVideos = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponses(200, { video }, "user's videos fetched successfully"))
+      .json(new ApiResponses(200, video , "user's videos fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, "Internal Server Error while fetcing user videos")
   }

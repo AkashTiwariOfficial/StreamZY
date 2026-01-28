@@ -280,22 +280,32 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
     let thumbnail;
+    let videoFile;
 
     if (!videoId) {
         throw new ApiErrors(400, "video id is missing!")
     }
 
-    const video = await Video.findById(videoId)
+    const vi_deo = await Video.findById(videoId);
 
-    if (!video) {
+    if (!vi_deo) {
         throw new ApiErrors(404, "Video does not exists");
     }
 
     const { title, description, tag } = req.body
+    let thumbnailFilePath = null;
+    let videoFilePath = null;
 
-    const thumbnailFilePath = req.file?.path
+    if (req.files?.thumbnail?.[0]?.path) {
+        thumbnailFilePath = req.files.thumbnail[0].path;
+    }
 
-    if (!(title || description || tag || thumbnailFilePath)) {
+    if (req.files?.videoFile?.[0]?.path) {
+        videoFilePath = req.files.videoFile[0].path;
+    }
+
+
+    if (!(title || description || tag || thumbnailFilePath || videoFilePath)) {
         throw new ApiErrors(400, "Atleast one field is required! to update")
     }
 
@@ -303,7 +313,12 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
         thumbnail = await uploadOnCloudinary(thumbnailFilePath)
     }
 
-    const old_public_id = video?.thumbnail_public_id;
+    if (videoFilePath) {
+        videoFile = await uploadVideoOnCloudinary(videoFilePath)
+    }
+
+    const old_public_id = vi_deo?.videoFile_public_id;
+    const old_public_id_thumbnail = vi_deo?.thumbnail_public_id;
 
     const updateFields = {}
 
@@ -314,21 +329,22 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
         updateFields.thumbnail = thumbnail?.url
         updateFields.thumbnail_public_id = thumbnail?.public_id
     }
+    if (videoFile) {
+        updateFields.videoFile = videoFile?.url,
+            updateFields.videoFile_public_id = videoFile?.public_id
+    }
 
-    console.log(updateFields)
-    const updatedDetials = await Video.findByIdAndUpdate(videoId, {
+    const video = await Video.findByIdAndUpdate(videoId, {
         $set: updateFields
     },
         { new: true })
 
-    if (!updatedDetials) {
-        await deleteFromCloudinary(thumbnail?.public_id, "image")
-        throw new ApiErrors(404, "Video could not be updated. Try again!");
-    }
-
     try {
+        if (old_public_id_thumbnail) {
+            await deleteFromCloudinary(old_public_id_thumbnail, "image")
+        }
         if (old_public_id) {
-            await deleteFromCloudinary(old_public_id, "image")
+            await deleteFromCloudinary(old_public_id, "video")
         }
     } catch (error) {
         throw new ApiErrors(500, `Internal Server Error while deleting old image : ${error.message}`);
@@ -336,7 +352,7 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponses(200, updatedDetials, "Video details updated successfully"))
+        .json(new ApiResponses(200, { video }, "Video details updated successfully"))
 
 })
 
@@ -716,15 +732,15 @@ const isVideoSaved = asyncHandler(async (req, res) => {
         newAdd = false;
     }
 
- return res
+    return res
         .status(200)
         .json(new ApiResponses(200, newAdd, "Saved Video fetched  successfully"));
-    
+
 })
 
 
 export {
-    
+
     getAllVideos,
     publishAVideo,
     uploadManyVideos,

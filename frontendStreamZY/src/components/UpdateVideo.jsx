@@ -3,38 +3,35 @@ import { UploadCloud, Image, Film, Tag, Save, X, RefreshCw } from "lucide-react"
 import { __param } from "tslib";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useEffect } from "react";
 
 
-export default function UpdateVideo({ onSave }) {
-
-    const video = {
-        title: "Hello world",
-        description: "Keses ho hello world",
-        tag: "coding",
-        thumbnail: "http://res.cloudinary.com/dirkdiysg/image/upload/v1767175378/bkbpdaziwfquup40ydvo.jpg",
-        videoFile: "http://res.cloudinary.com/dirkdiysg/video/upload/v1767261221/ciudpjfdu4rmwaycubvb.mp4"
-    }
+export default function UpdateVideo({ video }) {
 
     const { id } = useParams();
     const host = import.meta.env.VITE_HOST_LINK;
-    const [title, setTitle] = useState(video.title || "");
+    const [details, setDetails] = useState([]);
+    const [title, setTitle] = useState(video?.title || "");
     const [tags, setTags] = useState(
-        typeof video.tag === "string" && video.tag.trim()
-            ? [video.tag.trim()]
+        typeof video?.tag === "string" && video?.tag.trim()
+            ? [video?.tag.trim()]
             : []
     );
 
     const [tagInput, setTagInput] = useState("");
-    const [description, setDescription] = useState(video.description || "");
+    const [description, setDescription] = useState(video?.description || "");
+    const [iid,  setIid] = useState("");
 
     const [thumbFile, setThumbFile] = useState(null);
-    const [thumbPreview, setThumbPreview] = useState(video.thumbnail || null);
+    const [thumbPreview, setThumbPreview] = useState(video?.thumbnail || null);
 
     const [videoFile, setVideoFile] = useState(null);
-    const [videoPreview, setVideoPreview] = useState(video.videoFile || null);
+    const [videoPreview, setVideoPreview] = useState(video?.videoFile || null);
 
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
+    const [stat, setStat] = useState(false)
+
 
 
     const fileInputThumbRef = useRef(null);
@@ -55,6 +52,7 @@ export default function UpdateVideo({ onSave }) {
         setTags((s) => s.filter((x) => x !== t));
     }
 
+
     function onThumbSelected(file) {
         if (!file) return;
         setThumbFile(file);
@@ -69,13 +67,13 @@ export default function UpdateVideo({ onSave }) {
 
     function resetThumbnail() {
         setThumbFile(null);
-        setThumbPreview(video.thumbnail || null);
+        setThumbPreview(details?.video?.thumbnail || null);
         if (fileInputThumbRef.current) fileInputThumbRef.current.value = null;
     }
 
     function resetVideo() {
         setVideoFile(null);
-        setVideoPreview(video.videoFile || null);
+        setVideoPreview(details?.video?.videoFile || null);
         if (fileInputVideoRef.current) fileInputVideoRef.current.value = null;
     }
 
@@ -89,6 +87,32 @@ export default function UpdateVideo({ onSave }) {
         return null;
     }
 
+    useEffect(() => {
+
+        const fetchDetails = async () => {
+
+            try {
+                const response = await axios.get(`${host}/v1/videos/get-video/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                    withCredentials: true,
+                    timeout: 150000
+                });
+
+                if (response.data.success) {
+                    setDetails(response.data.data);
+                }
+
+            } catch (error) {
+                console.log("Error while fetching vidoes", error.response?.data || error.message);
+            }
+        }
+
+        fetchDetails();
+
+    }, [id, stat])
+
     // Simulated upload with progress (replace with real upload logic)
     const handleSave = async (e) => {
         e?.preventDefault?.();
@@ -101,13 +125,15 @@ export default function UpdateVideo({ onSave }) {
         setSaving(true);
 
         const form = new FormData();
-        if (title && video.title !== title) form.append("title", title);
-        if (description && video.description !== description) form.append("description", description);
-        if (tags.length && tags[0] !== video.tag) {
+        if (title && details?.video?.title !== title) form.append("title", title);
+        if (description && details?.video?.description !== description) form.append("description", description);
+        if (tags.length && tags[0] !== details?.video?.tag) {
             form.append("tag", tags[0]); // send single tag string
         }
-        if (thumbFile && video.thumbnail !== thumbFile) form.append("thumbnail", thumbFile);
 
+        if (thumbFile && details?.video?.thumbnail !== thumbFile) form.append("thumbnail", thumbFile);
+        if (videoFile && details?.video?.videoFile !== videoFile) form.append("videoFile", videoFile);
+ 
         if ([...form.entries()].length !== 0) {
 
             try {
@@ -121,20 +147,18 @@ export default function UpdateVideo({ onSave }) {
                 });
 
                 if (response.data.success) {
-                    console.log("Video Details section uploaded")
-                    setSaving(false)
+                    setDetails(response.data.data)
                 }
 
             } catch (error) {
-                console.log("Error while fetching vidoes", error.response?.data || error.message);
-                setSaving(false)
+                console.log("Error while  uploading vidoes details in edit page", error.response?.data || error.message);
+            } finally {
+                setSaving(false);
             }
-        } else {
-            setSaving(false)
         }
 
-        const forms = new FormData();
-        if (videoFile && video.videoFile !== videoFile) forms.append("videoFile", videoFile);
+ /*        const forms = new FormData();
+        if (videoFile && details?.video?.videoFile !== videoFile) forms.append("videoFile", videoFile);
 
         if ([...forms.entries()].length !== 0) {
 
@@ -148,33 +172,57 @@ export default function UpdateVideo({ onSave }) {
                 });
 
                 if (response.data.success) {
-                    setSaving(false)
                     console.log("Video section uploaded")
                 }
 
             } catch (error) {
-                console.log("Error while fetching vidoes", error.response?.data || error.message);
-                setSaving(false)
+                console.log("Error while  uploading vidoes in edit page", error.response?.data || error.message);
+            } finally {
+                setSaving(false);
             }
-        } else {
+        } 
+     }else {
             setSaving(false)
-        }
+        } */
 
     }
+
+    useEffect(() => {
+        if (details?.video) {
+            const v = details.video;
+            setTitle(v.title || "");
+            setDescription(v.description || "");
+            setIid(v?._id || "")
+            setTags(v.tag ? [v.tag] : []);
+            setThumbPreview(v.thumbnail || null);
+            setVideoPreview(v.videoFile || null);
+            
+        }
+    }, [details]);
+
+    useEffect(() => {
+  return () => {
+    thumbPreview && URL.revokeObjectURL(thumbPreview);
+    videoPreview && URL.revokeObjectURL(videoPreview);
+  };
+}, []);
+
+
+
 
     return (
         <div className="max-w-6xl lg:ml-20 p-6">
             <header className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-semibold leading-tight dark:text-white/90">Edit Video</h1>
+                    <h1 className="text-2xl font-semibold leading-tight dark:text-white/90">Edit Video{details?.video?.views}</h1>
                     <p className="text-sm text-gray-500 dark:text-white/60">Update title, tags, description, thumbnail or replace the video file.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => {
-                            setTitle(video.title || "");
-                            setDescription(video.description || "");
-                            setTags(video.tags || []);
+                            setTitle(details?.video?.title || "");
+                            setDescription(details?.video?.description || "");
+                            setTags(details?.video?.tags || []);
                             resetThumbnail();
                             resetVideo();
                             setMessage("Reverted to original");
@@ -234,7 +282,7 @@ export default function UpdateVideo({ onSave }) {
                                 <span className="flex items-center gap-2 bg-gray-200 dark:bg-white/10 dark:text-white px-3 py-1 rounded-full">
                                     <Tag size={14} />
                                     {tags[0]}
-                                    <button type="button" onClick={removeTag}>
+                                    <button type="button" onClick={() => removeTag(tags[0])}>
                                         <X size={12} />
                                     </button>
                                 </span>
@@ -350,10 +398,10 @@ export default function UpdateVideo({ onSave }) {
             </form>
 
             <footer className="mt-6 flex items-center justify-between text-sm text-gray-500">
-                <div>Last saved: {video.updatedAt ? new Date(video.updatedAt).toLocaleString() : "—"}</div>
+                <div>Last saved: {details?.video?.updatedAt ? new Date(details?.video?.updatedAt).toLocaleString() : "—"}</div>
                 <div>
-                    <span className="mr-3">ID: {video.id || "unsaved"}</span>
-                    <button type="button" onClick={() => { navigator.clipboard?.writeText(video.id || ""); }} className="underline active:text-white hover:text-white/60">Copy ID</button>
+                    <span className="mr-3">ID: {iid || "unsaved"}</span>
+                    <button type="button" onClick={() => { navigator.clipboard?.writeText(iid || ""); }} className="underline active:text-white hover:text-white/60">Copy ID</button>
                 </div>
             </footer>
         </div>

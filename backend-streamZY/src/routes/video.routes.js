@@ -47,7 +47,16 @@ router.route("/delete/:videoId").delete(
 
 router.route("/update-videoDetails/:videoId").patch(
     verifyJWT,
-    upload.single("thumbnail"),
+     upload.fields([
+        {
+        name: "thumbnail",
+        maxCount: 1
+    },
+    {
+        name: "videoFile",
+        maxCount: 1
+    }
+    ]),
     updateVideoDetails
 )
 
