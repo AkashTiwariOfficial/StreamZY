@@ -11,20 +11,27 @@ export default function VideoItems(props) {
 
 
   const handleClick = () => {
-    if ( location.pathname.includes("/video")) {
-       navigate(`/video/${category}/${video._id}`);
+    if (location.pathname.includes("/video")) {
+      navigate(`/video/${category}/${video._id}`);
     } else {
-    navigate(`/video/${category}/${video._id}`);
+      navigate(`/video/${category}/${video._id}`);
     }
   }
-  
-    const Context = useContext(videoContext);
-    const { timeAgo } = Context;
+
+  const Context = useContext(videoContext);
+  const { timeAgo } = Context;
 
   return (
-    <div>
+    <div
+      className={
+        location.pathname === "/you"
+          ? "w-[248px] flex-shrink-0"
+          : ""
+      }
+    >
+
       <div onClick={handleClick} className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
-       <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
+        <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
           <img
             src={video.thumbnail}
             alt="Video thumbnail"

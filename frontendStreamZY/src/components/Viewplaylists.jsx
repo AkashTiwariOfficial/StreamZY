@@ -3,6 +3,7 @@ import SideVideosItems from './SideVideosItems'
 
 export default function Viewplaylists() {
     return (
+        
         <div className="ml-2 lg:ml-20">
             <div className="min-h-screen w-full bg-slate-100 dark:bg-[#121212]/100 text-gray-100 dark:text-gray-100">
                 <div className="lg:flex-row lg:items-start gap-8 px-4 lg:px-10">

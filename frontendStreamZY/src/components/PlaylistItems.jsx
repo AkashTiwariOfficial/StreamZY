@@ -18,7 +18,13 @@ export default function Playlists() {
   }
 
   return (
-    <div>
+    <div
+      className={
+        location.pathname === "/you"
+          ? "w-[248px] flex-shrink-0"
+          : ""
+      }
+    >
       <div className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200 ">
 
        <div className="relative w-full mb-2 aspect-video rounded-xl  group">

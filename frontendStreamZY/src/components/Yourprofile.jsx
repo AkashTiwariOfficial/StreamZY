@@ -1,13 +1,13 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import VideoItems from "./VideoItems";
 import videoContext from "../Context/Videos/videoContext.jsx";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import PlaylistItems from "./PlaylistItems.jsx"
 import axios from 'axios';
 
 
 export default function Yourprofile() {
-  const { videos, handleLogout, currUser } = useContext(videoContext);
+  const { timeAgo, handleLogout, currUser } = useContext(videoContext);
   const scrollRefLike = useRef(null);
   const scrollRef = useRef(null);
   const scrollRefHistory = useRef(null);
@@ -22,7 +22,7 @@ export default function Yourprofile() {
     const el = ref.current;
     if (!el) return;
 
-    const scrollAmount = 500;
+    const scrollAmount = 250;
     el.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
@@ -30,9 +30,9 @@ export default function Yourprofile() {
   };
 
   useEffect(() => {
-  
+
     const fetchUserWatchHistory = async () => {
-  
+
       try {
         const response = await axios.get(`${host}/v1/users/watch-history`, {
           headers: {
@@ -41,70 +41,82 @@ export default function Yourprofile() {
           withCredentials: true,
           timeout: 150000
         });
-  
+
         if (response.data.success) {
           setHistory(response.data.data);
         }
-  
+
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
     }
-  
+
     fetchUserWatchHistory();
-  
+
   }, [])
 
   useEffect(() => {
-          const fetchLikedVideos = async () => {
+    const fetchLikedVideos = async () => {
 
-            try {
-                const response = await axios.get(`${host}/v1/likes/fetch-user-likes-videos`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                    },
-                    withCredentials: true,
-                    timeout: 150000
-                });
+      try {
+        const response = await axios.get(`${host}/v1/likes/fetch-user-likes-videos`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
 
-                if (response.data.success) {
-                    setLike(response.data.data);
-                }
-
-            } catch (error) {
-                console.log("Error while fetching vidoes", error.response?.data || error.message);
-            }
+        if (response.data.success) {
+          setLike(response.data.data);
         }
 
-        fetchLikedVideos();
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
 
-    }, [])
+    fetchLikedVideos();
 
-     useEffect(() => {
-        const fetchMyVideos = async () => {
+  }, [])
 
-            try {
-                const response = await axios.get(`${host}/v1/users/fetch-videos/${currUser.username}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                    },
-                    withCredentials: true,
-                    timeout: 150000
-                });
+  useEffect(() => {
+    const fetchMyVideos = async () => {
 
-                if (response.data.success) {
-                    setMyVideo(response.data.data);
-                }
+      try {
+        const response = await axios.get(`${host}/v1/users/fetch-videos/${currUser.username}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
 
-            } catch (error) {
-                console.log("Error while fetching vidoes", error.response?.data || error.message);
-            }
+        if (response.data.success) {
+          setMyVideo(response.data.data);
         }
 
-        fetchMyVideos();
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
 
-    }, [])
+    fetchMyVideos();
 
+  }, [])
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { category } = useParams();
+
+
+  const handleClick = (_id) => {
+    if (location.pathname.includes("/video")) {
+      navigate(`/video/${category}/${_id}`);
+    } else {
+      navigate(`/video/${category}/${_id}`);
+    }
+  }
 
   return (
 
@@ -134,7 +146,7 @@ export default function Yourprofile() {
         </div>
       </div>
 
- <div className="my-4 dark:text-white">
+      <div className="my-4 dark:text-white">
         <hr />
       </div>
       <div className="flex flex-col items-start mt-1 mb-1 lg:ml-8 ml-4">
@@ -146,7 +158,7 @@ export default function Yourprofile() {
             <Link to="/watchHistory" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               View All
             </Link>
-            <div onClick={() => scroll(scrollRef,"left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRef, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button>
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
@@ -162,19 +174,19 @@ export default function Yourprofile() {
         </div>
       </div>
       <div ref={scrollRef} className="overflow-x-auto flex gap-3 scroll-hidden  overflow-x-hidden scroll-smooth">
-                { myVideo.length > 0 ? (
-                          myVideo.map((video) => {
-                              return <VideoItems key={video?._id} video={ video } />
-                          })
-                      ) : (
-                          <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
-                              <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
-                              <p className="text-sm mt-1">
-                                  Start creating — your first video is one upload away ✨
-                              </p>
-                          </div>
-                      )
-                      }
+        {myVideo.length > 0 ? (
+          myVideo.map((video) => {
+            return <VideoItems key={video?._id} video={video} />
+          })
+        ) : (
+          <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+            <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
+            <p className="text-sm mt-1">
+              Start creating — your first video is one upload away ✨
+            </p>
+          </div>
+        )
+        }
       </div>
 
 
@@ -192,7 +204,7 @@ export default function Yourprofile() {
             <Link to="/watchHistory" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               View All
             </Link>
-            <div onClick={() => scroll(scrollRefHistory,"left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRefHistory, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button>
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
@@ -207,11 +219,61 @@ export default function Yourprofile() {
           </div>
         </div>
       </div>
-      <div ref={scrollRefHistory} className="overflow-x-auto flex gap-3 scroll-hidden  overflow-x-hidden scroll-smooth">
-        {
-          videos.map((video) => {
-            return <VideoItems video={video} key={video._id} />
-          })
+      <div ref={scrollRefHistory} className="overflow-x-auto flex gap-3 overflow-x-hidden scroll-smooth">
+        {history.length > 0 ? (
+          history.map((video) => (
+            <div key={video?._id} className="w-[248px] flex-shrink-0">
+              <div onClick={() => { handleClick(video?.video?._id); }} className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
+                <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
+                  <img
+                    src={video?.video?.thumbnail}
+                    alt="Video thumbnail"
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl transform transition-transform duration-300 ease-in-out hover:scale-105"
+                  />
+                </div>
+
+                <div className="flex items-start w-full">
+                  <div className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
+                    <img
+                      src={video?.video?.owner.avatar}
+                      alt="Channel avatar"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  <div className="flex flex-col flex-1 overflow-hidden">
+
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2">
+                      {video?.video?.title.length > 55
+                        ? video?.video?.title.slice(0, 55) + "..."
+                        : video?.video?.title}
+                    </span>
+
+                    <span className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
+                      {video?.video?.owner.username}
+                    </span>
+
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-600 mt-1 truncate">
+                      <span className="dark:text-white/60 text-sm font-[400] truncate">{video?.video?.views} • {timeAgo(video?.video?.createdAt)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2">
+                    <i className="fa-solid fa-ellipsis-vertical dark:text-gray-200"></i>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+            <p className="text-lg font-medium">No watch history yet</p>
+            <p className="text-sm mt-1">
+              Start watching videos and they’ll show up here 📺
+            </p>
+          </div>
+        )
         }
       </div>
 
@@ -246,11 +308,62 @@ export default function Yourprofile() {
           </div>
         </div>
       </div>
-      <div ref={scrollRefLike} className="overflow-x-auto flex gap-3 scroll-hidden  overflow-x-hidden scroll-smooth">
-        {
-          videos.map((video) => {
-            return <VideoItems video={video} key={video._id} />
-          })
+      <div ref={scrollRefLike} className="overflow-x-auto flex gap-3 scroll-hidden scroll-smooth">
+        {like.length > 0 ? (
+          like.map((video) => (
+            <div key={video?._id} className="w-[248px] flex-shrink-0">
+              <div onClick={() => { handleClick(video?.video?._id); }} className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
+                <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
+                  <img
+                    src={video?.video?.thumbnail}
+                    alt="Video thumbnail"
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl transform transition-transform duration-300 ease-in-out hover:scale-105"
+                  />
+                </div>
+
+                <div className="flex items-start w-full">
+                  <div className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
+                    <img
+                      src={video?.video?.owner.avatar}
+                      alt="Channel avatar"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  <div className="flex flex-col flex-1 overflow-hidden">
+
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2">
+                      {video?.video?.title.length > 55
+                        ? video?.video?.title.slice(0, 55) + "..."
+                        : video?.video?.title}
+                    </span>
+
+                    <span className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
+                      {video?.video?.owner.username}
+                    </span>
+
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-600 mt-1 truncate">
+                      <span className="dark:text-white/60 text-sm font-[400] truncate">{video?.video?.views} • {timeAgo(video?.video?.createdAt)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2">
+                    <i className="fa-solid fa-ellipsis-vertical dark:text-gray-200"></i>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )
+          )
+        ) : (
+          <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+            <p className="text-lg font-medium">No liked videos yet</p>
+            <p className="text-sm mt-1">
+              Tap the ❤️ on videos you enjoy and they’ll appear here
+            </p>
+          </div>
+        )
         }
       </div>
 
