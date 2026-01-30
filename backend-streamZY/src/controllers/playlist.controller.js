@@ -10,15 +10,16 @@ import mongoose from "mongoose";
 
 const createPlayList = asyncHandler(async (req, res) => {
 
-    const { name, description } = req.body
+    const { name, description, title } = req.body
 
-    if (!(name && description)) {
+    if (!(name && description && title)) {
         throw new ApiErrors(400, "Both name and description are required to create a PlayList")
     }
 
     const newPlayList = await Playlist.create({
         name,
         description,
+        title,
         owner: req.user?._id
     })
 
@@ -41,17 +42,65 @@ const getUserPlayLists = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "User Id is missing!")
     }
 
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
 
     if (!user) {
         throw new ApiErrors(400, "User does not exists")
     }
 
-    const userPlayLists = await Playlist.find({ owner: new mongoose.Types.ObjectId(userId) })
+    const userPlayLists = await Playlist.aggregate([
+          {
+            $match: {
+              owner: new mongoose.Types.ObjectId(user._id)
+            }
+          },
+/*           {
+            $unwind: "$watchHistory"
+          }, */
+          {
+            $lookup: {
+              from: "videos",
+              foreignField: "_id",
+              localField: "videos",
+              as: "videos",
+              pipeline: [
+                {
+                  $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "owner",
+                    pipeline: [
+                      {
+                        $project: {
+                          username: 1,
+                          fullName: 1,
+                          avatar: 1
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  $addFields: {
+                    owner: {
+                      $first: "$owner"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+         /*    {
+                $addFields: {
+                    "watchHistory.video": {
+                        $first: "$watchHistory.video"
+                    }
+                }
+              } */
+        ])
 
-    if (userPlayLists.length === 0) {
-        throw new ApiErrors(404, "No playlist found!")
-    }
+/*     const userPlayLists = await Playlist.find({ owner: new mongoose.Types.ObjectId(userId) }).populate("owner", "avatar username") */
 
     if (!userPlayLists) {
         throw new ApiErrors(500, "Internal Server Error while fetching user's Playlist")
@@ -114,9 +163,9 @@ const updatePlayList = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "PlayList id is missing!")
     }
 
-    const { name, description } = req.body
+    const { name, description, title } = req.body
 
-    if (!(name || description)) {
+    if (!(name || description || title)) {
         throw new ApiErrors(400, "One field is requried to edit playList")
     }
 
@@ -124,6 +173,7 @@ const updatePlayList = asyncHandler(async (req, res) => {
 
     if (name) { updateDetails.name = name }
     if (description) { updateDetails.description = description }
+    if(title) { updateDetails.title = title }
 
     const newPlayList = await Playlist.findByIdAndUpdate(playListId,
         {

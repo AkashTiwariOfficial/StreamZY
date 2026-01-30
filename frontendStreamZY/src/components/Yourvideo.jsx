@@ -55,14 +55,14 @@ export default function Yourvideo() {
 
                         <div className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
                     md:px-10 lg:px-20 sm:px-10 xs:px-5 
-                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center justify-center">
+                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] hover:bg-slate-300 hover:dark:bg-white/20  items-center justify-center">
                             <i className="fa-solid fa-right-from-bracket"></i>
                             <button>SignOut</button>
                         </div>
 
                         <Link to="/you" className="flex gap-3 dark:text-white/90 text-[12px] sm:text-base md:text-lg font-[500]
                       md:py-2 md:px-10 lg:px-20 sm:px-10 xs:px-5 
-                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center justify-center">
+                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] hover:bg-slate-300 hover:dark:bg-white/20  items-center justify-center">
                             <i className="fa fa-circle-user text-xl"></i>
                             <button>You</button>
                         </Link>

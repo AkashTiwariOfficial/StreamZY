@@ -118,6 +118,33 @@ export default function Yourprofile() {
     }
   }
 
+  useEffect(() => {
+    const fetchPlayList = async () => {
+      if (!currUser?._id) {
+        return;
+      }
+      try {
+
+        const response = await axios.get(`${host}/v1/playlists/fetch-user-playlist/${currUser._id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setPlaylist(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
+    fetchPlayList();
+
+  }, [])
   return (
 
     <div className="lg:ml-24  ml-4 px-2 lg:px-5 py-1">
@@ -132,13 +159,13 @@ export default function Yourprofile() {
 
             <button onClick={handleLogout} className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
                     md:px-10 lg:px-20 sm:px-10 xs:px-5 
-                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center">
+                    rounded-3xl bg-slate-200 hover:bg-slate-300 hover:dark:bg-white/20 dark:bg-[hsla(0,0%,100%,.08)] items-center">
               <i className="fa-solid fa-right-from-bracket"></i>
               <span>SignOut</span>
             </button>
             <Link to="/yourVideos" className="flex gap-3 dark:text-white/90 text-[12px] sm:text-base md:text-lg font-[500]
                       md:py-2 md:px-10 lg:px-20 sm:px-10 xs:px-5 
-                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] items-center">
+                    rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] hover:bg-slate-300 hover:dark:bg-white/20  items-center">
               <i className="fa-solid fa-video"></i>
               <button>Your Videos</button>
             </Link>
@@ -155,16 +182,16 @@ export default function Yourprofile() {
             <h1 className="text-2xl font-[700] dark:text-white/100">Your Videos</h1>
           </div>
           <div className="flex gap-2">
-            <Link to="/watchHistory" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <Link to="/watchHistory" className="flex px-3 py-1 hover:dark:bg-black/70 hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               View All
             </Link>
-            <div onClick={() => scroll(scrollRef, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRef, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button>
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
             </div>
 
-            <div onClick={() => scroll(scrollRef, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRef, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button
               >
                 <i className="fa-solid fa-chevron-right"></i>
@@ -179,11 +206,8 @@ export default function Yourprofile() {
             return <VideoItems key={video?._id} video={video} />
           })
         ) : (
-          <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
-            <p className="text-sm mt-1">
-              Start creating — your first video is one upload away ✨
-            </p>
           </div>
         )
         }
@@ -201,16 +225,16 @@ export default function Yourprofile() {
             <h1 className="text-2xl font-[700] dark:text-white/100">History</h1>
           </div>
           <div className="flex gap-2">
-            <Link to="/watchHistory" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <Link to="/watchHistory" className="flex px-3 py-1 hover:dark:bg-black/70 hover:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               View All
             </Link>
-            <div onClick={() => scroll(scrollRefHistory, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRefHistory, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button>
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
             </div>
 
-            <div onClick={() => scroll(scrollRefHistory, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRefHistory, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button
               >
                 <i className="fa-solid fa-chevron-right"></i>
@@ -267,11 +291,8 @@ export default function Yourprofile() {
             </div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium">No watch history yet</p>
-            <p className="text-sm mt-1">
-              Start watching videos and they’ll show up here 📺
-            </p>
           </div>
         )
         }
@@ -286,20 +307,20 @@ export default function Yourprofile() {
           <div className="flex">
             <div className="flex flex-col">
               <h1 className="text-2xl font-[700] dark:text-white/100">Liked Videos</h1>
-              <span className="text-lg font-[400] dark:text-white/70">777 videos</span>
+              <span className="text-lg font-[400] dark:text-white/70">{like.length} videos</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <Link to="/likes" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <Link to="/likes" className="flex px-3 py-1 hover:dark:bg-black/70 hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               View All
             </Link>
-            <div onClick={() => scroll(scrollRefLike, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRefLike, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95  border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button>
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
             </div>
 
-            <div onClick={() => scroll(scrollRefLike, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRefLike, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95   border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button
               >
                 <i className="fa-solid fa-chevron-right"></i>
@@ -357,11 +378,8 @@ export default function Yourprofile() {
           )
           )
         ) : (
-          <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium">No liked videos yet</p>
-            <p className="text-sm mt-1">
-              Tap the ❤️ on videos you enjoy and they’ll appear here
-            </p>
           </div>
         )
         }
@@ -378,21 +396,21 @@ export default function Yourprofile() {
             <h1 className="text-2xl font-[700] dark:text-white/100">Playlists</h1>
           </div>
           <div className="flex gap-2">
-            <div className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer text-4xl font-[300] pb-2">
+            <div className="flex h-[36px] w-[36px] hover:dark:bg-black/70 hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer text-4xl font-[300] pb-2">
               +
             </div>
 
-            <Link to="/playlist" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <Link to="/playlist" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               View All
             </Link>
 
-            <div onClick={() => scroll(scrollRefPlaylist, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRefPlaylist, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button>
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
             </div>
 
-            <div onClick={() => scroll(scrollRefPlaylist, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-white/90 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <div onClick={() => scroll(scrollRefPlaylist, "right")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               <button
               >
                 <i className="fa-solid fa-chevron-right"></i>
@@ -402,26 +420,17 @@ export default function Yourprofile() {
         </div>
       </div>
       <div ref={scrollRefPlaylist} className="overflow-x-auto flex gap-3 scroll-hidden overflow-x-hidden scroll-smooth">
-        <PlaylistItems />
-        <PlaylistItems />
-
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-
-        <PlaylistItems />
-
-        <PlaylistItems />
-        <PlaylistItems />
-        <PlaylistItems />
-
-        <PlaylistItems />
+        {
+          playlist.length > 0 ? (
+            playlist.map((pylt) => {
+              return <PlaylistItems key={pylt?._id} pylt={pylt}/>
+            })
+          ) : (
+            <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-medium">You haven’t created any playlist yet</p>
+            </div>
+          )
+        }
       </div>
 
       <div className="py-4 dark:text-white">

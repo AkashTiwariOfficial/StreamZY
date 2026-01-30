@@ -11,6 +11,10 @@ const playListSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+     title: {
+        type: String,
+        required: true
+    },
     videos: [
         {
             type: mongoose.Schema.Types.ObjectId,
