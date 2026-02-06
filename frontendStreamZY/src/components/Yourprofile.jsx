@@ -1,5 +1,6 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
-import VideoItems from "./VideoItems";
+import DuplicatieItem from "./DuplicatieItem.jsx";
+import VideoItems from "./VideoItems.jsx"
 import videoContext from "../Context/Videos/videoContext.jsx";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import PlaylistItems from "./PlaylistItems.jsx"
@@ -7,7 +8,7 @@ import axios from 'axios';
 
 
 export default function Yourprofile() {
-  const { timeAgo, handleLogout, currUser } = useContext(videoContext);
+  const { handleLogout, currUser } = useContext(videoContext);
   const scrollRefLike = useRef(null);
   const scrollRef = useRef(null);
   const scrollRefHistory = useRef(null);
@@ -28,6 +29,7 @@ export default function Yourprofile() {
       behavior: "smooth",
     });
   };
+
 
   useEffect(() => {
 
@@ -145,6 +147,46 @@ export default function Yourprofile() {
     fetchPlayList();
 
   }, [])
+
+  useEffect(() => {
+
+    const fetchSavedVidoes = async () => {
+
+      try {
+
+        const response = await axios.get(`${host}/v1/users/saved-videos`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setSavedVidoes(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching saved vidoes", error.response?.data || error.message);
+      }
+    }
+
+    fetchSavedVidoes();
+
+  }, [])
+
+    const removeLikedVideos = (_id_) => {
+    setLike(prev =>
+      prev.filter(del => del._id !== _id_)
+    );
+  };
+
+  const removeHistory = (_id_) => {
+ setHistory(prev =>
+      prev.filter(del => del._id !== _id_)
+    );
+  };
+
   return (
 
     <div className="lg:ml-24  ml-4 px-2 lg:px-5 py-1">
@@ -245,51 +287,9 @@ export default function Yourprofile() {
       </div>
       <div ref={scrollRefHistory} className="overflow-x-auto flex gap-3 overflow-x-hidden scroll-smooth">
         {history.length > 0 ? (
-          history.map((video) => (
-            <div key={video?._id} className="w-[248px] flex-shrink-0">
-              <div onClick={() => { handleClick(video?.video?._id); }} className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
-                <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
-                  <img
-                    src={video?.video?.thumbnail}
-                    alt="Video thumbnail"
-                    className="absolute inset-0 w-full h-full object-cover rounded-xl transform transition-transform duration-300 ease-in-out hover:scale-105"
-                  />
-                </div>
-
-                <div className="flex items-start w-full">
-                  <div className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
-                    <img
-                      src={video?.video?.owner.avatar}
-                      alt="Channel avatar"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="flex flex-col flex-1 overflow-hidden">
-
-                    <span className="font-semibold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2">
-                      {video?.video?.title.length > 55
-                        ? video?.video?.title.slice(0, 55) + "..."
-                        : video?.video?.title}
-                    </span>
-
-                    <span className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
-                      {video?.video?.owner.username}
-                    </span>
-
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-600 mt-1 truncate">
-                      <span className="dark:text-white/60 text-sm font-[400] truncate">{video?.video?.views} • {timeAgo(video?.video?.createdAt)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2">
-                    <i className="fa-solid fa-ellipsis-vertical dark:text-gray-200"></i>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          ))
+          history.map((video) => {
+            return <DuplicatieItem key={video._id} video={video} removeHistory={removeHistory} delFunction={"delete-History"} />
+          })
         ) : (
           <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium">No watch history yet</p>
@@ -331,51 +331,9 @@ export default function Yourprofile() {
       </div>
       <div ref={scrollRefLike} className="overflow-x-auto flex gap-3 scroll-hidden scroll-smooth">
         {like.length > 0 ? (
-          like.map((video) => (
-            <div key={video?._id} className="w-[248px] flex-shrink-0">
-              <div onClick={() => { handleClick(video?.video?._id); }} className="w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer p-3 hover:bg-black/10 dark:hover:bg-slate-800 transition-all duration-200">
-                <div className="relative w-full overflow-hidden rounded-xl mb-3 aspect-video">
-                  <img
-                    src={video?.video?.thumbnail}
-                    alt="Video thumbnail"
-                    className="absolute inset-0 w-full h-full object-cover rounded-xl transform transition-transform duration-300 ease-in-out hover:scale-105"
-                  />
-                </div>
-
-                <div className="flex items-start w-full">
-                  <div className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
-                    <img
-                      src={video?.video?.owner.avatar}
-                      alt="Channel avatar"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="flex flex-col flex-1 overflow-hidden">
-
-                    <span className="font-semibold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2">
-                      {video?.video?.title.length > 55
-                        ? video?.video?.title.slice(0, 55) + "..."
-                        : video?.video?.title}
-                    </span>
-
-                    <span className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
-                      {video?.video?.owner.username}
-                    </span>
-
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-600 mt-1 truncate">
-                      <span className="dark:text-white/60 text-sm font-[400] truncate">{video?.video?.views} • {timeAgo(video?.video?.createdAt)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2">
-                    <i className="fa-solid fa-ellipsis-vertical dark:text-gray-200"></i>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )
+          like.map((video) => {
+            return <DuplicatieItem key={video._id} video={video} removeLikedVideos={removeLikedVideos} delFunction={"delete-Like"} />
+          }
           )
         ) : (
           <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
@@ -423,7 +381,7 @@ export default function Yourprofile() {
         {
           playlist.length > 0 ? (
             playlist.map((pylt) => {
-              return <PlaylistItems key={pylt?._id} pylt={pylt}/>
+              return <PlaylistItems key={pylt?._id} pylt={pylt} />
             })
           ) : (
             <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">

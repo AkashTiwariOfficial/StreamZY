@@ -939,6 +939,71 @@ const forgotPassword = asyncHandler(async (req, res) => {
 })
 
 
+const getUserSavedVidoes = asyncHandler(async (req, res) => {
+  try {
+
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(req.user?._id)
+        }
+      },
+      {
+        $unwind: "$savedVideos"
+      },
+      {
+        $lookup: {
+          from: "videos",
+          foreignField: "_id",
+          localField: "savedVideos.video",
+          as: "savedVideos.video",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      username: 1,
+                      fullName: 1,
+                      avatar: 1
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $addFields: {
+                owner: {
+                  $first: "$owner"
+                }
+              }
+            }
+          ]
+        }
+      },
+        {
+            $addFields: {
+                "savedVideos.video": {
+                    $first: "$savedVideos.video"
+                }
+            }
+          }
+    ])
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, user.map(u => u.savedVideos) , "User's saved fetched successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while fetching user saved videos")
+  }
+})
+
+
+
 
 export {
   registerUser,
@@ -958,5 +1023,7 @@ export {
   fetchUserVideos,
   otpVerificationForgotPassword,
   sendOtpforgotpassword,
-  forgotPassword
+  forgotPassword,
+  getUserSavedVidoes
+  
 }

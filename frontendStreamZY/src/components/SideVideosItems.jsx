@@ -46,30 +46,6 @@ export default function SideVideosItems(props) {
     navigate(`/video/home/${video.video?._id}`);
   }
 
-  const handleDelete = async () => {
-
-    if (!video.video?._id) {
-      return;
-    }
-
-    try {
-      const response = await axios.patch(`${host}/v1/videos/delete-watched-Video/${video.video?._id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        withCredentials: true,
-        timeout: 150000
-      });
-
-      if (response.data.success) {
-        removeVideos(video._id);
-      }
-
-    } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
-    }
-  }
-
   useEffect(() => {
     
       if (!video.video?._id) {
@@ -118,6 +94,32 @@ export default function SideVideosItems(props) {
     }
 
   }
+
+
+    const handleDelete = async () => {
+
+    if (!video.video?._id) {
+      return;
+    }
+
+    try {
+      const response = await axios.patch(`${host}/v1/videos/delete-watched-Video/${video.video?._id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removeVideos(video._id);
+      }
+
+    } catch (error) {
+      console.log("Error while deleting vidoes", error.response?.data || error.message);
+    }
+  }
+
 
   const handleDel = async () => {
 
