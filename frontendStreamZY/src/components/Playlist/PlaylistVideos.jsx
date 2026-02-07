@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
 
-export default function SideVideosItems(props) {
+export default function PlaylistVideos(props) {
 
   const location = useLocation();
   const { video, removeVideos, num, removeLikedVideos, removeMyVideo } = props;

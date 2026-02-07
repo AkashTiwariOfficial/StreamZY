@@ -3,7 +3,7 @@ import DuplicatieItem from "./DuplicatieItem.jsx";
 import VideoItems from "./VideoItems.jsx"
 import videoContext from "../Context/Videos/videoContext.jsx";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import PlaylistItems from "./PlaylistItems.jsx"
+import PlaylistItems from "./Playlist/PlaylistItems.jsx"
 import axios from 'axios';
 
 
@@ -80,7 +80,7 @@ export default function Yourprofile() {
 
     fetchLikedVideos();
 
-  }, [])
+  }, [like])
 
   useEffect(() => {
     const fetchMyVideos = async () => {
@@ -105,7 +105,7 @@ export default function Yourprofile() {
 
     fetchMyVideos();
 
-  }, [])
+  }, [myVideo])
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -146,7 +146,7 @@ export default function Yourprofile() {
 
     fetchPlayList();
 
-  }, [])
+  }, [playlist])
 
   useEffect(() => {
 
@@ -183,6 +183,12 @@ export default function Yourprofile() {
 
   const removeHistory = (_id_) => {
  setHistory(prev =>
+      prev.filter(del => del._id !== _id_)
+    );
+  };
+
+    const removePlaylist = (_id_) => {
+ setPlaylist(prev =>
       prev.filter(del => del._id !== _id_)
     );
   };
@@ -248,14 +254,12 @@ export default function Yourprofile() {
             return <VideoItems key={video?._id} video={video} />
           })
         ) : (
-          <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
           </div>
         )
         }
       </div>
-
-
 
 
       <div className="my-4 dark:text-white">
@@ -291,7 +295,7 @@ export default function Yourprofile() {
             return <DuplicatieItem key={video._id} video={video} removeHistory={removeHistory} delFunction={"delete-History"} />
           })
         ) : (
-          <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium">No watch history yet</p>
           </div>
         )
@@ -336,7 +340,7 @@ export default function Yourprofile() {
           }
           )
         ) : (
-          <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium">No liked videos yet</p>
           </div>
         )
@@ -381,10 +385,10 @@ export default function Yourprofile() {
         {
           playlist.length > 0 ? (
             playlist.map((pylt) => {
-              return <PlaylistItems key={pylt?._id} pylt={pylt} />
+              return <PlaylistItems key={pylt?._id} pylt={pylt} removePlaylist={removePlaylist} />
             })
           ) : (
-            <div className="flex flex-col items-center justify-center my-5 text-center text-gray-500 dark:text-gray-400">
+            <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
               <p className="text-lg font-medium">You haven’t created any playlist yet</p>
             </div>
           )

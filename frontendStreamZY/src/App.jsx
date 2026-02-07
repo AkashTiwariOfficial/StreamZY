@@ -3,7 +3,7 @@ import './App.css'
 import Layout from './components/Layout.jsx'
 import Navbar from './components/Navbar.jsx'
 import VideoState from './Context/Videos/VideoState.jsx'
-import Playlists from './components/Playlists.jsx'
+import Playlists from './components/Playlist/Playlists.jsx'
 import Home from './components/Home.jsx'
 import History from './components/History.jsx'
 import Likes from './components/Likes.jsx'
@@ -20,7 +20,7 @@ import Videoplayer from './components/Videoplayer.jsx'
 import Comment from './components/Comment.jsx'
 import Settings from './components/Settings.jsx'
 import About from './components/About.jsx'
-import Viewplaylists from './components/Viewplaylists.jsx'
+import Viewplaylists from './components/Playlist/Viewplaylists.jsx'
 import Createvideo from './components/Create/Createvideo.jsx'
 import UpdateVideo from './components/UpdateVideo.jsx'
 
@@ -49,8 +49,8 @@ function App() {
             <Route path="/video/:category/:id" element={<Videoplayer />} />
             <Route path="/comments" element={<Comment />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/viewPlaylists" element={<Viewplaylists />} />
+            <Route path="/about" element={<About />} /> 
+            <Route path="/viewPlaylist/:id" element={<Viewplaylists />} />
             <Route path="/uploadVideo" element={<Createvideo />} />
             <Route path="/updateVideo/:id" element={<UpdateVideo /> } />
           </Routes>

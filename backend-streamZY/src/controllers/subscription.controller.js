@@ -3,6 +3,7 @@ import { User } from "../models/user.models.js";
 import { ApiErrors } from "../utils/ApiErrors.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponses } from "../utils/ApiResponses.js"
+import { channel } from "diagnostics_channel";
 
 
 
@@ -123,7 +124,54 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     const mySubscribedChannel = await Subscription.find({
         subscriber: subscriberId,
         isSubscribed: true
-    })
+    }).populate("channel", "username avatar")
+
+    const subscribedChannels = await Subscription.aggregate([
+        {
+            $match: {
+                subscriber: subscriberId,
+                isSubscribed: true
+            }
+        }, {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "channel",
+                as: "channel",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    },
+                    {
+                        $addFields: {
+                            channel: {
+                                $first: "$channel"
+                            }
+                        },
+                    }
+                ]
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "channel",
+                as: "noOfSubscribers",
+            },
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"
+                },
+            }
+        }
+    ])
 
     if (!mySubscribedChannel) {
         throw new ApiErrors(500, "Internal Server Error while fetching channel Subscribed by user")

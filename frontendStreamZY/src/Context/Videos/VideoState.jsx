@@ -8,7 +8,7 @@ export default function VideoState(props) {
     const initialVideos = [];
     const navigate = useNavigate();
     const [videos, setVideos] = useState(initialVideos);
-    const [subscribers, setSubscribers] = useState("");
+    const [subscribers, setSubscribers] = useState([]);
     const [dosubscribed, setDoSubscribed] = useState(false);
     const host = import.meta.env.VITE_HOST_LINK;
 
@@ -164,6 +164,26 @@ export default function VideoState(props) {
     return `${Math.floor(diff / 31104000)} yr ago`;
   }
 
+  
+    const fetchSubcribedChannels = async () => {
+       try {
+        const response = await axios.get(`${host}/v1/subscriber/subscribed-channel/${currUser?._id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setSubscribers(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      }
+    }
+
     return (
 
         <VideoContext.Provider value={{
@@ -171,6 +191,8 @@ export default function VideoState(props) {
             currUser,
             dosubscribed,
             subscribers,
+            host,
+            setSubscribers,
             timeAgo,
             setVideos,
             fetchIsSubscribers,
@@ -179,6 +201,7 @@ export default function VideoState(props) {
             fetchChannelIsSubscribed,
             fetchAllVideos,
             fetchAllVideoswithQuery,
+            fetchSubcribedChannels,
             handleLogout,
         }}
         >

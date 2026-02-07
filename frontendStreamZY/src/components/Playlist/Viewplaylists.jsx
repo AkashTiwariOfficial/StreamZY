@@ -1,7 +1,8 @@
 import React from 'react'
-import SideVideosItems from './SideVideosItems'
+import SideVideosItems from '../SideVideosItems'
 
 export default function Viewplaylists() {
+    
     return (
         
         <div className="ml-2 lg:ml-20">

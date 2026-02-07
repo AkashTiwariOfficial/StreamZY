@@ -2,7 +2,7 @@ import React, { Children, useEffect } from 'react'
 import Navbar from './Navbar';
 import VideoItems from './VideoItems';
 import Videos from './Videos';
-import Playlists from './Playlists';
+import Playlists from './Playlist/Playlists';
 
 export default function Layout({ children }) {
 

@@ -136,7 +136,6 @@ export default function DuplicatieItem(props) {
 
 
 
-
     return (
 
         <div className="w-[248px] flex-shrink-0">
@@ -179,7 +178,7 @@ export default function DuplicatieItem(props) {
                         <div onClick={(e) => { e.stopPropagation(); setMenu((prev) => !prev); }} className="flex h-9 w-9 justify-center items-center hover:bg-black/10 dark:hover:bg-slate-700/80 rounded-full ml-2 px-3">
                             <i className="fa-solid fa-ellipsis-vertical text-black/80 dark:text-gray-200"></i>
                         </div>
-                        {menu && (<div ref={menuRef} className="absolute left-0 top-0 min-w-28 w-full
+                        {menu && (<div ref={menuRef} className="absolute left-full top-5 min-w-28 w-full
                     bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
 
                             <div
@@ -198,7 +197,7 @@ export default function DuplicatieItem(props) {
                             <div
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    if (delFunction ==="delete-History") {
+                                    if (delFunction === "delete-History") {
                                         handleDelete();
                                     } else {
                                         handleDel();
