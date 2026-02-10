@@ -6,7 +6,7 @@ import videoContext from '../Context/Videos/videoContext.jsx';
 import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 
-export default function Videoplayer( { video }) {
+export default function Videoplayer({ video }) {
   const vidRef = useRef(null);
   const wrapperRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -41,11 +41,11 @@ export default function Videoplayer( { video }) {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-     useEffect(() => {
-if(category === "home")   { fetchAllVideos(); }
-      else if( category === "undefined") { fetchAllVideos(); }
-      else { fetchAllVideoswithQuery(`${category}`); }
-     }, [category])
+  useEffect(() => {
+    if (category === "home") { fetchAllVideos(); }
+    else if (category === "undefined") { fetchAllVideos(); }
+    else { fetchAllVideoswithQuery(`${category}`); }
+  }, [category])
 
 
   // Auto-hide controls
@@ -165,55 +165,55 @@ if(category === "home")   { fetchAllVideos(); }
     return `${m}:${sec}`;
   };
 
-      const addToWatchlist = async () => {
+  const addToWatchlist = async () => {
 
-         try {
-        const response = await axios.patch(`${host}/v1/videos/update-watch-history/${id}`, {},  {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
-
-    }
-
-    const increseViews = async () => {
-   try {
-        const response = await axios.patch(`${host}/v1/videos/views/${id}`, {}, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
-    }
-
-      const isVideoSaved = async () => {
     try {
-        const response = await axios.get(`${host}/v1/videos/is-Saved-video/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
+      const response = await axios.patch(`${host}/v1/videos/update-watch-history/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
 
-        if (response.data.success) {
-          setSave(response.data.data);
-        }
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
 
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
+  }
+
+  const increseViews = async () => {
+    try {
+      const response = await axios.patch(`${host}/v1/videos/views/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+  }
+
+  const isVideoSaved = async () => {
+    try {
+      const response = await axios.get(`${host}/v1/videos/is-Saved-video/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        setSave(response.data.data);
       }
+
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
   }
 
 
@@ -247,7 +247,7 @@ if(category === "home")   { fetchAllVideos(); }
 
   const ownerId = details?.video?.owner?._id;
 
-   useEffect(() => {
+  useEffect(() => {
     if (!ownerId) {
       return;
     }
@@ -291,10 +291,10 @@ if(category === "home")   { fetchAllVideos(); }
 
     fetechisVideoLiked();
     isVideoSaved();
-    
+
   }, [id])
 
-   useEffect(() => {
+  useEffect(() => {
 
     if (!id) {
       return;
@@ -332,7 +332,7 @@ if(category === "home")   { fetchAllVideos(); }
 
     fetchIsSubscribers(ownerId);
   }
-  
+
 
   const handleToggleLike = (e) => {
     e.preventDefault();
@@ -379,8 +379,9 @@ if(category === "home")   { fetchAllVideos(); }
     }
 
     const toggleDisLike = async () => {
-       try {
 
+      try {
+        
         const response = await axios.patch(`${host}/v1/likes/toggle-video-like&dislike/${id}`, {}, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -402,7 +403,7 @@ if(category === "home")   { fetchAllVideos(); }
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
     }
-   
+
     toggleDisLike();
 
   }
@@ -410,22 +411,22 @@ if(category === "home")   { fetchAllVideos(); }
   const handleSave = async (e) => {
     e.preventDefault();
 
-        try {
-        const response = await axios.patch(`${host}/v1/videos/saved-video/${id}`, {},  {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
+    try {
+      const response = await axios.patch(`${host}/v1/videos/saved-video/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
 
-        if (response.data.success) {
-          setSave(response.data.data);
-        }
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
+      if (response.data.success) {
+        setSave(response.data.data);
       }
+
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
 
   }
 

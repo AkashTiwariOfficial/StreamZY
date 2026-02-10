@@ -8,7 +8,7 @@ import Home from './components/Home.jsx'
 import History from './components/History.jsx'
 import Likes from './components/Likes.jsx'
 import Yourprofile from './components/Yourprofile.jsx'
-import Subscription from './components/Subscription.jsx'
+import Subscription from './components/Subscriptions/Subscription.jsx'
 import Yourvideo from './components/Yourvideo.jsx'
 import Getsartpage from './components/Getsartpage.jsx'
 import Login from './components/User Login/Login.jsx'
@@ -23,6 +23,7 @@ import About from './components/About.jsx'
 import Viewplaylists from './components/Playlist/Viewplaylists.jsx'
 import Createvideo from './components/Create/Createvideo.jsx'
 import UpdateVideo from './components/UpdateVideo.jsx'
+import YourSubscriber from './components/Subscriptions/YourSubscriber.jsx'
 
 function App() {
 
@@ -33,12 +34,13 @@ function App() {
         <Navbar />
         <Layout>
           <Routes >
-            <Route path="/:category" element={<Home /> } />
+            <Route path="/:category" element={<Home />} />
             <Route path="/playlists" element={<Playlists />} />
             <Route path="/watchHistory" element={<History />} />
             <Route path="/likes" element={<Likes />} />
             <Route path="/you" element={<Yourprofile />} />
             <Route path="/subscriptions" element={<Subscription />} />
+            <Route path="/yourSubscribers" element={<YourSubscriber />} />
             <Route path="/yourVideos" element={<Yourvideo />} />
             <Route path="/" element={<Getsartpage />} />
             <Route path="/login" element={<Login />} />
@@ -49,10 +51,10 @@ function App() {
             <Route path="/video/:category/:id" element={<Videoplayer />} />
             <Route path="/comments" element={<Comment />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/about" element={<About />} /> 
+            <Route path="/about" element={<About />} />
             <Route path="/viewPlaylist/:id" element={<Viewplaylists />} />
             <Route path="/uploadVideo" element={<Createvideo />} />
-            <Route path="/updateVideo/:id" element={<UpdateVideo /> } />
+            <Route path="/updateVideo/:id" element={<UpdateVideo />} />
           </Routes>
         </Layout>
       </VideoState>

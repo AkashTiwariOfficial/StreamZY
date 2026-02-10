@@ -2,8 +2,8 @@ import { Subscription } from "../models/subscription.models.js";
 import { User } from "../models/user.models.js";
 import { ApiErrors } from "../utils/ApiErrors.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiResponses } from "../utils/ApiResponses.js"
-import { channel } from "diagnostics_channel";
+import { ApiResponses } from "../utils/ApiResponses.js";
+import mongoose from "mongoose";
 
 
 
@@ -96,13 +96,48 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         isSubscribed: true
     })
 
+    console.log(totalSubscriber)
+
+    const totalSubscribers = await Subscription.aggregate([
+        {
+            $match: {
+                channel: new mongoose.Types.ObjectId(channelId),
+                isSubscribed: true
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "subscriber",
+                as: "subscriber",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    },
+                ]
+            },
+        },
+        {
+            $addFields: {
+                subscriber: {
+                     $first: "$subscriber",
+                },
+            }
+        },
+    ])
+
     if (!totalSubscriber) {
         throw new ApiErrors(500, "Internal Server Error while fetching Subscribers of a channel")
     }
 
     return res
         .status(200)
-        .json(new ApiResponses(200, totalSubscriber, "Subscriber's of channel fetched successfully"))
+        .json(new ApiResponses(200, totalSubscribers, "Subscriber's of channel fetched successfully"))
 
 })
 
@@ -121,18 +156,20 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Channel not found! or Invalid channelId")
     }
 
-    const mySubscribedChannel = await Subscription.find({
+/*     const mySubscribedChannel = await Subscription.find({
         subscriber: subscriberId,
         isSubscribed: true
     }).populate("channel", "username avatar")
+ */
 
     const subscribedChannels = await Subscription.aggregate([
         {
             $match: {
-                subscriber: subscriberId,
+                subscriber: new mongoose.Types.ObjectId(subscriberId),
                 isSubscribed: true
             }
-        }, {
+        },
+        {
             $lookup: {
                 from: "users",
                 foreignField: "_id",
@@ -146,40 +183,48 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                             avatar: 1
                         }
                     },
-                    {
-                        $addFields: {
-                            channel: {
-                                $first: "$channel"
-                            }
-                        },
-                    }
                 ]
             },
         },
+        { $unwind: "$channel" },
         {
             $lookup: {
-                from: "users",
-                foreignField: "_id",
-                localField: "channel",
-                as: "noOfSubscribers",
+                from: "subscriptions",
+                let: { channellId: "$channel._id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$channel", "$$channellId"] },
+                                    { $eq: ["$isSubscribed", true] }
+                                ]
+                            },
+                        },
+                    },
+                    {
+                        $count: "count"
+                    },
+                ],
+                as: "subscriberCount",
             },
         },
         {
             $addFields: {
-                subscribersCount: {
-                    $size: "$subscribers"
+                noOfSubscribers: {
+                    $ifNull: [{ $first: "$subscriberCount.count" }, 0]
                 },
             }
-        }
+        },
     ])
 
-    if (!mySubscribedChannel) {
+    if (!subscribedChannels) {
         throw new ApiErrors(500, "Internal Server Error while fetching channel Subscribed by user")
     }
 
     return res
         .status(200)
-        .json(new ApiResponses(200, mySubscribedChannel, "channel Subscribed by user fetched successfully"))
+        .json(new ApiResponses(200, subscribedChannels, "channel Subscribed by user fetched successfully"))
 
 })
 

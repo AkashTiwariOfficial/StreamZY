@@ -200,14 +200,14 @@ export default function Navbar() {
                 </Link>
               </Tooltip>
               <div className="flex flex-col">
-                { subscribers.slice(0 , !open ? subscribers.length : 2).map((subscriber) => {
+                { subscribers.slice(0 , !open ? subscribers.length : 4).map((subscriber) => {
              return (
-                  <Tooltip key={subscriber._id} text={`${subscriber?.subscriber?.username}`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
+                  <Tooltip key={subscriber._id} text={`${subscriber?.channel?.username}`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
                     <div className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
                       <div className="w-6 h-6 object-cover overflow-hidden rounded-full">
-                        <img src={subscriber?.subscriber?.avatar} alt="profile image" className="w-full h-full object-cover" />
+                        <img src={subscriber?.channel?.avatar} alt="profile image" className="w-full h-full object-cover" />
                       </div>
-                      <span>{subscriber?.subscriber?.username}</span>
+                      <span>{subscriber?.channel?.username}</span>
                     </div>
                   </Tooltip>
              )
