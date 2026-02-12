@@ -21,10 +21,10 @@ export default function Subscription() {
 
   return (
     <div>
-      <div className="flex flex-col gap-5 relative lg:ml-24 ml-4">
+      <div className="flex flex-col gap-5 relative lg:ml-24 ml-4 my-4">
         <div className='flex mx-5'>
           <h1 className="text-3xl font-[700] text-black/80 dark:text-white/900 dark:text-white xl:px-48 lg:px-36 md:px-24 ml-7 mt-3">All Subscriptions</h1>
-          <button onClick={() => {navigate("/yourSubscribers")}} className="px-4 py-1 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 active:bg-blue-800 transition">
+          <button onClick={() => {navigate("/yourSubscribers")}} className="px-4 py-1 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/40">
             Your Subscribers
           </button>
         </div>
