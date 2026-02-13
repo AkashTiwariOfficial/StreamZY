@@ -11,7 +11,7 @@ const playListSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-     title: {
+    title: {
         type: String,
         required: true
     },
@@ -24,7 +24,14 @@ const playListSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
-    }
+    },
+    thumbnail: {
+        type: String,  // cloudinary url
+        default: ""
+    },
+    public_id_thumbnail: {
+        type: String
+    },
 }, { timestamps: true })
 
 

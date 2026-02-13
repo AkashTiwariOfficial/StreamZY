@@ -5,6 +5,7 @@ import { ApiResponses } from "../utils/ApiResponses.js";
 import { User } from "../models/user.models.js";
 import { Video } from "../models/video.models.js"
 import mongoose from "mongoose";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 
 
 
@@ -16,20 +17,44 @@ const createPlayList = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "Both name and description are required to create a PlayList")
     }
 
-    const newPlayList = await Playlist.create({
-        name,
-        description,
-        title,
-        owner: req.user?._id
-    })
+    const thumbnailFilePath = req.file?.path
 
-    if (!newPlayList) {
-        throw new ApiErrors(500, "Internal Server Error while creating playlist")
+    if (!thumbnailFilePath) {
+        throw new ApiErrors(400, "Thumbnail is required");
     }
 
-    return res
-        .status(200)
-        .json(new ApiResponses(200, newPlayList, "Playlist Created successfully"))
+    let thumbnail;
+
+    try {
+        thumbnail = await uploadOnCloudinary(thumbnailFilePath);
+
+        if (!thumbnail) {
+            throw new ApiErrors(400, "thumbnail not found!")
+        }
+
+        const newPlayList = await Playlist.create({
+            name,
+            description,
+            title,
+            owner: req.user?._id,
+            thumbnail: thumbnail.url,
+            public_id_thumbnail: thumbnail.public_id,
+        })
+
+        if (!newPlayList) {
+            throw new ApiErrors(500, "Internal Server Error while creating playlist")
+        }
+
+        return res
+            .status(200)
+            .json(new ApiResponses(200, newPlayList, "Playlist Created successfully"))
+
+    } catch (error) {
+        if (thumbnail?.public_id) {
+            await deleteFromCloudinary(thumbnail.public_id, "image")
+        }
+        throw new ApiErrors(500, `Internal Server Error while uploading the video: ${error.message} `)
+    }
 
 })
 
@@ -49,58 +74,58 @@ const getUserPlayLists = asyncHandler(async (req, res) => {
     }
 
     const userPlayLists = await Playlist.aggregate([
-          {
+        {
             $match: {
-              owner: new mongoose.Types.ObjectId(user._id)
+                owner: new mongoose.Types.ObjectId(user._id)
             }
-          },
-/*           {
-            $unwind: "$watchHistory"
-          }, */
-          {
+        },
+        /*           {
+                    $unwind: "$watchHistory"
+                  }, */
+        {
             $lookup: {
-              from: "videos",
-              foreignField: "_id",
-              localField: "videos",
-              as: "videos",
-              pipeline: [
-                {
-                  $lookup: {
-                    from: "users",
-                    localField: "owner",
-                    foreignField: "_id",
-                    as: "owner",
-                    pipeline: [
-                      {
-                        $project: {
-                          username: 1,
-                          fullName: 1,
-                          avatar: 1
+                from: "videos",
+                foreignField: "_id",
+                localField: "videos",
+                as: "videos",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        username: 1,
+                                        fullName: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
                         }
-                      }
-                    ]
-                  }
-                },
-                {
-                  $addFields: {
-                    owner: {
-                      $first: "$owner"
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner"
+                            }
+                        }
                     }
-                  }
-                }
-              ]
+                ]
             }
-          },
-         /*    {
-                $addFields: {
-                    "watchHistory.video": {
-                        $first: "$watchHistory.video"
-                    }
-                }
-              } */
-        ])
+        },
+        /*    {
+               $addFields: {
+                   "watchHistory.video": {
+                       $first: "$watchHistory.video"
+                   }
+               }
+             } */
+    ])
 
-/*     const userPlayLists = await Playlist.find({ owner: new mongoose.Types.ObjectId(userId) }).populate("owner", "avatar username") */
+    /*     const userPlayLists = await Playlist.find({ owner: new mongoose.Types.ObjectId(userId) }).populate("owner", "avatar username") */
 
     if (!userPlayLists) {
         throw new ApiErrors(500, "Internal Server Error while fetching user's Playlist")
@@ -112,6 +137,57 @@ const getUserPlayLists = asyncHandler(async (req, res) => {
 
 })
 
+
+const getPlayLists = asyncHandler(async (req, res) => {
+
+    const PlayLists = await Playlist.aggregate([
+        {
+            $lookup: {
+                from: "videos",
+                foreignField: "_id",
+                localField: "videos",
+                as: "videos",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        username: 1,
+                                        fullName: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+    ])
+
+    /*     const userPlayLists = await Playlist.find({ owner: new mongoose.Types.ObjectId(userId) }).populate("owner", "avatar username") */
+
+    if (!PlayLists) {
+        throw new ApiErrors(500, "Internal Server Error while fetching user's Playlist")
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, PlayLists, "User's playlists fetched successfully"))
+
+})
 
 const getPlayListById = asyncHandler(async (req, res) => {
 
@@ -163,17 +239,30 @@ const updatePlayList = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "PlayList id is missing!")
     }
 
+    const playList = await Playlist.findById(playListId);
+
     const { name, description, title } = req.body
 
-    if (!(name || description || title)) {
+    const thumbnailFilePath = req.file?.path
+
+    if (!(name || description || title || thumbnailFilePath)) {
         throw new ApiErrors(400, "One field is requried to edit playList")
+    }
+
+    let thumbnail;
+    if (thumbnailFilePath) {
+        thumbnail = await uploadOnCloudinary(thumbnailFilePath);
     }
 
     const updateDetails = {}
 
     if (name) { updateDetails.name = name }
     if (description) { updateDetails.description = description }
-    if(title) { updateDetails.title = title }
+    if (title) { updateDetails.title = title }
+    if (thumbnail) {
+        updateDetails.thumbnail = thumbnail.url,
+            updateDetails.public_id_thumbnail = thumbnail.public_id
+    }
 
     const newPlayList = await Playlist.findByIdAndUpdate(playListId,
         {
@@ -181,9 +270,19 @@ const updatePlayList = asyncHandler(async (req, res) => {
         }, { new: true }
     )
 
+    if (newPlayList && thumbnail) {
+        await deleteFromCloudinary(playList.public_id_thumbnail, "thumbnail")
+    }
+
+    if (!newPlayList && thumbnail) {
+        await deleteFromCloudinary(thumbnail.public_id, "thumbnail")
+        throw new ApiErrors(400, `${file.filename} could not be uploaded`)
+    }
+
     if (!newPlayList) {
         throw new ApiErrors(500, "Internal Server Error while updating Playlist")
     }
+
 
     return res
         .status(200)
@@ -249,7 +348,7 @@ const addManyVideosToPlalyList = asyncHandler(async (req, res) => {
 
     const { videoIds } = req.body
 
-    if ((!videoIds && videoIds.length === 0) || (videoIds && videoIds.length === 0) ) {
+    if ((!videoIds && videoIds.length === 0) || (videoIds && videoIds.length === 0)) {
         throw new ApiErrors(400, "videoIds are missing!")
     }
 
@@ -357,7 +456,7 @@ const deleteManyVideos = asyncHandler(async (req, res) => {
 
     const { videoIds } = req.body
 
-    if ((!videoIds && videoIds.length === 0) || (videoIds && videoIds.length === 0) ) {
+    if ((!videoIds && videoIds.length === 0) || (videoIds && videoIds.length === 0)) {
         throw new ApiErrors(400, "videoIds are missing!")
     }
 
@@ -416,6 +515,7 @@ export {
     addVideosToPlayList,
     addManyVideosToPlalyList,
     deleteVideoFromPlayList,
-    deleteManyVideos
+    deleteManyVideos,
+    getPlayLists
 
 }

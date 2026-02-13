@@ -74,7 +74,7 @@ export default function Playlists({ pylt, removePlaylist }) {
           {/* 2 Back layers */}
           {pylt?.videos[2] ? (
             <img
-              src={pylt?.videos[2].thumbnail}
+              src={pylt?.videos[2]?.thumbnail}
               className="absolute top-[-17px]  w-full h-full object-cover rounded-xl opacity-60 scale-[0.9] blur-[0.5px]"
             />
           ) : (
@@ -93,7 +93,7 @@ export default function Playlists({ pylt, removePlaylist }) {
 
           {/* Front thumbnail */}
           <img
-            src={pylt?.videos[0].thumbnail}
+            src={pylt?.videos[0]?.thumbnail || ""}
             alt="main"
             className="relative z-10 w-full h-full object-cover rounded-xl transition-all duration-300 group-hover:scale-[1.03]"
           />

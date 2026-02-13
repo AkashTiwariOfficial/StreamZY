@@ -8,12 +8,12 @@ import axios from 'axios';
 
 
 export default function Yourprofile() {
-  const { handleLogout, currUser } = useContext(videoContext);
+  
+  const { handleLogout, currUser, host } = useContext(videoContext);
   const scrollRefLike = useRef(null);
   const scrollRef = useRef(null);
   const scrollRefHistory = useRef(null);
   const scrollRefPlaylist = useRef(null);
-  const host = import.meta.env.VITE_HOST_LINK;
   const [like, setLike] = useState([]);
   const [history, setHistory] = useState([]);
   const [myVideo, setMyVideo] = useState([]);

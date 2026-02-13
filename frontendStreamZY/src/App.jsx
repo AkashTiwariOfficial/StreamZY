@@ -24,6 +24,8 @@ import Viewplaylists from './components/Playlist/Viewplaylists.jsx'
 import Createvideo from './components/Create/Createvideo.jsx'
 import UpdateVideo from './components/UpdateVideo.jsx'
 import YourSubscriber from './components/Subscriptions/YourSubscriber.jsx'
+import Createplaylist from './components/Playlist/Createplaylist.jsx'
+import UpdatePlaylist from './components/Playlist/UpdatePlaylist.jsx'
 
 function App() {
 
@@ -55,6 +57,8 @@ function App() {
             <Route path="/viewPlaylist/:id" element={<Viewplaylists />} />
             <Route path="/uploadVideo" element={<Createvideo />} />
             <Route path="/updateVideo/:id" element={<UpdateVideo />} />
+            <Route path="/createPlaylist" element={<Createplaylist />} />
+            <Route path="/UpdatePlaylist/:id" element={<UpdatePlaylist />} />
           </Routes>
         </Layout>
       </VideoState>

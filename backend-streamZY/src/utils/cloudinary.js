@@ -54,18 +54,24 @@ const uploadVideoOnCloudinary = async (localFilePath) => {
       );
     });
 
-    if (fs.existsSync(localFilePath)) {
-      fs.unlinkSync(localFilePath)
-    }
+   await fs.promises.unlink(localFilePath);
+
     return response;
 
   } catch (error) {
-    // Delete local file if upload failed
-    if (fs.existsSync(localFilePath)) fs.unlinkSync(localFilePath);
-    console.log("Error while uploading video on Cloudinary:", error.message);
-    return null
+    try {
+      if (localFilePath && fs.existsSync(localFilePath)) {
+        await fs.promises.unlink(localFilePath);
+      }
+    } catch (unlinkError) {
+      console.log("Failed to delete local file:", unlinkError.message);
+    }
+
+    console.log("Cloudinary Upload Error:", error);
+    return null;
   }
 };
+
 
 
 const deleteFromCloudinary = async (public_id, type ) => {
