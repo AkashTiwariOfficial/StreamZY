@@ -51,7 +51,7 @@ export default function Createplaylist() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-[#0f0f0f] transition-colors duration-300 px-4">
 
-            <div className="w-full max-w-lg bg-slate-100 dark:bg-[#1f1f1f] rounded-2xl shadow-xl p-8 transition-all duration-300">
+            <div className="w-full max-w-lg bg-slate-100 dark:bg-[#1f1f1f] rounded-2xl shadow-xl p-8 transition-all duration-300 my-5">
 
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-6 justify-between">

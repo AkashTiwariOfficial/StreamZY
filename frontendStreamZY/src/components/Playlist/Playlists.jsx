@@ -3,7 +3,7 @@ import PlaylistItems from "./PlaylistItems.jsx"
 import { useContext } from 'react';
 import videoContext from '../../Context/Videos/videoContext.jsx';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Playlists() {
 
@@ -12,6 +12,7 @@ export default function Playlists() {
   const Context = useContext(videoContext);
   const { currUser, host } = Context;
   const navigate = useNavigate();
+  const location = useLocation();
 
 
   useEffect(() => {
@@ -87,12 +88,19 @@ export default function Playlists() {
             )}
           </div>
 
-          <button
-          disabled
-            className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
-          >
-            Playlists
-          </button>
+{/*          {location.pathname === "/playlists" ? ( null ) : ( <button 
+             onClick={() => {navigate("/playlists")}}
+               className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+             >
+               Playlists
+             </button> )} */}
+              <button 
+              disabled
+             onClick={() => {navigate("/playlists")}}
+               className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] disabled:pointer-events-none dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+             >
+               Playlists
+             </button> 
           <button onClick={handleOwnedPlaylist}
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
@@ -102,6 +110,12 @@ export default function Playlists() {
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
             saved
+          </button>
+           <button
+           onClick={() =>{navigate("/createPlaylist")}}
+            className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+          >
+            New Playlist
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">

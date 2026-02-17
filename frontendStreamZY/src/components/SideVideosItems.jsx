@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
 
 export default function SideVideosItems(props) {
 
   const location = useLocation();
-  const { video, removeVideos, num, removeLikedVideos, removeMyVideo } = props;
+  const { video, removeVideos, num, removeLikedVideos, removeMyVideo, removeVideoPlaylist } = props;
   const Context = useContext(videoContext);
   const { timeAgo } = Context;
   const menuRef = useRef(null);
@@ -14,6 +14,7 @@ export default function SideVideosItems(props) {
   const [menu, setMenu] = useState(false);
   const [save, setSave] = useState(false);
   const host = import.meta.env.VITE_HOST_LINK;
+  const { id } = useParams();
 
   const diffCSS = () => {
     if (location.pathname === "/likes") {
@@ -47,8 +48,8 @@ export default function SideVideosItems(props) {
   }
 
   useEffect(() => {
-    
-      if (!video.video?._id) {
+
+    if (!video.video?._id) {
       return;
     }
 
@@ -96,7 +97,7 @@ export default function SideVideosItems(props) {
   }
 
 
-    const handleDelete = async () => {
+  const handleDelete = async () => {
 
     if (!video.video?._id) {
       return;
@@ -165,8 +166,27 @@ export default function SideVideosItems(props) {
     navigate(`/updateVideo/${video.video?._id}`)
   }
 
+  const handleDeletePlaylistVideo = async () => {
+    try {
+      const response = await axios.delete(`${host}/v1/playlists/delete-video/${id}/${video.video._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removeVideoPlaylist(video.video._id);
+      }
+
+    } catch (error) {
+      console.log("Error while deleting playlist", error.response?.data || error.message);
+    }
+  }
+
   return (
-    
+
     <div>
       <div onClick={handleClick} className={`w-full rounded-xl dark:bg-[#121212] bg-white/5 cursor-pointer ${diffCSS2()} hover:bg-black/10 dark:hover:bg-white/5 transition-all duration-200`}>
         <div className="flex gap-3 items-center justify-between">
@@ -213,7 +233,7 @@ export default function SideVideosItems(props) {
                     {video.video?.description}
                   </p>)}
                 </div>
-                {location.pathname === "/likes" || location.pathname === "/yourVideos" ? (
+                {location.pathname !== "/watchHistory" ? (
                   null
                 ) : (
                   <div className="flex items-center xs:text-xs text-[12px] text-gray-500 dark:text-gray-400 mt-2 overflow-hidden">
@@ -230,31 +250,31 @@ export default function SideVideosItems(props) {
             {menu && (
               <div ref={menuRef} className="absolute right-full mt-2 min-w-32 w-full
                     bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
-              { location.pathname === "/yourVideos" ? (
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit();
-                    setMenu(false);
-                  }}
-                  className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
-                >
-                 <i className="fa-regular fa-pen-to-square mr-3"></i>
-                  Edit
-                </div>
-              ) : (
+                {location.pathname === "/yourVideos" ? (
                   <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSave();
-                    setMenu(false);
-                  }}
-                  className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
-                >
-                 <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3`}></i>
-                  Save
-                </div>
-              )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit();
+                      setMenu(false);
+                    }}
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                    <i className="fa-regular fa-pen-to-square mr-3"></i>
+                    Edit
+                  </div>
+                ) : (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSave();
+                      setMenu(false);
+                    }}
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                    <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3`}></i>
+                    Save
+                  </div>
+                )}
 
                 <div
                   onClick={(e) => {
@@ -265,6 +285,9 @@ export default function SideVideosItems(props) {
                     else if (location.pathname === "/watchHistory") {
                       handleDelete();
                     }
+                    else if (location.pathname.includes("/viewPlaylist")) {
+                      handleDeletePlaylistVideo();
+                    }
                     else {
                       handleDeleteVideo();
                     }
@@ -272,8 +295,8 @@ export default function SideVideosItems(props) {
                   }}
                   className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
                 >
-                  <i className="fa-solid fa-trash mr-3"></i>
-                  Delete
+                  <i className="fa-solid fa-trash mr-1"></i>
+                  Remove
                 </div>
               </div>
             )}

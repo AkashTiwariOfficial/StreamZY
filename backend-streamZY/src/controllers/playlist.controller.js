@@ -197,15 +197,78 @@ const getPlayListById = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "PlayList id is missing!")
     }
 
-    const getPlayList = await Playlist.findById(playListId)
+    /*    const getPlayList = await Playlist.findById(playListId) */
 
-    if (!getPlayList) {
-        throw new ApiErrors(404, "PlayList does not exits")
-    }
+    const getPlayList = await Playlist.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(playListId)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                foreignField: "_id",
+                localField: "videos",
+                as: "videos",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        username: 1,
+                                        fullName: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+      
+        {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "owner",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1
+                        }
+                    }
+                ]
+            },
+        },
+        {
+            $addFields: {
+                owner: {
+                    $first: "$owner"
+                }
+            }
+        }
+
+    ])
 
     return res
         .status(200)
-        .json(new ApiResponses(200, getPlayList, "PlayList fetched successfully"))
+        .json(new ApiResponses(200, getPlayList[0], "PlayList fetched successfully"))
 
 })
 

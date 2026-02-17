@@ -163,7 +163,7 @@ export default function Navbar() {
                 </Link>
               </Tooltip>
               <hr />
-              <Tooltip text="Music" width="w-1/2" margin="mt-[10px]" changes="ml-12">
+              <Tooltip text="You" width="w-1/2" margin="mt-[10px]" changes="ml-12">
                 <Link to="/you" className="flex text-base mt-2 py-2 cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[100px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90"><p>You</p>
                   <p>{">"}</p>
                 </Link>
@@ -187,7 +187,7 @@ export default function Navbar() {
                 </Link>
               </Tooltip>
               <Tooltip text="Liked Videos" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-                <Link to="/likes" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
+                <Link to="/likes" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[15px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
                   <i className="fa-regular fa-thumbs-up text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Liked Videos</label></li>
                 </Link>

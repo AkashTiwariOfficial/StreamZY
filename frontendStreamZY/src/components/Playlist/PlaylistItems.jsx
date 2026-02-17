@@ -135,7 +135,7 @@ export default function Playlists({ pylt, removePlaylist }) {
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleEdit();
+                   navigate(`/UpdatePlaylist/${pylt?._id}`)
                     setMenu(false);
                   }}
                   className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
