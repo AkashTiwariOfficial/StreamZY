@@ -26,6 +26,7 @@ import UpdateVideo from './components/UpdateVideo.jsx'
 import YourSubscriber from './components/Subscriptions/YourSubscriber.jsx'
 import Createplaylist from './components/Playlist/Createplaylist.jsx'
 import UpdatePlaylist from './components/Playlist/UpdatePlaylist.jsx'
+import YourPlaylist from './components/Playlist/YourPlaylist.jsx'
 
 function App() {
 
@@ -59,6 +60,7 @@ function App() {
             <Route path="/updateVideo/:id" element={<UpdateVideo />} />
             <Route path="/createPlaylist" element={<Createplaylist />} />
             <Route path="/UpdatePlaylist/:id" element={<UpdatePlaylist />} />
+            <Route path="/playlists/owned" element={<YourPlaylist />} />
           </Routes>
         </Layout>
       </VideoState>

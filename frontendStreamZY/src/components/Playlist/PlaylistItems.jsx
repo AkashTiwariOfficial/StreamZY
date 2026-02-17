@@ -93,7 +93,7 @@ export default function Playlists({ pylt, removePlaylist }) {
 
           {/* Front thumbnail */}
           <img
-            src={pylt?.videos[0]?.thumbnail || ""}
+            src={pylt?.videos[0]?.thumbnail || pylt?.thumbnail}
             alt="main"
             className="relative z-10 w-full h-full object-cover rounded-xl transition-all duration-300 group-hover:scale-[1.03]"
           />

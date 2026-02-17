@@ -2,22 +2,25 @@ import React, { useEffect, useState } from 'react'
 import PlaylistItems from "./PlaylistItems.jsx"
 import { useContext } from 'react';
 import videoContext from '../../Context/Videos/videoContext.jsx';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function Playlists() {
 
   const [open, setOpen] = useState(false);
   const [playList, setPlayList] = useState([]);
   const Context = useContext(videoContext);
-    const { currUser, host } = Context; 
- 
- 
+  const { currUser, host } = Context;
+  const navigate = useNavigate();
+
+
   useEffect(() => {
     const handleClickOutside = () => setOpen(false);
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-   useEffect(() => {
+  useEffect(() => {
 
     const fetchPlayLists = async () => {
 
@@ -32,7 +35,7 @@ export default function Playlists() {
         });
 
         if (response.data.success) {
-          setPlayList(response.data.data);
+          setPlayList(response.data.data.filter(pylt => pylt.videos.length !== 0));
         }
 
       } catch (error) {
@@ -42,7 +45,12 @@ export default function Playlists() {
 
     fetchPlayLists();
 
-  }, [])
+  }, [playList])
+
+  const handleOwnedPlaylist = async () => {
+  navigate("/playlists/owned")
+    }
+  
 
   return (
     <div>
@@ -58,7 +66,7 @@ export default function Playlists() {
               sortBy
               <i className="fa-solid fa-chevron-down ml-2" />
             </button>
-
+   
             {open && (
               <div className="absolute right-[1/2] mt-2 w-40 bg-slate-200 dark:bg-[#1f1f1f] rounded-md shadow-lg ring-1 ring-black/5 z-20">
                 <ul className="py-2 text-sm text-gray-700 dark:text-gray-200 ">
@@ -80,11 +88,12 @@ export default function Playlists() {
           </div>
 
           <button
+          disabled
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
             Playlists
           </button>
-          <button
+          <button onClick={handleOwnedPlaylist}
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
             owned
@@ -96,9 +105,9 @@ export default function Playlists() {
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-       { playList.map((pylt) => {
-         return <PlaylistItems key={pylt._id} pylt={pylt}/>
-         })}
+          {playList.map((pylt) => {
+            return <PlaylistItems key={pylt._id} pylt={pylt} />
+          })}
         </div>
       </div>
     </div>
