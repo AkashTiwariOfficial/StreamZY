@@ -37,6 +37,7 @@ export default function Playlists() {
 
         if (response.data.success) {
           setPlayList(response.data.data.filter(pylt => pylt.videos.length !== 0));
+          console.log(response.data.data)
         }
 
       } catch (error) {
@@ -46,12 +47,19 @@ export default function Playlists() {
 
     fetchPlayLists();
 
-  }, [playList])
+  }, [location.pathname])
 
   const handleOwnedPlaylist = async () => {
-  navigate("/playlists/owned")
-    }
-  
+    navigate("/playlists/owned")
+  }
+
+  const soryBy = (field) => {
+    setPlayList(prev =>
+      [...prev].sort(
+        (a, b) => new Date(b[field]) - new Date(a[field])
+      )
+    )
+  }
 
   return (
     <div>
@@ -67,26 +75,18 @@ export default function Playlists() {
               sortBy
               <i className="fa-solid fa-chevron-down ml-2" />
             </button>
-   
+
             {open && (
               <div className="absolute right-[1/2] mt-2 w-40 bg-slate-200 dark:bg-[#1f1f1f] rounded-md shadow-lg ring-1 ring-black/5 z-20">
                 <ul className="py-2 text-sm text-gray-700 dark:text-gray-200 ">
                   <li>
-                    <button onClick={(e) => {
-                      playList.sort((a, b) =>
-                        new Date(a.createdAt) - new Date(b.createdAt)
-                      );
-                    }} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button  onClick={() => soryBy("createdAt")}  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Created At
                     </button>
                   </li>
                   <li>
-                    <button onClick={(e) => {
-                      playList.sort((a, b) =>
-                        new Date(a.updatedAt) - new Date(b.updatedAt)
-                      );
-                    }} 
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button  onClick={() => soryBy("updatedAt")} 
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Updated At
                     </button>
                   </li>
@@ -97,19 +97,19 @@ export default function Playlists() {
             )}
           </div>
 
-{/*          {location.pathname === "/playlists" ? ( null ) : ( <button 
+          {/*          {location.pathname === "/playlists" ? ( null ) : ( <button 
              onClick={() => {navigate("/playlists")}}
                className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
              >
                Playlists
              </button> )} */}
-              <button 
-              disabled
-             onClick={() => {navigate("/playlists")}}
-               className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] disabled:pointer-events-none dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
-             >
-               Playlists
-             </button> 
+          <button
+            disabled
+            onClick={() => { navigate("/playlists") }}
+            className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] disabled:pointer-events-none dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+          >
+            Playlists
+          </button>
           <button onClick={handleOwnedPlaylist}
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
@@ -120,8 +120,8 @@ export default function Playlists() {
           >
             saved
           </button>
-           <button
-           onClick={() =>{navigate("/createPlaylist")}}
+          <button
+            onClick={() => { navigate("/createPlaylist") }}
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
             New Playlist

@@ -822,18 +822,18 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
           ]
         }
       },
-        {
-            $addFields: {
-                "watchHistory.video": {
-                    $first: "$watchHistory.video"
-                }
-            }
+      {
+        $addFields: {
+          "watchHistory.video": {
+            $first: "$watchHistory.video"
           }
+        }
+      }
     ])
 
     return res
       .status(200)
-      .json(new ApiResponses(200, user.map(u => u.watchHistory) , "User watch History fetched successfully"))
+      .json(new ApiResponses(200, user.map(u => u.watchHistory), "User watch History fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, error.message || "Internal Server Error while fetching user watch history")
   }
@@ -891,7 +891,7 @@ const fetchUserVideos = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponses(200, video , "user's videos fetched successfully"))
+      .json(new ApiResponses(200, video, "user's videos fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, "Internal Server Error while fetcing user videos")
   }
@@ -984,23 +984,127 @@ const getUserSavedVidoes = asyncHandler(async (req, res) => {
           ]
         }
       },
-        {
-            $addFields: {
-                "savedVideos.video": {
-                    $first: "$savedVideos.video"
-                }
-            }
+      {
+        $addFields: {
+          "savedVideos.video": {
+            $first: "$savedVideos.video"
           }
+        }
+      }
     ])
 
     return res
       .status(200)
-      .json(new ApiResponses(200, user.map(u => u.savedVideos) , "User's saved fetched successfully"))
+      .json(new ApiResponses(200, user.map(u => u.savedVideos), "User's saved fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, error.message || "Internal Server Error while fetching user saved videos")
   }
 })
 
+
+const getUserSavedPlaylists = asyncHandler(async (req, res) => {
+  try {
+
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(req.user?._id)
+        }
+      },
+      {
+        $unwind: "$savedPlaylists"
+      },
+      {
+        $lookup: {
+          from: "playlists",
+          foreignField: "_id",
+          localField: "savedPlaylists.playlist",
+          as: "savedPlaylists.playlist",
+          pipeline: [
+            {
+              $lookup: {
+                from: "videos",
+                foreignField: "_id",
+                localField: "videos",
+                as: "videos",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "users",
+                      localField: "owner",
+                      foreignField: "_id",
+                      as: "owner",
+                      pipeline: [
+                        {
+                          $project: {
+                            username: 1,
+                            fullName: 1,
+                            avatar: 1
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    $addFields: {
+                      owner: {
+                        $first: "$owner"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "owner",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      username: 1,
+                      fullName: 1
+                    }
+                  }
+                ]
+              },
+            },
+            {
+              $addFields: {
+                owner: {
+                  $first: "$owner"
+                }
+              }
+            },
+
+            {
+              $addFields: {
+                owner: {
+                  $first: "$owner"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          "savedVideos.video": {
+            $first: "$savedVideos.video"
+          }
+        }
+      }
+    ])
+
+    return res
+      .status(200)
+      .json(new ApiResponses(200, user.map(u => u.savedVideos), "User's playlists fetched successfully"))
+  } catch (error) {
+    throw new ApiErrors(500, error.message || "Internal Server Error while fetching user's playlists")
+  }
+})
 
 
 
@@ -1023,6 +1127,7 @@ export {
   otpVerificationForgotPassword,
   sendOtpforgotpassword,
   forgotPassword,
-  getUserSavedVidoes
-  
+  getUserSavedVidoes,
+  getUserSavedPlaylists
+
 }

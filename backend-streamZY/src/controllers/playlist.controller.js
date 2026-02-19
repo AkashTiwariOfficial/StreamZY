@@ -568,6 +568,105 @@ const deleteManyVideos = asyncHandler(async (req, res) => {
 
 })
 
+const deleteAllPlaylist = asyncHandler(async (req, res) => {
+
+    const deleteAll = await User.findByIdAndUpdate(req.user?._id, {
+        $set: {
+            savedPlaylists: []
+        },
+    }, { new: true }).select(
+        "-password -refreshToken"
+    );
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, deleteAll, "playlists deleted successfully"));
+
+})
+
+const savedPlaylist = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params
+
+    if (!playlistId) {
+        throw new ApiErrors(400, "playlist id is missing!")
+    }
+
+    const playlist = await Playlist.findById(playlistId)
+
+    if (!playlist) {
+        throw new ApiErrors(404, "Playlist does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+        "savedPlaylists.playlist": playlistId
+    });
+
+    let newAdd;
+
+    if (!exists) {
+        await User.findByIdAndUpdate(req.user?._id, {
+            $push: {
+                savedPlaylists: {
+                    playlist: playlistId,
+                    savedPlaylistAt: new Date()
+                }
+            },
+        }, { new: true });
+        newAdd = true
+    }
+
+    if (exists) {
+        await User.findByIdAndUpdate(req.user?._id, {
+            $pull: {
+                savedPlaylists: {
+                    playlist: playlistId,
+                }
+            },
+        }, { new: true });
+        newAdd = false;
+    }
+
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, newAdd, "playlist saved successfully"));
+
+})
+
+const isPlaylistSaved = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params
+
+    if (!playlistId) {
+        throw new ApiErrors(400, "playlist id is missing!")
+    }
+
+    const playlist = await Playlist.findById(playlistId)
+
+    if (!playlist) {
+        throw new ApiErrors(404, "playlist does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+         "savedPlaylists.playlist": playlistId
+    });
+
+    let newAdd;
+
+    if (exists) {
+        newAdd = true;
+    }
+    if (!exists) {
+        newAdd = false;
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, newAdd, "playlist fetched  successfully"));
+
+})
+
 export {
 
     createPlayList,
@@ -579,6 +678,9 @@ export {
     addManyVideosToPlalyList,
     deleteVideoFromPlayList,
     deleteManyVideos,
-    getPlayLists
+    getPlayLists,
+    isPlaylistSaved,
+    savedPlaylist,
+    deleteAllPlaylist
 
 }

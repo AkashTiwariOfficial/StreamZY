@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { changePassword, deleteAccount, fetchUserVideos, forgotPassword, getCurrentUser, getUserChannel, getUserSavedVidoes, getUserWatchHistory, logoutUser, otpVerification, otpVerificationForgotPassword, refreshAccessandRefreshTokens, registerUser, sendOtp, sendOtpforgotpassword, upadteAvatar, upadtecoverImage, updateAccountDetails } from "../controllers/user.controller.js";
+import { changePassword, deleteAccount, fetchUserVideos, forgotPassword, getCurrentUser, getUserChannel, getUserSavedPlaylists, getUserSavedVidoes, getUserWatchHistory, logoutUser, otpVerification, otpVerificationForgotPassword, refreshAccessandRefreshTokens, registerUser, sendOtp, sendOtpforgotpassword, upadteAvatar, upadtecoverImage, updateAccountDetails } from "../controllers/user.controller.js";
 import { loginUser } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -103,6 +103,11 @@ router.route("/request-forgot-password-reset").post(
 router.route("/saved-videos").get(
     verifyJWT,
     getUserSavedVidoes
+)
+
+router.route("/saved-playlists").get(
+    verifyJWT,
+    getUserSavedPlaylists
 )
 
 export default router

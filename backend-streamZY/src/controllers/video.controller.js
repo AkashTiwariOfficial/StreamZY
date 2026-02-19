@@ -665,7 +665,7 @@ const deleteWatchedVideo = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponses(200, updateAdd, "Video  delted from watch history successfully"));
+        .json(new ApiResponses(200, updateAdd, "Video deleted from watch history successfully"));
 
 })
 

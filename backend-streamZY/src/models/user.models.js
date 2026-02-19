@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { type } from "os";
 
 const userSchema = new mongoose.Schema(
     {
@@ -34,9 +35,9 @@ const userSchema = new mongoose.Schema(
         },
         watchHistory: [
             {
-               video: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Video"
+                video: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Video"
                 },
                 watchedAt: {
                     type: Date,
@@ -48,13 +49,25 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Password is required']
         },
-           savedVideos: [
+        savedVideos: [
             {
-               video: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Video"
+                video: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Video"
                 },
                 savedAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ],
+        savedPlaylists: [
+            {
+                playlist: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Playlist"
+                },
+                savedPlaylistAt: {
                     type: Date,
                     default: Date.now
                 }

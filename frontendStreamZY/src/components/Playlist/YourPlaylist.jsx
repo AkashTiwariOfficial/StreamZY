@@ -24,7 +24,7 @@ export default function YourPlaylist() {
   const soryBy = (field) => {
    setPlayList(prev => 
    [...prev].sort(
-    (a,b) 
+    (a,b) => new Date(b[field]) - new Date(a[field])
    ) 
    )
   }
@@ -50,7 +50,7 @@ export default function YourPlaylist() {
       }
     }
     handleOwnedPlaylist();
-  }, [playList])
+  }, [currUser._id])
 
   return (
     <div>
@@ -71,21 +71,14 @@ export default function YourPlaylist() {
               <div className="absolute right-[1/2] mt-2 w-40 bg-slate-200 dark:bg-[#1f1f1f] rounded-md shadow-lg ring-1 ring-black/5 z-20">
                 <ul className="py-2 text-sm text-gray-700 dark:text-gray-200 ">
                   <li>
-                    <button onClick={(e) => {
-                     setPlayList(playList.sort((a, b) =>
-                        new Date(a.createdAt) - new Date(b.createdAt)
-                      ));
-                    }} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button  onClick={() => soryBy("createdAt")} 
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Created At
                     </button>
                   </li>
                   <li>
                     <button className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                     onClick={(e) => {
-                      setPlayList(playList.sort((a, b) =>
-                        new Date(a.updatedAt) - new Date(b.updatedAt)
-                      ));
-                    }}>
+                     onClick={() => soryBy("updatedAt")}>
                       Updated At
                     </button>
                   </li>
