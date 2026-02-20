@@ -54,7 +54,7 @@ export default function SavedPlaylist() {
 
     const removePlaylist = (_id_) => {
         setPlayList(prev =>
-            prev.filter(del => del._id !== _id_)
+            prev.filter(del => del?.playlist?._id !== _id_)
         );
     };
 
@@ -144,13 +144,15 @@ export default function SavedPlaylist() {
                             New Playlist
                         </button>
                     </div>
+                    <div>
                     <button
                         onClick={handleSavedPlaylists}
                         disabled={playList.length === 0}
-                        className="text-sm px-4 py-2 rounded-lg bg-red-700 text-white hover:bg-red-500 transition mx-4"
+                        className="text-sm px-4 py-2 rounded-lg bg-red-700 text-white hover:bg-red-500 transition mx-4 cursor-pointer"
                     >
                         Remove All
                     </button>
+                    </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                     {playList.length === 0 ? (

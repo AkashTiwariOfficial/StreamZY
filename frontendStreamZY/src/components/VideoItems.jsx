@@ -12,6 +12,7 @@ export default function VideoItems(props) {
   const menuRef = useRef(null);
   const [menu, setMenu] = useState(false);
   const [save, setSave] = useState(false);
+  const [sunMenu, setSubMenu] = useState(false);
   const Context = useContext(videoContext);
   const { timeAgo } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
@@ -137,7 +138,7 @@ export default function VideoItems(props) {
               <i className="fa-solid fa-ellipsis-vertical text-black/80 dark:text-gray-200"></i>
             </div>
             {menu && (
-              <div ref={menuRef} className="absolute left-full mt-2 min-w-32 w-full
+              <div ref={menuRef} className="absolute right-full mt-2 min-w-48 w-full
                     bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
                 {location.pathname === "/you" ? (
                   <div
@@ -164,6 +165,35 @@ export default function VideoItems(props) {
                     Save
                   </div>
                 )}
+
+                 <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSubMenu(true);
+                      handleFindPlaylist();
+                      setMenu(false);
+                    }}
+                    className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                    <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 mt-1`}></i>
+                    Add to Playlist
+                  </div>
+                  {
+                    sunMenu ? (
+                         <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddPlaylist();
+                       setSubMenu(false);
+                    }}
+                    className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                    <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 mt-1`}></i>
+                    Add to Playlist
+                  </div>
+                    ) : ( null )
+                  }
+
               </div>
             )}
           </div>
