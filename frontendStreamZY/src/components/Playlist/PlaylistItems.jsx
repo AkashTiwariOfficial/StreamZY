@@ -12,8 +12,9 @@ export default function Playlists({ pylt, removePlaylist }) {
   const menuRef = useRef(null);
   const [menu, setMenu] = useState(false);
   const Context = useContext(videoContext);
-  const { timeAgo } = Context;
+  const { timeAgo, currUser } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
+  const [save, setSave] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -28,9 +29,9 @@ export default function Playlists({ pylt, removePlaylist }) {
 
   const handleClick = () => {
     if (!category) {
-       navigate(`/video/home/${pylt?.videos[0]?._id}`);
+      navigate(`/video/home/${pylt?.videos[0]?._id}`);
     } else {
-    navigate(`/video/${category}/${pylt?.videos[0]?._id}`);
+      navigate(`/video/${category}/${pylt?.videos[0]?._id}`);
     }
   }
 
@@ -54,9 +55,78 @@ export default function Playlists({ pylt, removePlaylist }) {
       }
 
     } catch (error) {
-      console.log("Error while deleting liked videos", error.response?.data || error.message);
+      console.log("Error while deleting playlist", error.response?.data || error.message);
+    }
+  }
+
+
+
+  const handleSave = async () => {
+    try {
+      const response = await axios.patch(`${host}/v1/playlists/saved-playlist/${pylt?._id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        setSave(response.data.data);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching playlist toggle", error.response?.data || error.message);
+    }
+  }
+
+
+  useEffect(() => {
+
+    if (!pylt?._id) {
+      return;
     }
 
+    const isPlaylistSaved = async () => {
+      try {
+        const response = await axios.get(`${host}/v1/playlists/is-Saved-playlist/${pylt?._id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setSave(response.data.data);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching playlist saved", error.response?.data || error.message);
+      }
+    }
+
+    isPlaylistSaved();
+  }, [])
+ 
+  const removeSavedPlaylist = async () => {
+    
+    try {
+      const response = await axios.patch(`${host}/v1/playlists/delete-playlist/${pylt?._id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removePlaylist(pylt?._id);
+      }
+
+    } catch (error) {
+      console.log("Error while deleting removing playlist from  saved ", error.response?.data || error.message);
+    }
   }
 
   return (
@@ -120,7 +190,7 @@ export default function Playlists({ pylt, removePlaylist }) {
             <div className="flex items-center text-sm dark:text-gray-600 mt-1 truncate">
               <span className="dark:text-white/60 text-sm font-[400] truncate">{timeAgo(pylt.updatedAt)}</span>
             </div>
-            <div onClick={(e) => {e.stopPropagation(); handleClickPlaylist();}} className="flex items-center text-sm  dark:text-gray-600 mt-1 truncate">
+            <div onClick={(e) => { e.stopPropagation(); handleClickPlaylist(); }} className="flex items-center text-sm  dark:text-gray-600 mt-1 truncate">
               <span className="dark:text-white/80 text-sm font-[400] dark:hover:text-white hover:text-gray-950 truncate">View full Playlist</span>
             </div>
           </div>
@@ -132,7 +202,7 @@ export default function Playlists({ pylt, removePlaylist }) {
             {menu && (
               <div ref={menuRef} className="absolute left-full top-5 mt-2 min-w-32 w-full
                     bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
-                <div
+                {location.pathname !== "/playlists" && location.pathname !== "/playlists/saved" && currUser?._id === pylt?.owner ? (<div
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/UpdatePlaylist/${pylt?._id}`)
@@ -142,18 +212,35 @@ export default function Playlists({ pylt, removePlaylist }) {
                 >
                   <i className="fa-regular fa-pen-to-square mr-3"></i>
                   Edit
-                </div>
+                </div>)
+                  : (null)
+                }
 
+          { (location.pathname !== "/playlists") ? (
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
-                    deletePlaylist();
+                   location.pathname !== "/playlists/saved" ? deletePlaylist() : removeSavedPlaylist();
                     setMenu(false);
                   }}
                   className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
                 >
-                  <i className="fa-solid fa-trash mr-3"></i>
-                  Delete
+                  <i className="fa-solid fa-trash mr-1"></i>
+              { location.pathname === "/playlists/saved" ? "Remove" : "Delete" }
+                </div>
+               ) : (null)
+                }
+
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSave();
+                    setMenu(false);
+                  }}
+                  className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                >
+                  <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3`}></i>
+                  Save
                 </div>
               </div>
             )}

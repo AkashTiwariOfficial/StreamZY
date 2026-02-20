@@ -100,12 +100,12 @@ router.route("/request-forgot-password-reset").post(
     forgotPassword
 )
 
-router.route("/saved-videos").get(
+router.route("/saved-videos/:username").get(
     verifyJWT,
     getUserSavedVidoes
 )
 
-router.route("/saved-playlists").get(
+router.route("/saved-playlists/:username").get(
     verifyJWT,
     getUserSavedPlaylists
 )

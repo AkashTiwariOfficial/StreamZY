@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { verifyJWT } from "../middlewares/auth.middleware.js"
-import { addManyVideosToPlalyList, addVideosToPlayList, createPlayList, deleteAllPlaylist, deleteManyVideos, deletePlaylist, deleteVideoFromPlayList, getPlayListById, getPlayLists, getUserPlayLists, isPlaylistSaved, savedPlaylist, updatePlayList } from "../controllers/playlist.controller.js";
+import { addManyVideosToPlalyList, addVideosToPlayList, createPlayList, deleteAllPlaylist, deleteManyVideos, deletePlaylist, deleteVideoFromPlayList, getPlayListById, getPlayLists, getUserPlayLists, isPlaylistSaved, removesavedPlaylist, savedPlaylist, updatePlayList } from "../controllers/playlist.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 
@@ -60,6 +60,12 @@ router.route("/delete-Many/:playListId").delete(
 router.route("/delete-video/:playListId/:videoId").delete(
     verifyJWT,
     deleteVideoFromPlayList
+)
+
+
+router.route("/delete-playlist/:playListId").patch(
+    verifyJWT,
+    removesavedPlaylist
 )
 
 

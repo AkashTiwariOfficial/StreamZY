@@ -939,6 +939,19 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 
 const getUserSavedVidoes = asyncHandler(async (req, res) => {
+
+   const { username } = req.params
+
+  if (!username) {
+    throw new ApiErrors(400, "username is missing")
+  }
+
+    const users = await User.findOne({ username: username })
+
+    if (!users) {
+      throw new ApiErrors(404, "User does not exists")
+    }
+
   try {
 
     const user = await User.aggregate([
@@ -1003,6 +1016,19 @@ const getUserSavedVidoes = asyncHandler(async (req, res) => {
 
 
 const getUserSavedPlaylists = asyncHandler(async (req, res) => {
+
+   const { username } = req.params
+
+  if (!username) {
+    throw new ApiErrors(400, "username is missing")
+  }
+
+    const users = await User.findOne({ username: username })
+
+    if (!users) {
+      throw new ApiErrors(404, "User does not exists")
+    }
+    
   try {
 
     const user = await User.aggregate([
@@ -1055,44 +1081,13 @@ const getUserSavedPlaylists = asyncHandler(async (req, res) => {
                 ]
               }
             },
-            {
-              $lookup: {
-                from: "users",
-                foreignField: "_id",
-                localField: "owner",
-                as: "owner",
-                pipeline: [
-                  {
-                    $project: {
-                      username: 1,
-                      fullName: 1
-                    }
-                  }
-                ]
-              },
-            },
-            {
-              $addFields: {
-                owner: {
-                  $first: "$owner"
-                }
-              }
-            },
-
-            {
-              $addFields: {
-                owner: {
-                  $first: "$owner"
-                }
-              }
-            }
           ]
         }
       },
       {
         $addFields: {
-          "savedVideos.video": {
-            $first: "$savedVideos.video"
+          "savedPlaylists.playlist": {
+            $first: "$savedPlaylists.playlist"
           }
         }
       }
@@ -1100,7 +1095,7 @@ const getUserSavedPlaylists = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponses(200, user.map(u => u.savedVideos), "User's playlists fetched successfully"))
+      .json(new ApiResponses(200, user.map(u => u.savedPlaylists), "User's playlists fetched successfully"))
   } catch (error) {
     throw new ApiErrors(500, error.message || "Internal Server Error while fetching user's playlists")
   }

@@ -667,6 +667,47 @@ const isPlaylistSaved = asyncHandler(async (req, res) => {
 
 })
 
+
+const removesavedPlaylist = asyncHandler(async (req, res) => {
+    const { playListId } = req.params
+
+    if (!playListId) {
+        throw new ApiErrors(400, "playList id is missing!")
+    }
+
+    const playList = await Playlist.findById(playListId)
+
+    if (!playList) {
+        throw new ApiErrors(404, "playList does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+        "savedPlaylists.playlist": playListId
+    });
+
+    let updateAdd;
+
+    if (exists) {
+        updateAdd = await User.findByIdAndUpdate(req.user?._id, {
+            $pull: {
+                savedPlaylists: {
+                    playlist: {
+                        $in: playListId
+                    },
+                }
+            },
+        }, { new: true }).select(
+            "-password -refreshToken"
+        );
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, updateAdd, "playlist deleted from saved successfully"));
+
+})
+
 export {
 
     createPlayList,
@@ -681,6 +722,7 @@ export {
     getPlayLists,
     isPlaylistSaved,
     savedPlaylist,
-    deleteAllPlaylist
+    deleteAllPlaylist,
+    removesavedPlaylist
 
 }

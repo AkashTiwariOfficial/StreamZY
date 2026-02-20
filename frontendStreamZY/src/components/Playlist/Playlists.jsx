@@ -37,7 +37,6 @@ export default function Playlists() {
 
         if (response.data.success) {
           setPlayList(response.data.data.filter(pylt => pylt.videos.length !== 0));
-          console.log(response.data.data)
         }
 
       } catch (error) {
@@ -116,6 +115,7 @@ export default function Playlists() {
             owned
           </button>
           <button
+          onClick={() => { navigate("/playlists/saved") }}
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
             saved

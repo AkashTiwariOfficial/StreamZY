@@ -22,11 +22,11 @@ export default function YourPlaylist() {
   }, []);
 
   const soryBy = (field) => {
-   setPlayList(prev => 
-   [...prev].sort(
-    (a,b) => new Date(b[field]) - new Date(a[field])
-   ) 
-   )
+    setPlayList(prev =>
+      [...prev].sort(
+        (a, b) => new Date(b[field]) - new Date(a[field])
+      )
+    )
   }
 
 
@@ -52,6 +52,12 @@ export default function YourPlaylist() {
     handleOwnedPlaylist();
   }, [currUser._id])
 
+  const removePlaylist = (_id_) => {
+    setPlayList(prev =>
+      prev.filter(del => del._id !== _id_)
+    );
+  };
+
   return (
     <div>
       <div className="lg:ml-24 ml-4 p-3 md:p-2">
@@ -71,14 +77,14 @@ export default function YourPlaylist() {
               <div className="absolute right-[1/2] mt-2 w-40 bg-slate-200 dark:bg-[#1f1f1f] rounded-md shadow-lg ring-1 ring-black/5 z-20">
                 <ul className="py-2 text-sm text-gray-700 dark:text-gray-200 ">
                   <li>
-                    <button  onClick={() => soryBy("createdAt")} 
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button onClick={() => soryBy("createdAt")}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Created At
                     </button>
                   </li>
                   <li>
                     <button className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                     onClick={() => soryBy("updatedAt")}>
+                      onClick={() => soryBy("updatedAt")}>
                       Updated At
                     </button>
                   </li>
@@ -106,6 +112,7 @@ export default function YourPlaylist() {
             owned
           </button>
           <button
+            onClick={() => { navigate("/playlists/saved") }}
             className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
           >
             saved
@@ -119,7 +126,7 @@ export default function YourPlaylist() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {playList.map((pylt) => {
-            return <PlaylistItems key={pylt._id} pylt={pylt} />
+            return <PlaylistItems key={pylt._id} pylt={pylt} removePlaylist={removePlaylist} />
           })}
         </div>
       </div>

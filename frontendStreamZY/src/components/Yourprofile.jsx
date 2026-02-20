@@ -146,7 +146,7 @@ export default function Yourprofile() {
 
     fetchPlayList();
 
-  }, [playlist])
+  }, [])
 
   useEffect(() => {
 
