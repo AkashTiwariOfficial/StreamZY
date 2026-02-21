@@ -10,9 +10,11 @@ export default function VideoItems(props) {
   const location = useLocation();
   const { category } = useParams();
   const menuRef = useRef(null);
+  const subMenuRef = useRef(null);
   const [menu, setMenu] = useState(false);
   const [save, setSave] = useState(false);
-  const [sunMenu, setSubMenu] = useState(false);
+  const [subMenu, setSubMenu] = useState(false);
+  const [playlist, setPlayList] = useState([]);
   const Context = useContext(videoContext);
   const { timeAgo } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
@@ -22,6 +24,10 @@ export default function VideoItems(props) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenu(false);
       }
+      if (subMenuRef.current && !subMenuRef.current.contains(e.target)) {
+        setSubMenu(false);
+      }
+
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -85,6 +91,47 @@ export default function VideoItems(props) {
 
     } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+
+  }
+
+  const handleFindPlaylist = async () => {
+    try {
+
+      const response = await axios.get(`${host}/v1/playlists/fetch-playlist`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        setPlayList(response.data.data);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching playlists", error.response?.data || error.message);
+    }
+  }
+
+  const handleAddPlaylist = async (_id_) => {
+      try {
+
+      const response = await axios.patch(`${host}/v1/playlists/addToplaylist/${_id_}/${video?._id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        alert("done saving to playlist");
+      }
+
+    } catch (error) {
+      console.log("Error while ading video to playlist", error.response?.data || error.message);
     }
 
   }
@@ -166,36 +213,53 @@ export default function VideoItems(props) {
                   </div>
                 )}
 
-                 <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSubMenu(true);
-                      handleFindPlaylist();
-                      setMenu(false);
-                    }}
-                    className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
-                  >
-                    <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 mt-1`}></i>
-                    Add to Playlist
-                  </div>
-                  {
-                    sunMenu ? (
-                         <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddPlaylist();
-                       setSubMenu(false);
-                    }}
-                    className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
-                  >
-                    <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 mt-1`}></i>
-                    Add to Playlist
-                  </div>
-                    ) : ( null )
-                  }
-
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenu(false);
+                    setSubMenu(true);
+                    handleFindPlaylist();
+                  }}
+                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
+                >
+                    <i className="fa-solid fa-list-ul text-base mr-3 "></i>
+                  Add to Playlist
+                </div>
               </div>
             )}
+
+
+
+            {subMenu && (
+              <div ref={subMenuRef} className="absolute right-full mt-2 min-w-56 overflow-hidden w-full
+                    bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20">
+                {playlist.map((pylt) => {
+                  return (
+                    <div
+                      key={pylt?._id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddPlaylist(pylt?._id);
+                        setSubMenu(false);
+                      }}
+                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                    >
+                      <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 mt-1`}></i>
+                      {pylt?.name}
+                    </div>
+                  )
+                })}
+
+                 <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate("/createPlaylist")
+                      }}
+                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                    >
+                      <i class="fa-solid fa-plus mr-3 mt-1"></i> New Playlist
+                    </div>
+              </div>)}
           </div>
         </div>
       </div>

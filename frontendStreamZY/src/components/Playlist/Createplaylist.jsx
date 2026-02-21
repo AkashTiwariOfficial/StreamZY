@@ -40,7 +40,7 @@ export default function Createplaylist() {
             });
 
             if (response.data.success) {
-                navigate("/playlists");
+                navigate(-1);
             }
         } catch (error) {
             console.log("Error while fetching vidoes", error.response?.data || error.message);
