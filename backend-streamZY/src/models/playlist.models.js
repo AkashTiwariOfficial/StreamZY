@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 
-
 const playListSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -32,6 +31,10 @@ const playListSchema = new mongoose.Schema({
     public_id_thumbnail: {
         type: String
     },
+    public: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 

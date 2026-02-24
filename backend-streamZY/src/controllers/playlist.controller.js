@@ -11,7 +11,7 @@ import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js
 
 const createPlayList = asyncHandler(async (req, res) => {
 
-    const { name, description, title } = req.body
+    const { name, description, title, isPublic } = req.body
 
     if (!(name && description && title)) {
         throw new ApiErrors(400, "Both name and description are required to create a PlayList")
@@ -39,6 +39,7 @@ const createPlayList = asyncHandler(async (req, res) => {
             owner: req.user?._id,
             thumbnail: thumbnail.url,
             public_id_thumbnail: thumbnail.public_id,
+            public: isPublic
         })
 
         if (!newPlayList) {
@@ -142,6 +143,11 @@ const getPlayLists = asyncHandler(async (req, res) => {
 
     const PlayLists = await Playlist.aggregate([
         {
+            $match: {
+                public: true
+            }
+        },
+        {
             $lookup: {
                 from: "videos",
                 foreignField: "_id",
@@ -239,7 +245,7 @@ const getPlayListById = asyncHandler(async (req, res) => {
                 ]
             }
         },
-      
+
         {
             $lookup: {
                 from: "users",
@@ -304,11 +310,11 @@ const updatePlayList = asyncHandler(async (req, res) => {
 
     const playList = await Playlist.findById(playListId);
 
-    const { name, description, title } = req.body
+    const { name, description, title, isPublic } = req.body
 
     const thumbnailFilePath = req.file?.path
 
-    if (!(name || description || title || thumbnailFilePath)) {
+    if (!(name || description || title || thumbnailFilePath || "isPublic" in req.body)) {
         throw new ApiErrors(400, "One field is requried to edit playList")
     }
 
@@ -325,6 +331,9 @@ const updatePlayList = asyncHandler(async (req, res) => {
     if (thumbnail) {
         updateDetails.thumbnail = thumbnail.url,
             updateDetails.public_id_thumbnail = thumbnail.public_id
+    }
+    if ("isPublic" in req.body) {
+        updateDetails.public = req.body.isPublic;
     }
 
     const newPlayList = await Playlist.findByIdAndUpdate(playListId,
@@ -649,7 +658,7 @@ const isPlaylistSaved = asyncHandler(async (req, res) => {
 
     const exists = await User.exists({
         _id: req.user?._id,
-         "savedPlaylists.playlist": playlistId
+        "savedPlaylists.playlist": playlistId
     });
 
     let newAdd;

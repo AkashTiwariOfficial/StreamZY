@@ -20,6 +20,8 @@ export default function UpdatePlaylist() {
     const [loading, setLoading] = useState(false);
     const [name, setName] = useState("");
     const [playList, setPlayList] = useState("");
+    const [isPublic, setIsPublic] = useState(null);
+    const [disabled, setDisabled] = useState(true);
 
     useEffect(() => {
         const fetchPlaylist = async () => {
@@ -38,6 +40,8 @@ export default function UpdatePlaylist() {
                     setTitle(response.data.data?.title);
                     setPreview(response.data.data?.thumbnail);
                     setPlayList(response.data.data);
+                    setIsPublic(response.data.data?.public);
+                    console.log(response.data.data)
                 }
             } catch (error) {
                 console.log("Error while fetching playlist", error.response?.data || error.message);
@@ -66,9 +70,9 @@ export default function UpdatePlaylist() {
             if (thumbnailFile) {
                 formData.append("thumbnail", thumbnailFile);
             }
-            formData.forEach((value, key) => {
-                console.log(key, value);
-            });
+            if (isPublic !== null) {
+                formData.append("isPublic", isPublic);
+            }
 
             const response = await axios.patch(`${host}/v1/playlists/update/${id}`, formData, {
                 headers: {
@@ -87,6 +91,7 @@ export default function UpdatePlaylist() {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 py-12 
@@ -238,6 +243,52 @@ export default function UpdatePlaylist() {
                         />
                     </div>
 
+                    <div className="mt-3 mb-5">
+                        <label onClick={() => setDisabled(false)} className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                            Playlist Privacy [click here to Set the Privacy(click on button to enable private mode)]
+                        </label>
+
+                        <div className="flex items-center gap-4 rounded-xl border-[1px] border-gray-300 
+              dark:border-gray-600 bg-gray-50 dark:bg-[#2a2a2a] py-2 px-3">
+
+                            {/* Status Text */}
+                            <span
+                                className={`text-sm font-semibold transition-colors duration-300
+                                           ${isPublic
+                                        ? "text-green-600 dark:text-green-400"
+                                              : "text-gray-600 dark:text-gray-400"}
+                                         `}
+                            >
+                                {isPublic ? "Public" : "Private"}
+                            </span>
+
+
+                            <button
+                                type="button"
+                                disabled={disabled}
+                                onClick={() => {setIsPublic(!isPublic)}}
+                                className={`
+        relative w-14 h-8 flex items-center rounded-full p-1
+        transition-all duration-300 ease-in-out
+                                      ${isPublic
+                                        ? "bg-green-500 dark:bg-green-600"
+                                        : "bg-gray-300 dark:bg-gray-600"}
+                               ${disabled
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : "cursor-pointer hover:scale-105 active:scale-95"}
+                                    `}
+                                >
+                                <span
+                                    className={`
+                               w-6 h-6 bg-white dark:bg-gray-200 rounded-full shadow-md
+                              transform transition-transform duration-300
+                               ${isPublic ? "translate-x-6" : "translate-x-0"}
+                                     `}
+                                />
+                            </button>
+
+                        </div>
+                    </div>
                     {/* Buttons */}
                     <div className="flex gap-4 pt-2">
 

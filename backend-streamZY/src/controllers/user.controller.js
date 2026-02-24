@@ -1,13 +1,13 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiErrors } from "../utils/ApiErrors.js";
 import { User } from "../models/user.models.js";
+import { Video } from "../models/video.models.js"
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponses } from "../utils/ApiResponses.js"
 import jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
 import bcrypt from "bcrypt"
 import mongoose from "mongoose";
-import { Video } from "../models/video.models.js";
 
 
 
@@ -704,7 +704,10 @@ const getUserChannel = asyncHandler(async (req, res) => {
     throw new ApiErrors(400, "username is missing")
   }
 
+  const isUserExits = await User.findOne({ username: username })
+
   try {
+
     const channel = await User.aggregate([
       {
         $match: {
@@ -744,29 +747,104 @@ const getUserChannel = asyncHandler(async (req, res) => {
           }
         }
       },
+ {
+        $match: {
+          username: username.toLowerCase()
+        },
+      },
+      {
+        $lookup: {
+          from: "videos",
+          foreignField: "owner",
+          localField: "_id",
+          as: "videos",
+          pipeline: [
+            {
+              $lookup: {
+                from: "likes",
+                foreignField: "video",
+                localField: "_id",
+                as: "totalLikes",
+                pipeline: [
+                  {
+                    $match: {
+                      isVideoLiked: true
+                    }
+                  },
+                  {
+                    $count: "count"
+                  },
+                ]
+              }
+            },
+            {
+              $addFields: {
+                totalLikes: {
+                  $ifNull: [{ $first: "$totalLikes.count" }, 0]
+                }
+              }
+            },
+            {
+              $project: {
+                totalLikes: 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          totalLike: {
+            $sum: "$videos.totalLikes"
+          },
+          totalVideo: {
+            $size: "$videos"
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "videos",
+          foreignField: "owner",
+          localField: "_id",
+          as: "totalViews",
+        },
+      },
+      {
+        $addFields: {
+          totalViews: {
+            $sum: "$totalViews.views"
+          },
+        },
+      },
       {
         $project: {
           fullName: 1,
           username: 1,
+          avatar: 1,
+          email: 1,
+          createdAt: 1,
           subscribersCount: 1,
           channelsubscribedToCount: 1,
           isSubscribedTo: 1,
-          avatar: 1,
           coverImage: 1,
-          email: 1,
-          createdAt: 1
+           totalLike: 1,
+          totalViews: 1,
+          totalVideo: 1
         }
       }
+      
     ])
 
     if (!channel) {
       throw new ApiErrors(404, "Channel does not exists");
     }
 
+
     return res
       .status(200)
       .json(
-        new ApiResponses(200, channel[0], "User channel fetched successfully")
+        new ApiResponses(200, channel[0] , "User channel fetched successfully")
       )
 
   } catch (error) {
@@ -777,6 +855,7 @@ const getUserChannel = asyncHandler(async (req, res) => {
 
 
 const getUserWatchHistory = asyncHandler(async (req, res) => {
+
   try {
 
     const user = await User.aggregate([
@@ -940,17 +1019,17 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 const getUserSavedVidoes = asyncHandler(async (req, res) => {
 
-   const { username } = req.params
+  const { username } = req.params
 
   if (!username) {
     throw new ApiErrors(400, "username is missing")
   }
 
-    const users = await User.findOne({ username: username })
+  const users = await User.findOne({ username: username })
 
-    if (!users) {
-      throw new ApiErrors(404, "User does not exists")
-    }
+  if (!users) {
+    throw new ApiErrors(404, "User does not exists")
+  }
 
   try {
 
@@ -1017,18 +1096,18 @@ const getUserSavedVidoes = asyncHandler(async (req, res) => {
 
 const getUserSavedPlaylists = asyncHandler(async (req, res) => {
 
-   const { username } = req.params
+  const { username } = req.params
 
   if (!username) {
     throw new ApiErrors(400, "username is missing")
   }
 
-    const users = await User.findOne({ username: username })
+  const users = await User.findOne({ username: username })
 
-    if (!users) {
-      throw new ApiErrors(404, "User does not exists")
-    }
-    
+  if (!users) {
+    throw new ApiErrors(404, "User does not exists")
+  }
+
   try {
 
     const user = await User.aggregate([
@@ -1092,6 +1171,7 @@ const getUserSavedPlaylists = asyncHandler(async (req, res) => {
         }
       }
     ])
+
 
     return res
       .status(200)

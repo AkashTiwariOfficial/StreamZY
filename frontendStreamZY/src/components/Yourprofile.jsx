@@ -105,7 +105,7 @@ export default function Yourprofile() {
 
     fetchMyVideos();
 
-  }, [myVideo])
+  }, [])
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -248,7 +248,7 @@ export default function Yourprofile() {
           </div>
         </div>
       </div>
-      <div ref={scrollRef} className="overflow-x-auto flex gap-3 scroll-hidden  overflow-x-hidden scroll-smooth">
+      <div ref={scrollRef} className="overflow-x-auto flex gap-3 scroll-hidden  overflow-x-hidden scroll-smooth py-4">
         {myVideo.length > 0 ? (
           myVideo.map((video) => {
             return <VideoItems key={video?._id} video={video} />
@@ -289,7 +289,7 @@ export default function Yourprofile() {
           </div>
         </div>
       </div>
-      <div ref={scrollRefHistory} className="overflow-x-auto flex gap-3 overflow-x-hidden scroll-smooth">
+      <div ref={scrollRefHistory} className="overflow-x-auto flex gap-3 overflow-x-hidden scroll-smooth py-4">
         {history.length > 0 ? (
           history.map((video) => {
             return <DuplicatieItem key={video._id} video={video} removeHistory={removeHistory} delFunction={"delete-History"} />
@@ -333,7 +333,7 @@ export default function Yourprofile() {
           </div>
         </div>
       </div>
-      <div ref={scrollRefLike} className="overflow-x-auto flex gap-3 scroll-hidden scroll-smooth">
+      <div ref={scrollRefLike} className="overflow-x-auto flex gap-3 scroll-hidden scroll-smooth py-4">
         {like.length > 0 ? (
           like.map((video) => {
             return <DuplicatieItem key={video._id} video={video} removeLikedVideos={removeLikedVideos} delFunction={"delete-Like"} />
@@ -358,11 +358,11 @@ export default function Yourprofile() {
             <h1 className="text-2xl font-[700] dark:text-white/100">Playlists</h1>
           </div>
           <div className="flex gap-2">
-            <div className="flex h-[36px] w-[36px] hover:dark:bg-black/70 hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer text-4xl font-[300] pb-2">
+            <Link to="/createPlaylist" className="flex h-[36px] w-[36px] hover:dark:bg-black/70 hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer text-4xl font-[300] pb-2">
               +
-            </div>
+            </Link>
 
-            <Link to="/playlist" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+            <Link to="/playlists" className="flex px-3 py-1 active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
               View All
             </Link>
 
@@ -381,7 +381,7 @@ export default function Yourprofile() {
           </div>
         </div>
       </div>
-      <div ref={scrollRefPlaylist} className="overflow-x-auto flex gap-3 scroll-hidden overflow-x-hidden scroll-smooth">
+      <div ref={scrollRefPlaylist} className="overflow-x-auto flex gap-3 scroll-hidden overflow-x-hidden scroll-smooth py-4">
         {
           playlist.length > 0 ? (
             playlist.map((pylt) => {

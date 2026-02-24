@@ -11,6 +11,8 @@ export default function Createplaylist() {
     const [title, setTitle] = useState("");
     const [thumbnail, setThumbnail] = useState("");
     const [thumbnailPrev, setThumbnailPrev] = useState("");
+    const [isPublic, setIsPublic] = useState(false);
+    const disabled = false;
 
     const Context = useContext(videoContext);
     const { host } = Context;
@@ -19,14 +21,14 @@ export default function Createplaylist() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        
         const body = {
             name: playlistName,
             title: title,
             description: description,
-            thumbnail: thumbnail
+            thumbnail: thumbnail,
+            isPublic: isPublic
         };
-        console.log(body)
 
         //if no  "Content-Type": "multipart/form-data", then use const formSata = new formData();
         try {
@@ -60,24 +62,25 @@ export default function Createplaylist() {
                         <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">
                             Create Playlist
                         </h2>
-                             </div>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setTitle("");
-                                setDescription("");
-                                setPlaylistName("");
-                                setThumbnailPrev("");
-                                setThumbnail("");
-                            }}
-                            className="w-1/5 py-2 rounded-xl border-[1px] 
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setTitle("");
+                            setDescription("");
+                            setPlaylistName("");
+                            setThumbnailPrev("");
+                            setThumbnail("");
+                        }}
+                        className="w-1/5 py-2 rounded-xl border-[1px] 
               border-gray-300 dark:border-gray-600
               text-gray-700 dark:text-gray-300
               hover:bg-gray-100 dark:hover:bg-[#2a2a2a]
               transition"
-                        >
-                            Reset
-                        </button>
+                    >
+                        Reset
+                    </button>
+
                 </div>
 
                 {/* Form */}
@@ -179,6 +182,53 @@ export default function Createplaylist() {
                                 />
                             )}
                         </label>
+                    </div>
+
+                    <div className="mt-5">
+                        <label className="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">
+                            Playlist Privacy
+                        </label>
+
+                        <div className="flex items-center gap-4 rounded-xl border-[1px] border-gray-300 
+              dark:border-gray-600 bg-gray-50 dark:bg-[#2a2a2a] py-2 px-3">
+
+                            {/* Status Text */}
+                            <span
+                                className={`text-sm font-semibold transition-colors duration-300
+        ${isPublic
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-gray-600 dark:text-gray-400"}
+      `}
+                            >
+                                {isPublic ? "Public" : "Private"}
+                            </span>
+
+                           
+                            <button
+                                type="button"
+                                disabled={disabled}
+                                onClick={() => setIsPublic(!isPublic)}
+                                className={`
+        relative w-14 h-8 flex items-center rounded-full p-1
+        transition-all duration-300 ease-in-out
+        ${isPublic
+                                        ? "bg-green-500 dark:bg-green-600"
+                                        : "bg-gray-300 dark:bg-gray-600"}
+        ${disabled
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : "cursor-pointer hover:scale-105 active:scale-95"}
+      `}
+                            >
+                                <span
+                                    className={`
+          w-6 h-6 bg-white dark:bg-gray-200 rounded-full shadow-md
+          transform transition-transform duration-300
+          ${isPublic ? "translate-x-6" : "translate-x-0"}
+        `}
+                                />
+                            </button>
+
+                        </div>
                     </div>
 
                     {/* Buttons */}

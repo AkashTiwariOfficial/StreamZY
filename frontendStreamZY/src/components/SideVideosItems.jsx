@@ -166,7 +166,7 @@ export default function SideVideosItems(props) {
       }
 
     } catch (error) {
-      console.log("Error while deleting liked videos", error.response?.data || error.message);
+      console.log("Error while deleting video", error.response?.data || error.message);
     }
   }
 
