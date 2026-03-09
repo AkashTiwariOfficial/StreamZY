@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { useEffect, useState } from 'react'
 import videoContext from '../../Context/Videos/videoContext.jsx'
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 export default function SubscrptionItems(props) {
@@ -13,6 +13,7 @@ export default function SubscrptionItems(props) {
     const { host } = Context;
     const [subs, setsubs] = useState(true);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const { subscriber } = props;
     const isOpen = openId === subscriber._id;
@@ -48,22 +49,26 @@ export default function SubscrptionItems(props) {
         }
     }
 
+    const handleChannelChange = () => {
+        navigate(`/userProfile/${location.pathname === "/yourSubscribers" ? subscriber?.subscriber?.username : subscriber?.channel?.username}`)
+    }
 
     return (
         <div>
             <div className="flex flex-wrap ml-4 justify-between xl:px-48 lg:px-36 md:px-24 items-center mr-5">
                 <div className="flex flex-wrap mb-2">
-                    <div className="sm:h-[90px] sm:w-[90px] h-[72px] w-[72px] rounded-full relative  overflow-hidden">
+                    <div onClick={handleChannelChange} className="sm:h-[90px] cursor-pointer sm:w-[90px] h-[72px] w-[72px] rounded-full relative  overflow-hidden">
                         <img src={location.pathname === "/yourSubscribers" ? (subscriber?.subscriber?.avatar) : (subscriber?.channel?.avatar)} alt="Profile photo" className="h-full w-full object-cover rounded-full" />
                     </div>
                     <div className="flex flex-col w-auto mx-2 px-2 flex-wrap mt-3">
                         <span className="text-xl dark:text-white/90 font-[500]">{location.pathname === "/yourSubscribers" ? subscriber?.subscriber?.fullName : subscriber?.channel?.fullName}</span>
-                        <span className="dark:text-white/60 text-xs font-[400]">{location.pathname === "/yourSubscribers" ? subscriber?.subscriber?.username : subscriber?.channel?.username} {
+                        <div className='flex'>
+                        <span onClick={handleChannelChange} className="cursor-pointer text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200 text-xs font-[400]">{location.pathname === "/yourSubscribers" ? subscriber?.subscriber?.username : subscriber?.channel?.username}   </span>  {
                             location.pathname === "/yourSubscribers"
                                 ? null
-                                : ` • ${subscriber?.noOfSubscribers} subscribers`
+                                : <span className='text-gray-700 dark:text-gray-400 text-xs font-[400]'> • {subscriber?.noOfSubscribers} subscribers</span> 
                         }
-                        </span>
+                       </div>
                     </div>
                 </div>
                 {location.pathname !== "/yourSubscribers" ? (

@@ -15,11 +15,12 @@ export default function Settings() {
     username: currUser.username,
     fullname: currUser.fullName,
   });
-  
-  const theme = localStorage.getItem("mode") || 'light' ;
-  const [ mode, setMode ] = useState(theme);
+
+  const theme = localStorage.getItem("mode") || 'light';
+  const [mode, setMode] = useState(theme);
   const [editing, setEditing] = useState(null);
-  const [avatar, setAvatar] = useState(currUser.avatar);
+  const [avatar, setAvatar] = useState(currUser?.avatar);
+  const [coverImage, setCoverImage] = useState(currUser?.coverImage);
   const navigate = useNavigate();
 
 
@@ -27,7 +28,6 @@ export default function Settings() {
     e.preventDefault();
     const file = e.target.files[0];
     if (!file) return;
-    console.log(file)
 
     const body = {
       avatar: file
@@ -35,52 +35,50 @@ export default function Settings() {
 
     try {
 
-      const response = await axios.patch(`${host}/v1/users/avatar`, body , {
+      const response = await axios.patch(`${host}/v1/users/avatar`, body, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
         timeout: 150000
-      }); 
+      });
 
-   if (response.data.success) {
-      const newAvatar = response.data.data.avatar
-      console.log(newAvatar)
-      if (localStorage.getItem("user")) {
-        const newUser = JSON.parse(localStorage.getItem("user")) 
-        newUser.avatar = newAvatar
-        localStorage.setItem("user", JSON.stringify(newUser))
-        console.log(localStorage.getItem("user"))
-         }
-         setAvatar(newAvatar)
-      } 
+      if (response.data.success) {
+        const newAvatar = response.data.data.avatar
+        if (localStorage.getItem("user")) {
+          const newUser = JSON.parse(localStorage.getItem("user"))
+          newUser.avatar = newAvatar
+          localStorage.setItem("user", JSON.stringify(newUser));
+        }
+        setAvatar(newAvatar)
+      }
 
     } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
-   
+
   };
 
   const toggleDarkMode = () => {
-  
-  const newMode = mode === 'light' ? 'dark' : 'light' ;
-  setMode(newMode);
-  localStorage.setItem("mode", newMode)
 
-  if (localStorage.getItem("mode") === 'light') {
-    document.documentElement.classList.remove('dark')
-  } else {
-    document.documentElement.classList.add('dark')
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    localStorage.setItem("mode", newMode)
+
+    if (localStorage.getItem("mode") === 'light') {
+      document.documentElement.classList.remove('dark')
+    } else {
+      document.documentElement.classList.add('dark')
+    }
+
   }
 
-}
-
-   const startEdit = (field) => {
+  const startEdit = (field) => {
     setEditing(field);
   };
 
-   const handleChange = (e) => {
+  const handleChange = (e) => {
     e.preventDefault();
     setFields({ ...fields, [e.target.name]: e.target.value });
   };
@@ -132,41 +130,79 @@ export default function Settings() {
     }
   }
 
-   const handleAccountDetails = async (e) => {
-       e.preventDefault();
-       setEditing(null);
+  const handleAccountDetails = async (e) => {
+    e.preventDefault();
+    setEditing(null);
 
     try {
 
-          const changedFields = { };
+      const changedFields = {};
 
-       if (currUser.email != fields.email) {
-          changedFields.email = fields.email
-       }
+      if (currUser.email != fields.email) {
+        changedFields.email = fields.email
+      }
 
-        if (currUser.username != fields.username) {
-          changedFields.username = fields.username
-       }
+      if (currUser.username != fields.username) {
+        changedFields.username = fields.username
+      }
 
-         if (currUser.fullName != fields.fullname) {
-          changedFields.fullName = fields.fullname
-       }
-   
-      const response = await axios.patch(`${host}/v1/users/update-account`, changedFields , {
+      if (currUser.fullName != fields.fullname) {
+        changedFields.fullName = fields.fullname
+      }
+
+      const response = await axios.patch(`${host}/v1/users/update-account`, changedFields, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         withCredentials: true,
         timeout: 150000
-      }); 
+      });
 
-   if (response.data.success) {
-      localStorage.setItem("user", JSON.stringify(response.data.data))   
-      } 
+      if (response.data.success) {
+        localStorage.setItem("user", JSON.stringify(response.data.data))
+      }
 
     } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
+  }
+
+
+  const handleCoverImageChange = async (e) => {
+   e.preventDefault();
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const body = {
+      coverImage: file
+    }
+
+    try {
+
+      const response = await axios.patch(`${host}/v1/users/cover-image`, body, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        const newCoverImage = response.data.data.coverImage
+        if (localStorage.getItem("user")) {
+          const newUser = JSON.parse(localStorage.getItem("user"))
+          newUser.coverImage = newCoverImage
+          localStorage.setItem("user", JSON.stringify(newUser));
+        }
+        setCoverImage(newCoverImage)
+      }
+
+    } catch (error) {
+      console.log("Error while changing cover-image", error.response?.data || error.message);
+    }
+
+  
   }
 
   return (
@@ -198,90 +234,111 @@ export default function Settings() {
           <div className="bg-white/90 dark:bg-white/10 p-6 rounded-xl shadow-sm space-y-4 border-[1px] border-gray-200/90 dark:border-white/10">
 
             <div className="flex items-center justify-between py-3 border-b dark:text-white/90">
-        <div>
-          <p className="text-xs text-gray-500 uppercase">Email</p>
+              <div>
+                <p className="text-xs text-gray-500 uppercase">Email</p>
 
-          {editing === "email" ? (
-            <input
-              className="border rounded-lg px-3 py-2 w-full mt-1 text-black/90"
-              value={fields.email}
-              name="email"
-              type="email"
-              onChange={handleChange}
-            />
-          ) : (
-            <p className="text-lg font-medium">{fields.email}</p>
-          )}
+                {editing === "email" ? (
+                  <input
+                    className="border rounded-lg px-3 py-2 w-full mt-1 text-black/90"
+                    value={fields.email}
+                    name="email"
+                    type="email"
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p className="text-lg font-medium">{fields.email}</p>
+                )}
+              </div>
+
+              {editing === "email" ? (
+                <button onClick={handleAccountDetails} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                  Save
+                </button>
+              ) : (
+                <button onClick={() => startEdit("email")} className="text-blue-600 hover:text-blue-800">
+                  <FiEdit2 size={20} />
+                </button>
+              )}
+            </div>
+
+            {/* USERNAME */}
+            <div className="flex items-center justify-between py-3 border-b dark:text-white/90">
+              <div>
+                <p className="text-xs text-gray-500 uppercase">Username</p>
+
+                {editing === "username" ? (
+                  <input
+                    className="border rounded-lg px-3 py-2 w-full mt-1 text-black/90"
+                    type="text"
+                    name="username"
+                    value={fields.username}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p className="text-lg font-medium">{fields.username}</p>
+                )}
+              </div>
+
+              {editing === "username" ? (
+                <button onClick={handleAccountDetails} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                  Save
+                </button>
+              ) : (
+                <button onClick={() => startEdit("username")} className="text-blue-600 hover:text-blue-800">
+                  <FiEdit2 size={20} />
+                </button>
+              )}
+            </div>
+
+            {/* FULL NAME */}
+            <div className="flex items-center justify-between py-3 border-b dark:text-white/90">
+              <div>
+                <p className="text-xs text-gray-500 uppercase">Full Name</p>
+
+                {editing === "fullname" ? (
+                  <input
+                    className="border rounded-lg px-3 py-2 w-full mt-1 text-black/90"
+                    type="text"
+                    name="fullname"
+                    value={fields.fullname}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p className="text-lg font-medium">{fields.fullname}</p>
+                )}
+              </div>
+
+              {editing === "fullname" ? (
+                <button onClick={handleAccountDetails} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                  Save
+                </button>
+              ) : (
+                <button onClick={() => startEdit("fullname")} className="text-blue-600 hover:text-blue-800">
+                  <FiEdit2 size={20} />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
-        {editing === "email" ? (
-          <button onClick={ handleAccountDetails } className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-            Save
-          </button>
-        ) : (
-          <button onClick={() => startEdit("email")} className="text-blue-600 hover:text-blue-800">
-            <FiEdit2 size={20} />
-          </button>
-        )}
-      </div>
+       
+          <div className="space-y-5">
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 border-l-4 pl-3 border-blue-600">
+            Cover-Image
+          </h2>
 
-      {/* USERNAME */}
-      <div className="flex items-center justify-between py-3 border-b dark:text-white/90">
-        <div>
-          <p className="text-xs text-gray-500 uppercase">Username</p>
-
-          {editing === "username" ? (
-            <input
-              className="border rounded-lg px-3 py-2 w-full mt-1 text-black/90"
-              type="text"
-              name="username"
-              value={fields.username}
-              onChange={handleChange}
-            />
-          ) : (
-            <p className="text-lg font-medium">{fields.username}</p>
-          )}
+          <div className="bg-white/90 dark:bg-white/10 p-6 rounded-xl space-y-4 border-[1px] border-gray-200/40 dark:border-white/10">
+           <div className="flex items-center space-y-4 border-black/20 gap-5">
+          <img
+            src={coverImage}
+            className="w-48 h-28 rounded-3xl object-cover border-2 border-gray-300 shadow"
+          />
+          <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Cover-Image
+            <input type="file" className="hidden" accept="image/*" onChange={handleCoverImageChange} />
+          </label>
         </div>
-
-        {editing === "username" ? (
-          <button onClick={ handleAccountDetails } className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-            Save
-          </button>
-        ) : (
-          <button onClick={() => startEdit("username")} className="text-blue-600 hover:text-blue-800">
-            <FiEdit2 size={20} />
-          </button>
-        )}
-      </div>
-
-      {/* FULL NAME */}
-      <div className="flex items-center justify-between py-3 border-b dark:text-white/90">
-        <div>
-          <p className="text-xs text-gray-500 uppercase">Full Name</p>
-
-          {editing === "fullname" ? (
-            <input
-              className="border rounded-lg px-3 py-2 w-full mt-1 text-black/90"
-              type="text"
-              name="fullname"
-              value={fields.fullname}
-              onChange={handleChange}
-            />
-          ) : (
-            <p className="text-lg font-medium">{fields.fullname}</p>
-          )}
-        </div>
-
-        {editing === "fullname" ? (
-          <button onClick={ handleAccountDetails } className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-            Save
-          </button>
-        ) : (
-          <button onClick={() => startEdit("fullname")} className="text-blue-600 hover:text-blue-800">
-            <FiEdit2 size={20} />
-          </button>
-        )}
-      </div>
+         
           </div>
         </div>
 

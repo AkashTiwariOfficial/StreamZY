@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { deleteAllSavedVideos, deleteAllWatchedVideo, deleteVideoById, deleteWatchedVideo, getAllVideos, getVideoById, increaseViewCount, isVideoSaved, publishAVideo, savedVideo, togglePublishVideo, updateVideo, updateVideoDetails, uploadManyVideos, watchedVideo } from "../controllers/video.controller.js";
+import { deleteAllSavedVideos, deleteAllWatchedVideo, deleteSavedVideo, deleteVideoById, deleteWatchedVideo, getAllVideos, getVideoById, increaseViewCount, isVideoSaved, publishAVideo, savedVideo, togglePublishVideo, updateVideo, updateVideoDetails, uploadManyVideos, watchedVideo } from "../controllers/video.controller.js";
 
 
 
@@ -95,6 +95,11 @@ router.route("/delete-saved-videos").patch(
 router.route("/delete-watched-Video/:videoId").patch(
     verifyJWT,
     deleteWatchedVideo
+)
+
+router.route("/delete-Saved-Video/:videoId").patch(
+    verifyJWT,
+    deleteSavedVideo
 )
 
 router.route("/delete-watch-History-videos").patch(

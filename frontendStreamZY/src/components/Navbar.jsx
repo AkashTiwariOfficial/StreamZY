@@ -44,6 +44,10 @@ export default function Navbar() {
     fetchSubcribedChannels();
   }, [])
 
+    const handleChannelChange = (username) => {
+    navigate(`/userProfile/${username}`)
+  }
+
   return (
     <div>
 
@@ -174,6 +178,12 @@ export default function Navbar() {
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">History</label></li>
                 </Link>
               </Tooltip>
+               <Tooltip text="Saved Video" width="w-1/3" margin="mt-[10px]" changes="ml-12">
+                <Link to="/saved-vidoes" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
+                  <i className="fa-solid fa-clock-rotate-left text-base"></i>
+                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Saved Video</label></li>
+                </Link>
+              </Tooltip>
               <Tooltip text="Playlists" width="w-1/3" margin="mt-[10px]" changes="ml-14">
                 <Link to="/playlists" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
                   <i className="fa-solid fa-list-ul text-base"></i>
@@ -203,7 +213,7 @@ export default function Navbar() {
                 { subscribers.slice(0 , !open ? subscribers.length : 4).map((subscriber) => {
              return (
                   <Tooltip key={subscriber._id} text={`${subscriber?.channel?.username}`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
-                    <div className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
+                    <div  onClick={(e) => { e.stopPropagation(); handleChannelChange(subscriber?.channel?.username); }} className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
                       <div className="w-6 h-6 object-cover overflow-hidden rounded-full">
                         <img src={subscriber?.channel?.avatar} alt="profile image" className="w-full h-full object-cover" />
                       </div>
@@ -264,12 +274,6 @@ export default function Navbar() {
                   <i className="fa-solid fa-gear text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Settings</label></li>
                 </Link>
-              </Tooltip>
-              <Tooltip text="Feedback" width="w-1/2" margin="mt-[10px]" changes="ml-12">
-                <div className={tailwindClasses("pr-[55px]")} >
-                  <i className="fa-solid fa-envelope-open-text text-base"></i>
-                  <li><label htmlFor="menu-toggle" className="cursor-pointer block">Send Feedback</label></li>
-                </div>
               </Tooltip>
               <Tooltip text="About" width="w-1/2" margin="mt-[10px]" changes="ml-12">
                 <Link to="/about" className={tailwindClasses("pr-[96px]", "mb-[12px]")} >

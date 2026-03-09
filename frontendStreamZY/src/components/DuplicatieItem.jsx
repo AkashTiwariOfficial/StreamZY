@@ -134,7 +134,9 @@ export default function DuplicatieItem(props) {
     }
   }
 
-
+  const handleChannelChange =  () => {
+  navigate(`/userProfile/${video?.video?.owner.username}`)
+ }
 
     return (
 
@@ -149,7 +151,7 @@ export default function DuplicatieItem(props) {
                 </div>
 
                 <div className="flex items-start w-full">
-                    <div className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
+                    <div onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
                         <img
                             src={video?.video?.owner.avatar}
                             alt="Channel avatar"
@@ -165,7 +167,7 @@ export default function DuplicatieItem(props) {
                                 : video?.video?.title}
                         </span>
 
-                        <span className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
+                        <span onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
                             {video?.video?.owner.username}
                         </span>
 

@@ -668,6 +668,46 @@ const deleteWatchedVideo = asyncHandler(async (req, res) => {
 
 })
 
+const deleteSavedVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if (!videoId) {
+        throw new ApiErrors(400, "video id is missing!")
+    }
+
+    const video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiErrors(404, "Video does not exists");
+    }
+
+    const exists = await User.exists({
+        _id: req.user?._id,
+        "savedVideos.video": videoId
+    });
+
+    let updateAdd;
+
+    if (exists) {
+        updateAdd = await User.findByIdAndUpdate(req.user?._id, {
+            $pull: {
+                savedVideos: {
+                    video: {
+                        $in: videoId
+                    },
+                }
+            },
+        }, { new: true }).select(
+            "-password -refreshToken"
+        );
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponses(200, updateAdd, "Video deleted from saved Video successfully"));
+
+})
+
 
 const deleteAllWatchedVideo = asyncHandler(async (req, res) => {
 
@@ -756,6 +796,7 @@ export {
     deleteAllSavedVideos,
     deleteAllWatchedVideo,
     deleteWatchedVideo,
-    isVideoSaved
+    isVideoSaved,
+    deleteSavedVideo
 
 }

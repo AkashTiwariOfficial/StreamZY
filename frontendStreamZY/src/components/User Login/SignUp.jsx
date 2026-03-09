@@ -14,7 +14,8 @@ export default function SignUp() {
   const [signupfields, setSignupfields] = useState({ fullName: "", username: "", email: "", password: "" });
   const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState(null);
-
+  const [coverImage, setCoverImage] = useState(null);
+  const [coverImagePreview, setCoverImagePreview] = useState(null);
   const handleResgister = async (e) => {
     e.preventDefault();
 
@@ -30,6 +31,12 @@ export default function SignUp() {
         avatar: avatar,
       }
 
+      if (coverImage) {
+      body.coverImage = coverImage
+      }
+
+      console.log(body);
+
       const response = await axios.post(`${host}/v1/users/register`, body, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -38,9 +45,9 @@ export default function SignUp() {
       
   
       if (response.data.success) {
+        const userDetails = response.data.data.userCreated;
         localStorage.setItem("accessToken", response.data.data.accessToken);
         localStorage.setItem("refreshToken", response.data.data.refreshToken);
-        const userDetails = response.data.data;
         localStorage.setItem("user", JSON.stringify(userDetails));
         localStorage.setItem("timeofAT", Date.now());
         navigate("/home");
@@ -64,6 +71,11 @@ export default function SignUp() {
      setPreview(URL.createObjectURL(file))
   }
 
+    const handleCoverImageChange = (e) => {
+     const file = e.target.files[0];
+     setCoverImage(file);
+     setCoverImagePreview(URL.createObjectURL(file))
+  }
 
   return (
     <div>
@@ -151,6 +163,24 @@ export default function SignUp() {
              { preview &&
               <img
                 src={preview}
+                alt="Avatar Preview"
+                className="w-20 h-20 rounded-full mt-3 object-cover border border-gray-300 dark:border-gray-700"
+              />
+             }
+            </div>
+
+                <div>
+              <label className="block mb-1 text-sm font-medium">Cover-Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCoverImageChange}
+                className="w-full text-sm text-gray-600 border-[1px] dark:border-white/20 rounded-2xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+              />
+             
+             { coverImagePreview &&
+              <img
+                src={coverImagePreview}
                 alt="Avatar Preview"
                 className="w-20 h-20 rounded-full mt-3 object-cover border border-gray-300 dark:border-gray-700"
               />

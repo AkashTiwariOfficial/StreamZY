@@ -116,7 +116,7 @@ export default function VideoItems(props) {
   }
 
   const handleAddPlaylist = async (_id_) => {
-      try {
+    try {
 
       const response = await axios.patch(`${host}/v1/playlists/addToplaylist/${_id_}/${video?._id}`, {}, {
         headers: {
@@ -136,7 +136,7 @@ export default function VideoItems(props) {
 
   }
 
-   const handleDeleteVideo = async () => {
+  const handleDeleteVideo = async () => {
 
     try {
       const response = await axios.delete(`${host}/v1/videos/delete/${video?._id}`, {
@@ -154,6 +154,10 @@ export default function VideoItems(props) {
     } catch (error) {
       console.log("Error while deleting video", error.response?.data || error.message);
     }
+  }
+
+  const handleChannelChange = () => {
+    navigate(`/userProfile/${video.owner.username}`)
   }
 
   return (
@@ -175,7 +179,7 @@ export default function VideoItems(props) {
         </div>
 
         <div className="flex items-start w-full">
-          <div className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
+          <div onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} className="h-[40px] w-[40px] flex-shrink-0 rounded-full overflow-hidden mr-3">
             <img
               src={video.owner.avatar}
               alt="Channel avatar"
@@ -191,7 +195,7 @@ export default function VideoItems(props) {
                 : video.title}
             </span>
 
-            <span className="text-sm w-full text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
+            <span onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} className="text-sm text-gray-600 hover:text-black/100 hover:dark:text-[#f1f1f1]/80 truncate mt-1">
               {video.owner.username}
             </span>
 
@@ -232,18 +236,18 @@ export default function VideoItems(props) {
                     Save
                   </div>
                 )}
-                { location.pathname === "/userChannel" && ( 
-                 <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteVideo();
-                    setMenu(false);
-                  }}
-                  className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
-                >
-                  <i className="fa-solid fa-trash mr-1"></i>
-                  Delete
-                </div>
+                {location.pathname === "/userChannel" && (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteVideo();
+                      setMenu(false);
+                    }}
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                    <i className="fa-solid fa-trash mr-1"></i>
+                    Delete
+                  </div>
                 )}
 
                 <div
@@ -255,7 +259,7 @@ export default function VideoItems(props) {
                   }}
                   className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
                 >
-                    <i className="fa-solid fa-list-ul text-base mr-3 "></i>
+                  <i className="fa-solid fa-list-ul text-base mr-3 "></i>
                   Add to Playlist
                 </div>
               </div>
@@ -283,15 +287,15 @@ export default function VideoItems(props) {
                   )
                 })}
 
-                 <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate("/createPlaylist")
-                      }}
-                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
-                    >
-                      <i class="fa-solid fa-plus mr-3 mt-1"></i> New Playlist
-                    </div>
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/createPlaylist")
+                  }}
+                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                >
+                  <i class="fa-solid fa-plus mr-3 mt-1"></i> New Playlist
+                </div>
               </div>)}
           </div>
         </div>

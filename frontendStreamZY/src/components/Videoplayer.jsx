@@ -626,7 +626,7 @@ export default function Videoplayer({ video }) {
                   <span className="text-base dark:text-white/90 font-[500]">{details?.video?.owner?.username}</span>
                   <span className="dark:text-white/60 text-xs font-[400]">{subscribers?.length} subscribers</span>
                 </div>
-              </div>
+              </div> 
               {dosubscribed && <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
                 <i className="fa fa-bell">
                 </i>

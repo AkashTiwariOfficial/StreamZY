@@ -202,7 +202,7 @@ export default function Playlists({ pylt, removePlaylist }) {
             {menu && (
               <div ref={menuRef} className="absolute left-full top-5 mt-2 min-w-32 w-full
                     bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
-                {location.pathname !== "/playlists" && location.pathname !== "/playlists/saved" && currUser?._id === pylt?.owner ? (<div
+                {location.pathname !== "/playlists" && location.pathname !== "/playlists/saved" && !location.pathname.includes("/userProfile")  && currUser?._id === pylt?.owner ? (<div
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/UpdatePlaylist/${pylt?._id}`)
@@ -216,7 +216,7 @@ export default function Playlists({ pylt, removePlaylist }) {
                   : (null)
                 }
 
-          { (location.pathname !== "/playlists") ? (
+          { (!location.pathname.includes("/userProfile")  && location.pathname !== "/playlists" ) && (
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
@@ -228,7 +228,7 @@ export default function Playlists({ pylt, removePlaylist }) {
                   <i className="fa-solid fa-trash mr-1"></i>
               { location.pathname === "/playlists/saved" ? "Remove" : "Delete" }
                 </div>
-               ) : (null)
+               ) 
                 }
 
                 <div

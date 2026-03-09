@@ -140,14 +140,14 @@ export default function Viewplaylists() {
                                     + New Playlist
                                 </button>
 
-                                <button
+                           {/*      <button
                                     onClick={() => navigate(`/createPlaylist`)}
                                     className="px-7 py-3 rounded-full
                  bg-gradient-to-r from-indigo-600 to-blue-600
                  text-white text-sm font-semibold hover:to-blue-800
                  transition-all duration-300 active:scale-95">
                                     + Add Video
-                                </button>
+                                </button> */}
 
                                 <button
                                     onClick={() => navigate(`/UpdatePlaylist/${id}`)}

@@ -6,7 +6,7 @@ import axios from 'axios';
 export default function SideVideosItems(props) {
 
   const location = useLocation();
-  const { video, removeVideos, num, removeLikedVideos, removeMyVideo, removeVideoPlaylist } = props;
+  const { video, removeVideos, num, removeLikedVideos, removeMyVideo, removeVideoPlaylist, removeSavedVideos } = props;
   const Context = useContext(videoContext);
   const { timeAgo } = Context;
   const menuRef = useRef(null);
@@ -125,7 +125,7 @@ export default function SideVideosItems(props) {
       }
 
     } catch (error) {
-      console.log("Error while deleting vidoes", error.response?.data || error.message);
+      console.log("Error while deleting watched vidoe", error.response?.data || error.message);
     }
   }
 
@@ -193,7 +193,7 @@ export default function SideVideosItems(props) {
     }
   }
 
-   const handleFindPlaylist = async () => {
+  const handleFindPlaylist = async () => {
     try {
 
       const response = await axios.get(`${host}/v1/playlists/fetch-playlist`, {
@@ -214,7 +214,7 @@ export default function SideVideosItems(props) {
   }
 
   const handleAddPlaylist = async (_id_) => {
-      try {
+    try {
 
       const response = await axios.patch(`${host}/v1/playlists/addToplaylist/${_id_}/${video?.video?._id}`, {}, {
         headers: {
@@ -232,6 +232,34 @@ export default function SideVideosItems(props) {
       console.log("Error while ading video to playlist", error.response?.data || error.message);
     }
 
+  }
+
+  const handleChannelChange = () => {
+    navigate(`/userProfile/${video.video?.owner?.username}`)
+  }
+
+  const handleDelteSavedVideos = async () => {
+
+    if (!video.video?._id) {
+      return;
+    }
+
+    try {
+      const response = await axios.patch(`${host}/v1/videos/delete-Saved-Video/${video.video?._id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        removeSavedVideos(video._id);
+      }
+
+    } catch (error) {
+      console.log("Error while deleting vidoes", error.response?.data || error.message);
+    }
   }
 
   return (
@@ -266,13 +294,13 @@ export default function SideVideosItems(props) {
                 </div>
                 <div className="flex flex-col sm:gap-3">
                   <div className="flex items-center mt-1">
-                    <div className="h-[34px] w-[34px] rounded-full overflow-hidden mr-2 flex-shrink-0">
+                    <div onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} className="h-[34px] w-[34px] rounded-full overflow-hidden mr-2 flex-shrink-0">
                       <img
                         src={video.video?.owner?.avatar}
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <span className="text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200 font-medium truncate">
+                    <span onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} className="text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200 font-medium truncate">
                       {video.video?.owner?.username}
                     </span>
                   </div>
@@ -312,6 +340,7 @@ export default function SideVideosItems(props) {
                     Edit
                   </div>
                 ) : (
+                  location.pathname !== "/saved-vidoes" &&
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
@@ -337,6 +366,9 @@ export default function SideVideosItems(props) {
                     else if (location.pathname.includes("/viewPlaylist")) {
                       handleDeletePlaylistVideo();
                     }
+                    else if (location.pathname.includes("/saved-vidoes")) {
+                      handleDelteSavedVideos();
+                    }
                     else {
                       handleDeleteVideo();
                     }
@@ -347,25 +379,25 @@ export default function SideVideosItems(props) {
                   <i className="fa-solid fa-trash mr-1"></i>
                   Remove
                 </div>
-                  {!location.pathname.includes("viewPlaylist") &&
+                {!location.pathname.includes("viewPlaylist") &&
                   <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenu(false);
-                    setSubMenu(true);
-                    handleFindPlaylist();
-                  }}
-                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
-                >
-                  <i className="fa-solid fa-list-ul text-base mr-3"></i>
-                  Add to Playlist
-                </div>}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenu(false);
+                      setSubMenu(true);
+                      handleFindPlaylist();
+                    }}
+                    className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                    <i className="fa-solid fa-list-ul text-base mr-3"></i>
+                    Add to Playlist
+                  </div>}
               </div>
             )}
-               {subMenu && (
+            {subMenu && (
               <div ref={subMenuRef} className="absolute right-full mt-2 min-w-56 overflow-hidden w-full
                     bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20">
-                {playlist.length !== 0 &&  playlist.map((pylt) => {
+                {playlist.length !== 0 && playlist.map((pylt) => {
                   return (
                     <div
                       key={pylt?._id}
@@ -382,15 +414,15 @@ export default function SideVideosItems(props) {
                   )
                 })}
 
-                 <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate("/createPlaylist")
-                      }}
-                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
-                    >
-                      <i class="fa-solid fa-plus mr-3 mt-1"></i> New Playlist
-                    </div>
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/createPlaylist")
+                  }}
+                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                >
+                  <i class="fa-solid fa-plus mr-3 mt-1"></i> New Playlist
+                </div>
               </div>)}
           </div>
         </div>

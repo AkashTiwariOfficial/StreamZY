@@ -89,7 +89,7 @@ export default function Comment() {
     const getComments = async () => {
       try {
         
-        const response = await axios.get(`${host}/v1/comments/getAll-comments/${id}?page=1&limit=10&sortBy=${state}`, {
+        const response = await axios.get(`${host}/v1/comments/getAll-comments/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -107,7 +107,7 @@ export default function Comment() {
     }
 
     getComments();
-  }, [id, state])
+  }, [id])
 
 
   const removeComments = (_id_) => {
@@ -115,8 +115,22 @@ export default function Comment() {
       prev.filter(comment => comment._id !== _id_)
     );
   };
- 
-const sortType = state.includes("desc") ? "desc" : "asc";
+
+   const soryBy = (field) => {
+    setComments(prev =>
+      [...prev].sort(
+        (a, b) => new Date(b[field]) - new Date(a[field])
+      )
+    )
+  }
+
+const handleChange = (value) => {
+    if (value === "replies") {
+       setComments(prev => [...prev].sort((a,b)=> b.replies - a.replies));
+    } else {
+      soryBy("createdAt");
+    }
+}
                  
   return (
     <section aria-labelledby="comments-heading" className="w-full mx-auto px-3 py-2">
@@ -130,16 +144,11 @@ const sortType = state.includes("desc") ? "desc" : "asc";
           <select
             id="sort"
             value={state}
-            onChange={(e) => { setState(e.target.value); }}
+            onChange={(e) => { setState(e.target.value); handleChange(e.target.value);}}
             className="bg-gray-700 dark:bg-black/40 dark:text-white/80 border-[1px] dark:border-white/20 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            <option value="replies" >Top Replied Comment</option>
-            <option value="CreatedAt">Newest first</option>
-            <option value={sortType === "asc" ? "&sortType=desc" : "&sortType=asc"}>
-          {sortType === "asc"
-            ? "Descending Order"
-            : "Ascending Order"}
-        </option>
+            <option value="replies" onChange={handleChange} >Top Replied Comment</option>
+            <option value="CreatedAt" onChange={handleChange} >Newest first</option>
         </select>
         </div>
       </div>
@@ -227,7 +236,7 @@ const sortType = state.includes("desc") ? "desc" : "asc";
   );
 }
 
-function CommentCard({ comment }) {
+function CommentCard({ comment, removeComments }) {
 
   const [replyOpen, setReplyOpen] = useState(false);
   const [replying, setReplying] = useState(false);
@@ -240,6 +249,7 @@ function CommentCard({ comment }) {
   const [cmenu, setCMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedText, setEditedText] = useState(comment?.content);
+  const [totalReplies, setTotalReplies] = useState(comment.replies);
   const host = import.meta.env.VITE_HOST_LINK;
 
   const Context = useContext(videoContext);
@@ -339,6 +349,7 @@ function CommentCard({ comment }) {
       if (response.data.success) {
         let newReply = response.data.data;
         setReplyComment(prev => [...prev, newReply])
+        setTotalReplies(prev => prev + 1);
         setReplying(false)
       }
 
@@ -600,7 +611,7 @@ function CommentCard({ comment }) {
           {comment.replies != 0 && (
             <button className="mt-1 mb-2 text-black/80 dark:text-white flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-6 pr-[70px] rounded-lg hover:bg-black/10 dark:hover:bg-white/5" onClick={toggleOpen}>
               <label htmlFor="menu-toggle" className="cursor-pointer block text-sm">{opens ? (
-                `${comment?.replies} replies`
+                `${totalReplies} replies`
               ) : ("Hide Replies")}</label>
               <i className={`fa-solid fa-angle-${opens ? "down" : "up"} text-sm`}></i>
             </button>

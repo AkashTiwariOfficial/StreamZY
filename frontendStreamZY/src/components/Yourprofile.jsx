@@ -196,7 +196,10 @@ export default function Yourprofile() {
   return (
 
     <div className="lg:ml-24  ml-4 px-2 lg:px-5 py-1">
-      <div className="flex flex-wrap ml-4">
+       <div className="rounded-sm h-44 w-[95%] overflow-hidden mx-10 mb-4">
+                    <img src={currUser?.coverImage || currUser?.avatar} alt="Profile photo" className="h-full w-full object-cover rounded-3xl" />
+                </div>
+      <div className="flex flex-wrap ml-8">
         <div className="sm:h-[120px] sm:w-[120px] h-[72px] w-[72px] rounded-full relative  overflow-hidden">
           <img src={currUser.avatar} alt="Profile photo" className="h-full w-full object-cover rounded-full" />
         </div>

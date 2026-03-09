@@ -28,6 +28,8 @@ import Createplaylist from './components/Playlist/Createplaylist.jsx'
 import UpdatePlaylist from './components/Playlist/UpdatePlaylist.jsx'
 import YourPlaylist from './components/Playlist/YourPlaylist.jsx'
 import SavedPlaylist from './components/Playlist/SavedPlaylist.jsx'
+import UserProfile from './components/UserProfile.jsx'
+import Savedvideo from './components/Savedvideo.jsx'
 
 function App() {
 
@@ -63,6 +65,8 @@ function App() {
             <Route path="/UpdatePlaylist/:id" element={<UpdatePlaylist />} />
             <Route path="/playlists/owned" element={<YourPlaylist />} />
             <Route path="/playlists/saved" element={<SavedPlaylist />} />
+            <Route path="/userProfile/:username" element={<UserProfile />} />
+            <Route path="/saved-vidoes" element={<Savedvideo />} />
           </Routes>
         </Layout>
       </VideoState>
