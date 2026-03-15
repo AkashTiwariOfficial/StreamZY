@@ -12,8 +12,9 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const tailwindClasses = (rMargin, newChanges) => {
+  const [openMenu, setOpenMenu] = useState(false);
 
+  const tailwindClasses = (rMargin, newChanges) => {
     const changes = newChanges || "";
     const rightMargin = rMargin || "pr-[91px]";
     return `flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 ${rightMargin} rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 ${changes}`
@@ -44,7 +45,7 @@ export default function Navbar() {
     fetchSubcribedChannels();
   }, [])
 
-    const handleChannelChange = (username) => {
+  const handleChannelChange = (username) => {
     navigate(`/userProfile/${username}`)
   }
 
@@ -79,46 +80,52 @@ export default function Navbar() {
               </Tooltip>
             </div>
 
-
-            <div className="hidden lg:flex  h-[42px] lg:w-[600px] xl:w-[650px] lg:ml-9 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+            
+            <div className="hidden lg:flex  h-[42px] lg:w-[500px] xl:w-[650px] mx-3 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
               <input type="text" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
               </input>
               <i className="fa fa-search white-icon dark:text-white mx-[25px] text-xl cursor-pointer" aria-hidden="true"></i>
             </div>
             <Tooltip text="search" width="w-[60px]">
-              <div className="transform hover:scale-110 motion-reduce:transform-none items-center h-10 w-10 rounded-full hidden md:flex lg:hidden hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer ml-[55px] sm:ml-[10px]">
-                <i className="fa fa-search white-icon dark:text-white text-[21px] m-[10px]" aria-hidden="true"></i>
+              <div className="hidden md:flex lg:hidden h-[42px] w-[320px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+                <input type="text" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
+                </input>
+                <i className="fa fa-search white-icon dark:text-white mx-[25px] text-xl cursor-pointer" aria-hidden="true"></i>
               </div>
             </Tooltip>
-            <div className="flex lg:hidden md:hidden">
-              <Tooltip text="search" width="w-[60px]">
-                <div className="transform hover:scale-110 motion-reduce:transform-none items-center h-10 w-10 rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer ml-[55px] sm:ml-[10px]">
-                  <i className="fa fa-search white-icon dark:text-white text-[21px] m-[10px]" aria-hidden="true"></i>
-                </div>
-              </Tooltip>
-              <Tooltip text="Notifications" width="w-[120px]">
-                <div className="transform hover:scale-110 motion-reduce:transform-none items-center h-10 w-10 rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
-                  <i className="fa fa-bell dark:text-white text-[21px] m-[10px]"></i>
-                </div>
-              </Tooltip>
-            </div>
 
-            <div className="hidden items-center mr-8 lg:space-x-7 md:space-x-5 sm:space-x-0 lg:flex md:flex">
+            <Tooltip text="search" width="w-[60px]">
+              <i className="fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-1 text-xl cursor-pointer" aria-hidden="true"></i>
+            </Tooltip>
+            <div className="items-center mr-6 lg:space-x-7 md:space-x-1 sm:space-x-1 flex">
+
               <Tooltip text="Create" width="w-[80px]">
-                <div className="flex h-[42px] pl-2 pr-5 rounded-full items-center cursor-pointer bg-[#e6e6e6] dark:bg-[hsla(0,0%,100%,.08)]">
-                  <div className="text-5xl font-extralight dark:text-white space pb-[11px] mx-[5px]">+</div>
-                  <div className="font-[500] dark:text-white">
-                    Create</div>
+                <div className="hidden md:flex h-[42px] pl-2 pr-5 rounded-full items-center cursor-pointer bg-[#e6e6e6] dark:bg-[hsla(0,0%,100%,.08)]">
+                  <div className='hidden lg:flex'>
+                    <div className="text-5xl font-extralight dark:text-white space pb-[11px] mx-[5px]">+</div>
+                    <div className="font-[500] dark:text-white mt-3">
+                      Create</div>
+                  </div>
+                  <div className='hidden  md:flex lg:hidden '>
+                    <div className="text-3xl font-extralight dark:text-white space pb-[11px] mx-[5px]">+</div>
+                    <div className="font-[500] text-md dark:text-white mt-2">
+                      Create</div>
+                  </div>
                 </div>
+                <div className='flex md:hidden lg:hidden items-center mr-3'>
+                  <div className="text-5xl font-extralight dark:text-white space pb-[11px]">+</div>
+                </div>
+
               </Tooltip>
               <Tooltip text="Notifications" width="w-[120px]">
-                <div className="transform hover:scale-110 motion-reduce:transform-none items-center h-10 w-10 rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
+                <div className="hidden md:flex transform hover:scale-110 motion-reduce:transform-none items-center h-10 w-10 rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
                   <i className="fa fa-bell  dark:text-white text-[21px] m-[10px]"></i>
                 </div>
               </Tooltip>
+            
               <Tooltip text="Profile" width="w-[70px]">
                 <div className="transform hover:scale-110 motion-reduce:transform-none h-9 w-9 rounded-full overflow-hidden cursor-pointer">
-                  <img className="h-full w-full object-cover" src="https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-51f4-522f-be9f-61754518f4cf/raw?se=2025-11-01T07%3A51%3A39Z&sp=r&sv=2024-08-04&sr=b&scid=ea394e6f-5827-4fee-b738-31056c0eda8a&skoid=f8b66c09-1aa0-4801-9884-173c5cef2b8c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-31T17%3A48%3A19Z&ske=2025-11-01T17%3A48%3A19Z&sks=b&skv=2024-08-04&sig=xJUhfystSEoLYkvwJrDUbc1fg0zuI4erete9Z%2BC2DEI%3D" alt="profile image" />
+                  <img className="h-full w-full object-cover" src={currUser.avatar} alt="profile image" />
                 </div>
               </Tooltip>
             </div>
@@ -178,7 +185,7 @@ export default function Navbar() {
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">History</label></li>
                 </Link>
               </Tooltip>
-               <Tooltip text="Saved Video" width="w-1/3" margin="mt-[10px]" changes="ml-12">
+              <Tooltip text="Saved Video" width="w-1/3" margin="mt-[10px]" changes="ml-12">
                 <Link to="/saved-vidoes" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
                   <i className="fa-solid fa-clock-rotate-left text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Saved Video</label></li>
@@ -210,18 +217,18 @@ export default function Navbar() {
                 </Link>
               </Tooltip>
               <div className="flex flex-col">
-                { subscribers.slice(0 , !open ? subscribers.length : 4).map((subscriber) => {
-             return (
-                  <Tooltip key={subscriber._id} text={`${subscriber?.channel?.username}`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
-                    <div  onClick={(e) => { e.stopPropagation(); handleChannelChange(subscriber?.channel?.username); }} className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
-                      <div className="w-6 h-6 object-cover overflow-hidden rounded-full">
-                        <img src={subscriber?.channel?.avatar} alt="profile image" className="w-full h-full object-cover" />
+                {subscribers.slice(0, !open ? subscribers.length : 4).map((subscriber) => {
+                  return (
+                    <Tooltip key={subscriber._id} text={`${subscriber?.channel?.username}`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
+                      <div onClick={(e) => { e.stopPropagation(); handleChannelChange(subscriber?.channel?.username); }} className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
+                        <div className="w-6 h-6 object-cover overflow-hidden rounded-full">
+                          <img src={subscriber?.channel?.avatar} alt="profile image" className="w-full h-full object-cover" />
+                        </div>
+                        <span>{subscriber?.channel?.username}</span>
                       </div>
-                      <span>{subscriber?.channel?.username}</span>
-                    </div>
-                  </Tooltip>
-             )
-                  })
+                    </Tooltip>
+                  )
+                })
                 }
                 <button className="mb-2 flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-6 pr-[70px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90" onClick={toggleOpen}>
                   <i className={`fa-solid fa-angle-${open ? "down" : "up"} text-base`}></i>
