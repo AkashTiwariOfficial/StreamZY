@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiEdit2, FiTrash2, FiMoon, FiRefreshCcw } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiMoon, FiSun, FiRefreshCcw } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx'
@@ -353,7 +353,7 @@ export default function Settings() {
               className="flex items-center gap-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-800"
               onClick={() => toggleDarkMode()}
             >
-              <FiMoon /> Toggle Theme
+             {mode === "light" ?  <FiSun /> :  <FiMoon />} Toggle Theme
             </button>
           </div>
         </div>

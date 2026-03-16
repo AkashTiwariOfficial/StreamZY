@@ -30,6 +30,7 @@ import YourPlaylist from './components/Playlist/YourPlaylist.jsx'
 import SavedPlaylist from './components/Playlist/SavedPlaylist.jsx'
 import UserProfile from './components/UserProfile.jsx'
 import Savedvideo from './components/Savedvideo.jsx'
+import SearchPage from './components/SearchPage.jsx'
 
 function App() {
 
@@ -67,6 +68,7 @@ function App() {
             <Route path="/playlists/saved" element={<SavedPlaylist />} />
             <Route path="/userProfile/:username" element={<UserProfile />} />
             <Route path="/saved-vidoes" element={<Savedvideo />} />
+            <Route path="/search" element={<SearchPage />} />
           </Routes>
         </Layout>
       </VideoState>

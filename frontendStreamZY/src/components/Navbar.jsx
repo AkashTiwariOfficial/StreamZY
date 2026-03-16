@@ -1,18 +1,29 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx'
 import Tooltip from './Tooltip';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FiMoon, FiSun } from "react-icons/fi";
 
 
 export default function Navbar() {
 
   const Context = useContext(videoContext);
-  const { fetchAllVideoswithQuery, fetchSubcribedChannels, currUser, subscribers } = Context;
+  const { fetchAllVideoswithQuery, fetchSubcribedChannels, currUser, subscribers, handleLogout } = Context;
 
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
+  const [openNotifaction, setOpenNotification] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
+  const menuRef = useRef(null);
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+  const theme = localStorage.getItem("mode") || 'light';
+    const [mode, setMode] = useState(theme);
+    const [searchResults, setSearchResults] = useState([]);
+    const [search, setSearch] = useState("");
+    
 
   const tailwindClasses = (rMargin, newChanges) => {
     const changes = newChanges || "";
@@ -20,9 +31,60 @@ export default function Navbar() {
     return `flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 ${rightMargin} rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 ${changes}`
   }
 
+  
   const toggleDarkMode = () => {
+
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    localStorage.setItem("mode", newMode)
+
+    if (localStorage.getItem("mode") === 'light') {
+      document.documentElement.classList.remove('dark')
+    } else {
+      document.documentElement.classList.add('dark')
+    }
+
+  }
+
+  const toggleDarkMod = () => {
     document.documentElement.classList.toggle('dark');
   }
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+
+      if (
+        openCreate &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target)
+      ) {
+        setOpenCreate(false);
+      }
+
+      if (
+        openNotifaction &&
+        notificationRef.current &&
+        !notificationRef.current.contains(e.target)
+      ) {
+        setOpenNotification(false);
+      }
+
+      if (
+        openProfile &&
+        profileRef.current &&
+        !profileRef.current.contains(e.target)
+      ) {
+        setOpenProfile(false);
+      }
+
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openCreate, openNotifaction, openProfile]);
 
   const toggleOpen = () => {
     if (!open) {
@@ -36,7 +98,6 @@ export default function Navbar() {
     navigate("register")
   }
 
-
   const handleLogin = () => {
     navigate("login")
   }
@@ -49,6 +110,10 @@ export default function Navbar() {
     navigate(`/userProfile/${username}`)
   }
 
+  const handleSearch = () => {
+   navigate(`/search?q=${search}`);
+  }
+
   return (
     <div>
 
@@ -56,7 +121,7 @@ export default function Navbar() {
         <div className="relative scroll-hidden overflow-y-hidden scroll-smooth">
           <input type="checkbox" id="menu-toggle" className="hidden peer" />
           {/* Navbar */}
-          <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-lg bg-opacity-90">
+          <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-lg bg-opacity-90 z-50">
             <div className="flex flex-wrap items-center">
               <div className="ml-6 mr-[10px] h-10 w-10 text-center rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90">
                 <label
@@ -80,27 +145,34 @@ export default function Navbar() {
               </Tooltip>
             </div>
 
-            
-            <div className="hidden lg:flex  h-[42px] lg:w-[500px] xl:w-[650px] mx-3 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
-              <input type="text" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
+            <div >
+            <form action="/search" className="hidden lg:flex  h-[42px] lg:w-[500px] xl:w-[650px] mx-3 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+              <input onChange={(e) => {setSearch(e.target.value)}} type="text" value={search} name="q" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
               </input>
-              <i className="fa fa-search white-icon dark:text-white mx-[25px] text-xl cursor-pointer" aria-hidden="true"></i>
+              <button type='submit' onSubmit={handleSearch}>
+              <i className="fa fa-search white-icon dark:text-white px-[25px] text-xl cursor-pointer" aria-hidden="true"></i></button>
+              </form>
             </div>
             <Tooltip text="search" width="w-[60px]">
-              <div className="hidden md:flex lg:hidden h-[42px] w-[320px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
-                <input type="text" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
+              <div>
+              <form action="/search" className="hidden md:flex lg:hidden h-[42px] w-[320px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+                <input  onChange={(e) => {setSearch(e.target.value)}} type="text" value={search} name="q" placeholder="Search"  className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
                 </input>
+                  <button type='submit' onSubmit={handleSearch}>
                 <i className="fa fa-search white-icon dark:text-white mx-[25px] text-xl cursor-pointer" aria-hidden="true"></i>
+                </button>
+                </form>
               </div>
             </Tooltip>
 
             <Tooltip text="search" width="w-[60px]">
               <i className="fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-1 text-xl cursor-pointer" aria-hidden="true"></i>
             </Tooltip>
-            <div className="items-center mr-6 lg:space-x-7 md:space-x-1 sm:space-x-1 flex">
+            <div className="items-center mr-6 lg:space-x-7 md:space-x-3 sm:space-x-1 flex">
+
 
               <Tooltip text="Create" width="w-[80px]">
-                <div className="hidden md:flex h-[42px] pl-2 pr-5 rounded-full items-center cursor-pointer bg-[#e6e6e6] dark:bg-[hsla(0,0%,100%,.08)]">
+                <div onClick={(e) => { e.stopPropagation(); setOpenCreate((prev) => !prev); }} className="relative hidden md:flex h-[42px] pl-2 pr-5 rounded-full items-center cursor-pointer bg-[#e6e6e6] dark:bg-[hsla(0,0%,100%,.08)]">
                   <div className='hidden lg:flex'>
                     <div className="text-5xl font-extralight dark:text-white space pb-[11px] mx-[5px]">+</div>
                     <div className="font-[500] dark:text-white mt-3">
@@ -112,22 +184,98 @@ export default function Navbar() {
                       Create</div>
                   </div>
                 </div>
-                <div className='flex md:hidden lg:hidden items-center mr-3'>
+                <div onClick={(e) => { e.stopPropagation(); setOpenCreate((prev) => !prev); }} className='relative flex cursor-pointer md:hidden lg:hidden items-center mr-3'>
                   <div className="text-5xl font-extralight dark:text-white space pb-[11px]">+</div>
                 </div>
-
               </Tooltip>
+              {openCreate && (
+                <div ref={menuRef} className="absolute right-2 sm:right-5 md:right-20 top-14 mt-2 w-48 
+                    bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20 py-2">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/uploadVideo")
+                      setOpenCreate(false);
+                    }}
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/15"
+                  >
+                    <i className="fa-regular fa-pen-to-square mr-3"></i>
+                    Upload Video
+                  </div>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/createPlaylist")
+                      setOpenCreate(false);
+                    }}
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/15"
+                  >
+                    <i className="fa-solid fa-list-ul text-base mr-3"></i>
+                    Create Playlist
+                  </div>
+                </div>
+              )}
+
               <Tooltip text="Notifications" width="w-[120px]">
-                <div className="hidden md:flex transform hover:scale-110 motion-reduce:transform-none items-center h-10 w-10 rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
+                <div onClick={(e) => { e.stopPropagation(); setOpenNotification((prev) => !prev); }} className="relative hidden md:flex transform hover:scale-110 motion-reduce:transform-none items-center h-10 w-10 rounded-full hover:bg-black/10 dark:hover:bg-slate-700/90 cursor-pointer">
                   <i className="fa fa-bell  dark:text-white text-[21px] m-[10px]"></i>
                 </div>
               </Tooltip>
-            
+
+              {openNotifaction && (
+                <div ref={notificationRef} className="absolute right-4 top-14 mt-2 w-48 
+                    bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenCreate(false);
+                    }}
+                    className="flex flex-col px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/15"
+                  >
+                    <p className='text-red-700'> Work in progress</p>
+                    <p className='text-white/50'>Next version soon ...</p>
+                  </div>
+                </div>
+              )}
+
               <Tooltip text="Profile" width="w-[70px]">
-                <div className="transform hover:scale-110 motion-reduce:transform-none h-9 w-9 rounded-full overflow-hidden cursor-pointer">
+                <div onClick={(e) => { e.stopPropagation(); setOpenProfile((prev) => !prev); }} className="relative transform hover:scale-110 motion-reduce:transform-none h-9 w-9 rounded-full overflow-hidden cursor-pointer">
                   <img className="h-full w-full object-cover" src={currUser.avatar} alt="profile image" />
                 </div>
               </Tooltip>
+              {openProfile && (
+                <div ref={profileRef} className="absolute right-20 top-0 mt-2 max-h-[190px] sm:max-h-[400px] w-52 md:w-72 text-[12px] md:text-[14px] lg:text-base
+                    bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-[999] dark:border-white/20 overflow-y-auto overflow-x-hidden">
+                  <div className='flex flex-col'>
+                    <div className='flex pt-3 px-4'>
+                      <div className="relative h-10 w-10 rounded-full overflow-hidden cursor-pointer">
+                        <img className="h-full w-full object-cover" src={currUser.avatar} alt="profile image" />
+                      </div>
+                      <div className='flex flex-col mx-3'>
+                        <span className='text-md dark:text-white/80'>{currUser.fullName}</span>
+                        <span className='text-md dark:text-white/80'>{currUser.username}</span>
+                        <button onClick={() => { navigate("/userChannel"); setOpenProfile(false); }} className='text-md  my-2 text-blue-500 hover:text-blue-700'>View Channel</button>
+                      </div>
+                    </div>
+                    <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
+                    <button onClick={() => { handleLogout(); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4 text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg"><i className="fa-solid fa-right-from-bracket mr-3"></i>
+                      <span>Sign out</span>
+                    </button>
+                      <button onClick={() => { toggleDarkMode();}} className="flex dark:text-white/80  items-center gap-2 py-1 md:py-2 px-4 hover:bg-gray-200 hover:dark:bg-white/15  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">
+                     <span className='mr-3'>{mode === "light" ?  <FiSun /> :  <FiMoon />}</span> <span >Appearance: <span  className='lg:text-base ml-1'>{ mode === "light" ? "Light" : "Dark"}</span></span>
+                    </button>
+                      <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
+                   <button onClick={() => { navigate("/settings"); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4   text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">  <i className="fa-solid fa-gear text-base mr-3"></i>
+                      <span>Settings</span>
+                    </button>
+                     <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
+                  <button onClick={() => { navigate("/about"); setOpenProfile(false); }} className="flex  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4  mb-2">
+                     <i className="fa-solid fa-circle-info text-base mr-3"></i>
+                      <span>About</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </nav>
 
@@ -337,7 +485,7 @@ export default function Navbar() {
                 </Tooltip>
                 <div className="flex flex-col">
                   <div className="mt-3">
-                    <button onClick={toggleDarkMode} className="bg-blue-600  text-white rounded-lg p-1 text-[10px]">Toggle Mode</button>
+                    <button onClick={toggleDarkMod} className="bg-blue-600  text-white rounded-lg p-1 text-[10px]">Toggle Mode</button>
                   </div>
                 </div>
               </div>

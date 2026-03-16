@@ -9,12 +9,12 @@ export default function Playlists({ pylt, removePlaylist }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { category } = useParams();
-  const menuRef = useRef(null);
   const [menu, setMenu] = useState(false);
   const Context = useContext(videoContext);
   const { timeAgo, currUser } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
   const [save, setSave] = useState(false);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
