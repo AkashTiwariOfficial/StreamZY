@@ -353,32 +353,33 @@ export default function SideVideosItems(props) {
                     Save
                   </div>
                 )}
-
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (location.pathname === "/likes") {
-                      handleDel();
-                    }
-                    else if (location.pathname === "/watchHistory") {
-                      handleDelete();
-                    }
-                    else if (location.pathname.includes("/viewPlaylist")) {
-                      handleDeletePlaylistVideo();
-                    }
-                    else if (location.pathname.includes("/saved-vidoes")) {
-                      handleDelteSavedVideos();
-                    }
-                    else {
-                      handleDeleteVideo();
-                    }
-                    setMenu(false);
-                  }}
-                  className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
-                >
-                  <i className="fa-solid fa-trash mr-1"></i>
-                  Remove
-                </div>
+                {!location.pathname.includes("/search") && (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (location.pathname === "/likes") {
+                        handleDel();
+                      }
+                      else if (location.pathname === "/watchHistory") {
+                        handleDelete();
+                      }
+                      else if (location.pathname.includes("/viewPlaylist")) {
+                        handleDeletePlaylistVideo();
+                      }
+                      else if (location.pathname.includes("/saved-vidoes")) {
+                        handleDelteSavedVideos();
+                      }
+                      else {
+                        handleDeleteVideo();
+                      }
+                      setMenu(false);
+                    }}
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                    <i className="fa-solid fa-trash mr-1"></i>
+                    Remove
+                  </div>
+                )}
                 {!location.pathname.includes("viewPlaylist") &&
                   <div
                     onClick={(e) => {

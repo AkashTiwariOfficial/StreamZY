@@ -20,10 +20,9 @@ export default function Navbar() {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
   const theme = localStorage.getItem("mode") || 'light';
-    const [mode, setMode] = useState(theme);
-    const [searchResults, setSearchResults] = useState([]);
-    const [search, setSearch] = useState("");
-    
+  const [mode, setMode] = useState(theme);
+  const [search, setSearch] = useState("");
+
 
   const tailwindClasses = (rMargin, newChanges) => {
     const changes = newChanges || "";
@@ -31,7 +30,7 @@ export default function Navbar() {
     return `flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 ${rightMargin} rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 ${changes}`
   }
 
-  
+
   const toggleDarkMode = () => {
 
     const newMode = mode === 'light' ? 'dark' : 'light';
@@ -111,7 +110,7 @@ export default function Navbar() {
   }
 
   const handleSearch = () => {
-   navigate(`/search?q=${search}`);
+    navigate(`/search?q=${search}`);
   }
 
   return (
@@ -146,21 +145,21 @@ export default function Navbar() {
             </div>
 
             <div >
-            <form action="/search" className="hidden lg:flex  h-[42px] lg:w-[500px] xl:w-[650px] mx-3 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
-              <input onChange={(e) => {setSearch(e.target.value)}} type="text" value={search} name="q" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
-              </input>
-              <button type='submit' onSubmit={handleSearch}>
-              <i className="fa fa-search white-icon dark:text-white px-[25px] text-xl cursor-pointer" aria-hidden="true"></i></button>
+              <form action="/search" className="hidden lg:flex  h-[42px] lg:w-[500px] xl:w-[650px] mx-3 border-[1px]  rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+                <input onChange={(e) => { setSearch(e.target.value) }} type="text" value={search} name="q" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
+                </input>
+                <button type='submit' onSubmit={handleSearch}>
+                  <i className="fa fa-search white-icon dark:text-white px-[25px] text-xl cursor-pointer" aria-hidden="true"></i></button>
               </form>
             </div>
             <Tooltip text="search" width="w-[60px]">
               <div>
-              <form action="/search" className="hidden md:flex lg:hidden h-[42px] w-[320px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
-                <input  onChange={(e) => {setSearch(e.target.value)}} type="text" value={search} name="q" placeholder="Search"  className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
-                </input>
+                <form action="/search" className="hidden md:flex lg:hidden h-[42px] w-[320px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+                  <input onChange={(e) => { setSearch(e.target.value) }} type="text" value={search} name="q" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-3  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
+                  </input>
                   <button type='submit' onSubmit={handleSearch}>
-                <i className="fa fa-search white-icon dark:text-white mx-[25px] text-xl cursor-pointer" aria-hidden="true"></i>
-                </button>
+                    <i className="fa fa-search white-icon dark:text-white mx-[25px] text-xl cursor-pointer" aria-hidden="true"></i>
+                  </button>
                 </form>
               </div>
             </Tooltip>
@@ -261,16 +260,16 @@ export default function Navbar() {
                     <button onClick={() => { handleLogout(); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4 text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg"><i className="fa-solid fa-right-from-bracket mr-3"></i>
                       <span>Sign out</span>
                     </button>
-                      <button onClick={() => { toggleDarkMode();}} className="flex dark:text-white/80  items-center gap-2 py-1 md:py-2 px-4 hover:bg-gray-200 hover:dark:bg-white/15  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">
-                     <span className='mr-3'>{mode === "light" ?  <FiSun /> :  <FiMoon />}</span> <span >Appearance: <span  className='lg:text-base ml-1'>{ mode === "light" ? "Light" : "Dark"}</span></span>
+                    <button onClick={() => { toggleDarkMode(); }} className="flex dark:text-white/80  items-center gap-2 py-1 md:py-2 px-4 hover:bg-gray-200 hover:dark:bg-white/15  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">
+                      <span className='mr-3'>{mode === "light" ? <FiSun /> : <FiMoon />}</span> <span >Appearance: <span className='lg:text-base ml-1'>{mode === "light" ? "Light" : "Dark"}</span></span>
                     </button>
-                      <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
-                   <button onClick={() => { navigate("/settings"); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4   text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">  <i className="fa-solid fa-gear text-base mr-3"></i>
+                    <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
+                    <button onClick={() => { navigate("/settings"); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4   text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">  <i className="fa-solid fa-gear text-base mr-3"></i>
                       <span>Settings</span>
                     </button>
-                     <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
-                  <button onClick={() => { navigate("/about"); setOpenProfile(false); }} className="flex  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4  mb-2">
-                     <i className="fa-solid fa-circle-info text-base mr-3"></i>
+                    <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
+                    <button onClick={() => { navigate("/about"); setOpenProfile(false); }} className="flex  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4  mb-2">
+                      <i className="fa-solid fa-circle-info text-base mr-3"></i>
                       <span>About</span>
                     </button>
                   </div>
