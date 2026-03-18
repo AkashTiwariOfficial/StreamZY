@@ -19,11 +19,7 @@ export default function DuplicatieItem(props) {
 
 
     const handleClick = () => {
-        if (location.pathname.includes("/video")) {
-            navigate(`/video/${category}/${video?.video._id}`);
-        } else {
-            navigate(`/video/${category}/${video?.video._id}`);
-        }
+        navigate(`/video/${video?.video._id}`);
     }
 
     useEffect(() => {
@@ -74,69 +70,69 @@ export default function DuplicatieItem(props) {
         }
     }
 
-      useEffect(() => {
+    useEffect(() => {
         const handleClickOutside = (e) => {
-          if (menuRef.current && !menuRef.current.contains(e.target)) {
-            setMenu(false);
-          }
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setMenu(false);
+            }
         };
-    
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-      }, []);
+    }, []);
 
     const handleDelete = async () => {
 
-    if (!video.video?._id) {
-      return;
+        if (!video.video?._id) {
+            return;
+        }
+
+        try {
+            const response = await axios.patch(`${host}/v1/videos/delete-watched-Video/${video.video?._id}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
+
+            if (response.data.success) {
+                removeHistory(video._id);
+            }
+
+        } catch (error) {
+            console.log("Error while deleting watched vidoes", error.response?.data || error.message);
+        }
     }
 
-    try {
-      const response = await axios.patch(`${host}/v1/videos/delete-watched-Video/${video.video?._id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        withCredentials: true,
-        timeout: 150000
-      });
 
-      if (response.data.success) {
-        removeHistory(video._id);
-      }
-
-    } catch (error) {
-      console.log("Error while deleting watched vidoes", error.response?.data || error.message);
-    }
-  }
-
-
-  const handleDel = async () => {
+    const handleDel = async () => {
 
         if (!video?._id) {
-      return;
+            return;
+        }
+
+        try {
+            const response = await axios.delete(`${host}/v1/likes/remove-liked-video/${video?._id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
+
+            if (response.data.success) {
+                removeLikedVideos(video?._id);
+            }
+
+        } catch (error) {
+            console.log("Error while deleting liked videos", error.response?.data || error.message);
+        }
     }
 
-    try {
-      const response = await axios.delete(`${host}/v1/likes/remove-liked-video/${video?._id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        withCredentials: true,
-        timeout: 150000
-      });
-
-      if (response.data.success) {
-        removeLikedVideos(video?._id);
-      }
-
-    } catch (error) {
-      console.log("Error while deleting liked videos", error.response?.data || error.message);
+    const handleChannelChange = () => {
+        navigate(`/userProfile/${video?.video?.owner.username}`)
     }
-  }
-
-  const handleChannelChange =  () => {
-  navigate(`/userProfile/${video?.video?.owner.username}`)
- }
 
     return (
 

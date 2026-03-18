@@ -105,14 +105,14 @@ export default function Createvideo() {
         {/* Tag */}
         <div className="space-y-2">
           <label className="font-semibold flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
-            <Tag className="w-4 h-4" /> Tag
+            <Tag className="w-4 h-4" /> Tag [Your video will be recommended based on tag category]
           </label>
           <input
             type="text"
             name="tag"
             value={form.tag}
             onChange={handleChange}
-            placeholder="Enter tags"
+            placeholder="Enter tags Music,Films,Cartoons,News,Sports,Knowledge,Kids & Others **Only"
             className="w-full px-4 py-3 rounded-xl border-[1px] dark:border-white/10 
                        bg-neutral-100 dark:bg-neutral-800 
                        focus:ring-2 focus:ring-purple-500 outline-none 

@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import videoContext from '../Context/Videos/videoContext.jsx';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import DuplicatieItem from "./DuplicatieItem.jsx";
+import PlaylistVideoItem from "./PlaylistVideoItem.jsx";
 
 
 export default function Videoplayer({ video }) {
@@ -33,8 +33,6 @@ export default function Videoplayer({ video }) {
   const { category } = useParams();
   const navigate = useNavigate();
   const host = import.meta.env.VITE_HOST_LINK;
-
-  console.log(id, playlistId)
 
 
   const Context = useContext(videoContext);
@@ -253,7 +251,7 @@ export default function Videoplayer({ video }) {
 
   useEffect(() => {
     const fetchPlaylistDetails = async () => {
-   console.log(playlistId)
+
       if (!playlistId) {
         return;
       }
@@ -269,7 +267,6 @@ export default function Videoplayer({ video }) {
 
         if (response.data.success) {
           setPlaylistVideos(response.data.data.videos);
-          console.log(response.data.data.videos);
         }
 
       } catch (error) {
@@ -731,14 +728,15 @@ export default function Videoplayer({ video }) {
         <aside className="lg:col-span-2 text-gray-700 dark:text-white/90">
           <h3 className="text-lg font-semibold mb-3">Up next</h3>
           <div className="space-y-4 grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-1">
-             <div className="bg-slate-300 dark:bg-white/20 px-2 py-4 space-y-4 grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-1">
+            {(location.pathname.includes("/playlist") && playlistVideos.length > 1) &&  ( <div className="bg-slate-300 rounded-xl dark:bg-white/10 px-4 py-4 space-y-4 grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-1 gap-2">
+             <h1 className="font-400">Next In Playlist</h1>
               {
-                playlistVideos.map((video) => {
-                  return <DuplicatieItem key={video._id} video={{ video: video}} />
+                playlistVideos.filter(id_ => id_?._id != id).map((video) => {
+                  return <PlaylistVideoItem key={video._id} video={video} />
                 })
               }
              </div>
-          
+         )}
             {
               newVideos.map((video) => {
                 return <VideoItems video={video} key={video._id} />

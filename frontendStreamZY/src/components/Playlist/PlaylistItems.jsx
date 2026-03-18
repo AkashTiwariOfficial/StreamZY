@@ -8,7 +8,6 @@ export default function Playlists({ pylt, removePlaylist }) {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { category } = useParams();
   const [menu, setMenu] = useState(false);
   const Context = useContext(videoContext);
   const { timeAgo, currUser } = Context;
@@ -28,11 +27,12 @@ export default function Playlists({ pylt, removePlaylist }) {
   }, []);
 
   const handleClick = () => {
-    if (!category) {
-      navigate(`/video/home/${pylt?.videos[0]?._id}`);
-    } else {
-      navigate(`/video/${category}/${pylt?.videos[0]?._id}`);
-    }
+      if (pylt?.videos.length >= 1 ) {
+        navigate(`/playlist/${pylt?._id}/${pylt?.videos[0]?._id}`);
+       }
+       else{
+          navigate(`/viewPlaylist/${pylt?._id}`);
+       }
   }
 
   const handleClickPlaylist = () => {

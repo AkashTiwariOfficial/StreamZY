@@ -3,12 +3,13 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
 
-export default function VideoItems(props) {
+export default function PlaylistVideoItem(props) {
 
   const { video, removeVideos } = props;
   const navigate = useNavigate();
   const location = useLocation();
   const { category } = useParams();
+    const { playlistId } = useParams();
   const menuRef = useRef(null);
   const subMenuRef = useRef(null);
   const [menu, setMenu] = useState(false);
@@ -34,12 +35,8 @@ export default function VideoItems(props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleClick = () => {
-    if (category) {
-      navigate(`/category/${category}/${video._id}`);
-    } else {
-      navigate(`/video/${video._id}`);
-    }
+ const handleClick = () => {
+      navigate(`/playlist/${playlistId}/${video?._id}`);
   }
 
   const handleEdit = () => {
@@ -163,9 +160,7 @@ export default function VideoItems(props) {
   return (
     <div
       className={
-        location.pathname === "/you"
-          ? "w-[248px] flex-shrink-0"
-          : ""
+       "flex-shrink-0"
       }
     >
 
