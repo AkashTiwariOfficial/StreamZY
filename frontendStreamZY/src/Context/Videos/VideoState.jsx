@@ -126,7 +126,7 @@ export default function VideoState(props) {
         }
 
       } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
+        console.log("Error while fetching whter the user subscriber's", error.response?.data || error.message);
       }
     }
 
@@ -146,7 +146,7 @@ export default function VideoState(props) {
         }
 
       } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
+        console.log("Error while checking user have subscribed the channnel", error.response?.data || error.message);
       }
     }
     

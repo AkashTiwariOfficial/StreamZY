@@ -19,9 +19,11 @@ export default function Navbar() {
   const menuRef = useRef(null);
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
+  const searchRef = useRef(null);
   const theme = localStorage.getItem("mode") || 'light';
   const [mode, setMode] = useState(theme);
   const [search, setSearch] = useState("");
+  const [openSearchPannel, setOpenSearchPannel] = useState(false);
 
 
   const tailwindClasses = (rMargin, newChanges) => {
@@ -76,6 +78,14 @@ export default function Navbar() {
         setOpenProfile(false);
       }
 
+       if (
+        openSearchPannel &&
+        searchRef.current &&
+        !searchRef.current.contains(e.target)
+      ) {
+        setOpenSearchPannel(false);
+      }
+
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -83,7 +93,7 @@ export default function Navbar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [openCreate, openNotifaction, openProfile]);
+  }, [openCreate, openNotifaction, openProfile, openSearchPannel]);
 
   const toggleOpen = () => {
     if (!open) {
@@ -164,11 +174,25 @@ export default function Navbar() {
               </div>
             </Tooltip>
 
-            <Tooltip text="search" width="w-[60px]">
-              <i className="fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-1 text-xl cursor-pointer" aria-hidden="true"></i>
-            </Tooltip>
+         { !openSearchPannel && (  <Tooltip text="search" width="w-[60px]">
+              <i  onClick={(e) => { e.stopPropagation(); setOpenSearchPannel((prev) => !prev); }}  className="relative fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-1 text-xl cursor-pointer" aria-hidden="true"></i>
+            </Tooltip> )}
+             {
+              openSearchPannel && (
+                   <div ref={searchRef} className="absolute right-2 sm:right-32 top-0 mt-2 w-[300px] 
+                    bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20 px-2">
+                 <div>
+                <form action="/search" className="flex h-[42px] w-[280px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+                  <input onChange={(e) => { setSearch(e.target.value) }} type="text" value={search} name="q" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-4  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
+                  </input>
+              <i className="fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-3 text-xl cursor-pointer" aria-hidden="true"></i>
+             </form>
+              </div>
+               </div>
+              )
+             }
             <div className="items-center mr-6 lg:space-x-7 md:space-x-3 sm:space-x-1 flex">
-
+            
 
               <Tooltip text="Create" width="w-[80px]">
                 <div onClick={(e) => { e.stopPropagation(); setOpenCreate((prev) => !prev); }} className="relative hidden md:flex h-[42px] pl-2 pr-5 rounded-full items-center cursor-pointer bg-[#e6e6e6] dark:bg-[hsla(0,0%,100%,.08)]">

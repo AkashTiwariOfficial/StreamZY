@@ -3,8 +3,10 @@ import Comment from './Comment.jsx';
 import VideoItems from "./VideoItems.jsx";
 import { useContext } from 'react';
 import videoContext from '../Context/Videos/videoContext.jsx';
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import DuplicatieItem from "./DuplicatieItem.jsx";
+
 
 export default function Videoplayer({ video }) {
   const vidRef = useRef(null);
@@ -25,10 +27,14 @@ export default function Videoplayer({ video }) {
   const [liked, setLiked] = useState(false);
   const [disliked, setdisliked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(0);
+  const [playlistVideos, setPlaylistVideos] = useState([]);
   const [save, setSave] = useState(false);
-  const { id } = useParams();
+  const { id, playlistId } = useParams();
   const { category } = useParams();
+  const navigate = useNavigate();
   const host = import.meta.env.VITE_HOST_LINK;
+
+  console.log(id, playlistId)
 
 
   const Context = useContext(videoContext);
@@ -43,7 +49,7 @@ export default function Videoplayer({ video }) {
 
   useEffect(() => {
     if (category === "home") { fetchAllVideos(); }
-    else if (category === "undefined") { fetchAllVideos(); }
+    else if (!category) { fetchAllVideos(); }
     else { fetchAllVideoswithQuery(`${category}`); }
   }, [category])
 
@@ -245,6 +251,36 @@ export default function Videoplayer({ video }) {
 
   }, [id])
 
+  useEffect(() => {
+    const fetchPlaylistDetails = async () => {
+   console.log(playlistId)
+      if (!playlistId) {
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${host}/v1/playlists/fetch-playlist/${playlistId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+
+        if (response.data.success) {
+          setPlaylistVideos(response.data.data.videos);
+          console.log(response.data.data.videos);
+        }
+
+      } catch (error) {
+        console.log("Error while fetching playlist's details", error.response?.data || error.message);
+      }
+    }
+
+    fetchPlaylistDetails();
+
+  }, [playlistId])
+
   const ownerId = details?.video?.owner?._id;
 
   useEffect(() => {
@@ -381,7 +417,7 @@ export default function Videoplayer({ video }) {
     const toggleDisLike = async () => {
 
       try {
-        
+
         const response = await axios.patch(`${host}/v1/likes/toggle-video-like&dislike/${id}`, {}, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -428,6 +464,10 @@ export default function Videoplayer({ video }) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
 
+  }
+
+  const handleChannelChange = (username) => {
+    navigate(`/userProfile/${username}`)
   }
 
   const newVideos = videos.filter(video => video._id != details?.video?._id);
@@ -619,14 +659,14 @@ export default function Videoplayer({ video }) {
           <div className="flex flex-wrap items-center dark:text-white/90 text-black/80 ml-2 justify-between mr-1">
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex flex-wrap gap-2 py-3">
-                <div className="sm:h-[45px] sm:w-[45px] h-[30px] w-[30px] rounded-full relative  overflow-hidden">
+                <div onClick={(e) => { e.stopPropagation(); handleChannelChange(details?.video?.owner?.username); }} className="cursor-pointer sm:h-[45px] sm:w-[45px] h-[30px] w-[30px] rounded-full relative  overflow-hidden">
                   <img src={`${details?.video?.owner?.avatar}`} alt="Profile photo" className="h-full w-full object-cover rounded-full" />
                 </div>
                 <div className="flex flex-col w-auto flex-wrap">
-                  <span className="text-base dark:text-white/90 font-[500]">{details?.video?.owner?.username}</span>
+                  <span onClick={(e) => { e.stopPropagation(); handleChannelChange(details?.video?.owner?.username); }} className="cursor-pointer text-base dark:text-white/90 font-[500]">{details?.video?.owner?.username}</span>
                   <span className="dark:text-white/60 text-xs font-[400]">{subscribers?.length} subscribers</span>
                 </div>
-              </div> 
+              </div>
               {dosubscribed && <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
                 <i className="fa fa-bell">
                 </i>
@@ -691,6 +731,14 @@ export default function Videoplayer({ video }) {
         <aside className="lg:col-span-2 text-gray-700 dark:text-white/90">
           <h3 className="text-lg font-semibold mb-3">Up next</h3>
           <div className="space-y-4 grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-1">
+             <div className="bg-slate-300 dark:bg-white/20 px-2 py-4 space-y-4 grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-1">
+              {
+                playlistVideos.map((video) => {
+                  return <DuplicatieItem key={video._id} video={{ video: video}} />
+                })
+              }
+             </div>
+          
             {
               newVideos.map((video) => {
                 return <VideoItems video={video} key={video._id} />

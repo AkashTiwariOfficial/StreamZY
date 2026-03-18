@@ -18,6 +18,7 @@ export default function SideVideosItems(props) {
   const subMenuRef = useRef(null);
   const [subMenu, setSubMenu] = useState(false);
   const [playlist, setPlayList] = useState([]);
+  
 
   const diffCSS = () => {
     if (location.pathname === "/likes") {
@@ -52,7 +53,12 @@ export default function SideVideosItems(props) {
 
 
   const handleClick = () => {
-    navigate(`/video/home/${video.video?._id}`);
+    if (location.pathname.includes("/viewPlaylist")) {
+      navigate(`/video/${id}/${video.video?._id}`);
+    }
+    else {
+      navigate(`/video/home/${video.video?._id}`);
+    }
   }
 
   useEffect(() => {

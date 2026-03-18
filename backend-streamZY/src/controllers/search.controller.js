@@ -24,10 +24,81 @@ const searchEngine = asyncHandler(async (req, res) => {
         .sort(sort)
         .skip((pageNumber - 1) * 20)
         .limit(limitNumber)
+        .populate("owner", "username avatar")
 
     const user = await User.collection.createIndex({ username: "text", fullName: "text" }, { weight: { username: 10000, fullName: 5000 } })
 
-    const userResponse = await User.find({ $text: { $search: query } }, { score: { $meta: "textScore" } })
+    const userResponse = await User.aggregate([
+        {
+            $match: {
+                $text: { $search: query }, 
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            }
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"
+                },
+                channelsubscribedToCount: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribedTo: {
+                    $cond: {
+                        if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                foreignField: "owner",
+                localField: "_id",
+                as: "videos",
+            }
+        },
+        {
+            $addFields: {
+                totalVideo: {
+                    $size: "$videos"
+                }
+            }
+        },
+        {
+            $project: {
+                fullName: 1,
+                username: 1,
+                avatar: 1,
+                createdAt: 1,
+                subscribersCount: 1,
+                totalVideo: 1,
+                score: { $meta: "textScore" }
+            }
+        },
+        {
+            $sort: {
+                score: 1
+            }
+        }
+    ])
         .sort(sort)
         .skip((pageNumber - 1) * 20)
         .limit(limitNumber)
