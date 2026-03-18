@@ -5,7 +5,7 @@ import axios from 'axios';
 
 export default function VideoItems(props) {
 
-  const { video, removeVideos } = props;
+  const { video, removeVideos, addToPublishedVideos, addToUnPublishedVideos } = props;
   const navigate = useNavigate();
   const location = useLocation();
   const { category } = useParams();
@@ -160,6 +160,30 @@ export default function VideoItems(props) {
     navigate(`/userProfile/${video.owner.username}`)
   }
 
+  const handleTogglePublish = async () => {
+     try {
+      const response = await axios.patch(`${host}/v1/videos/toggle-publish/${video?._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+          removeVideos(video?._id);
+        if (response.data.data) {
+          addToPublishedVideos(video);
+        } else {
+          addToUnPublishedVideos(video);
+        }  
+      }
+
+    } catch (error) {
+      console.log("Error while deleting video", error.response?.data || error.message);
+    }
+  }
+
   return (
     <div
       className={
@@ -247,6 +271,20 @@ export default function VideoItems(props) {
                   >
                     <i className="fa-solid fa-trash mr-1"></i>
                     Delete
+                  </div>
+                )}
+
+                {location.pathname === "/userChannel" && (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTogglePublish();
+                      setMenu(false);
+                    }}
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
+                  >
+                     <i class="fa-solid fa-code-compare text-base mr-3"></i>
+                    Toggle Publish
                   </div>
                 )}
 

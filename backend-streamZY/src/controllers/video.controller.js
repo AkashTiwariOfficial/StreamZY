@@ -449,7 +449,7 @@ const togglePublishVideo = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponses(200, togglePublish.isPublished, "Video Published Mode toggled successfully"))
+        .json(new ApiResponses(200, isPublished, "Video Published Mode toggled successfully"))
 
 })
 
@@ -776,7 +776,6 @@ const isVideoSaved = asyncHandler(async (req, res) => {
         .json(new ApiResponses(200, newAdd, "Saved Video fetched  successfully"));
 
 })
-
 
 
 

@@ -122,6 +122,18 @@ export default function Userchannel() {
     );
   };
 
+  const addToPublishedVideos = (newItem) => {
+    setpublishedPlaylist(prev => 
+      [...prev, newItem], 
+    )
+  }
+
+    const addToUnPublishedVideos = (newItem) => {
+    setUnPublishedVideosVideo(prev => 
+      [...prev, newItem], 
+    )
+  }
+
   const date = new Date(details?.createdAt)
 
   return (
@@ -200,7 +212,7 @@ export default function Userchannel() {
           { comp === "Video" && (
             myVideo.length !== 0 ? (
               myVideo.map((video) => {
-                return <VideoItems key={video?._id} video={video} removeVideos={removeVideos} />
+                return <VideoItems key={video?._id} video={video} removeVideos={removeVideos} addToPublishedVideos={addToPublishedVideos} addToUnPublishedVideos={addToUnPublishedVideos}/>
               })
             ) : (
               published ? (
