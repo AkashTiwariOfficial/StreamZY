@@ -162,7 +162,7 @@ export default function VideoItems(props) {
 
   const handleTogglePublish = async () => {
      try {
-      const response = await axios.patch(`${host}/v1/videos/toggle-publish/${video?._id}`, {
+      const response = await axios.patch(`${host}/v1/videos/toggle-publish/${video?._id}`, {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -269,7 +269,7 @@ export default function VideoItems(props) {
                     }}
                     className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
                   >
-                    <i className="fa-solid fa-trash mr-1"></i>
+                    <i className="fa-solid fa-trash mr-3"></i>
                     Delete
                   </div>
                 )}
