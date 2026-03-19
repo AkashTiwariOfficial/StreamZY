@@ -42,13 +42,16 @@ const getAllVideos = asyncHandler(async (req, res) => {
         .limit(limitNumber)
         .populate("owner", "username avatar")
 
+        
     if (!vidoes) {
         throw new ApiErrors(500, "No Vidoes found!")
     }
+    
+    const newVideos = vidoes.filter(video => video.isPublished);
 
     return res
         .status(200)
-        .json(new ApiResponses(200, vidoes, "All Videos were fetched successfully"))
+        .json(new ApiResponses(200, newVideos, "All Videos were fetched successfully"))
 })
 
 

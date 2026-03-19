@@ -123,7 +123,7 @@ export default function Userchannel() {
   };
 
   const addToPublishedVideos = (newItem) => {
-    setpublishedPlaylist(prev => 
+    setpublishedVideos(prev => 
       [...prev, newItem], 
     )
   }
