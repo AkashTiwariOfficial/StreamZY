@@ -17,6 +17,7 @@ export default function UserProfile() {
     const [playlist, setPlaylist] = useState([]);
     const [open, setOpen] = useState(false);
     const { username } = useParams();
+ 
 
 
   useEffect(() => {
@@ -104,6 +105,7 @@ export default function UserProfile() {
         }
 
         fetchIsSubscribers(ownerId);
+       
     }
 
     useEffect(() => {

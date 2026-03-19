@@ -705,6 +705,10 @@ const getUserChannel = asyncHandler(async (req, res) => {
   }
 
   const isUserExits = await User.findOne({ username: username })
+ 
+    if (!isUserExits) {
+    throw new ApiErrors(400, "user does not exists");
+  }
 
   try {
 
@@ -719,7 +723,28 @@ const getUserChannel = asyncHandler(async (req, res) => {
           from: "subscriptions",
           localField: "_id",
           foreignField: "channel",
-          as: "subscribers"
+          as: "subscribers",
+          /*  pipeline: [
+            {
+              $lookup: {
+                from: "likes",
+                foreignField: "video",
+                localField: "_id",
+                as: "totalLikes",
+                pipeline: [
+                  {
+                    $match: {
+                      isVideoLiked: true
+                    }
+                  },
+                  {
+                    $count: "count"
+                  },
+                ]
+              }
+            },
+          ]
+        } */
         }
       },
       {

@@ -22,7 +22,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Channel not found! or Invalid channelId")
     }
 
-    let subsCribe, toggleSubscribe;
+    let subsCribe, toggleSubscribe, resp;
 
     const doUserSubscribedCurrentChannel = await Subscription.findOne({
         subscriber: req.user?._id,
@@ -31,19 +31,25 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
     if (doUserSubscribedCurrentChannel) {
         if (doUserSubscribedCurrentChannel?.isSubscribed == true) {
-            toggleSubscribe = await Subscription.findByIdAndUpdate(doUserSubscribedCurrentChannel._id,
+          /*   toggleSubscribe = await Subscription.findByIdAndUpdate(doUserSubscribedCurrentChannel._id,
                 {
                     $set: {
                         isSubscribed: false
                     }
                 }, { new: true }
-            )
+            ) */
 
-            if (!doUserSubscribedCurrentChannel) {
+                  toggleSubscribe = await Subscription.findByIdAndDelete(doUserSubscribedCurrentChannel._id);
+                  if (toggleSubscribe) {
+                    resp = false
+                  }
+
+            if (!toggleSubscribe) {
                 throw new ApiErrors(500, "Internal Server Error while toggling Subscribe")
             }
         }
-        if (doUserSubscribedCurrentChannel?.isSubscribed == false) {
+        
+     /*    if (doUserSubscribedCurrentChannel?.isSubscribed == false) {
             toggleSubscribe = await Subscription.findByIdAndUpdate(doUserSubscribedCurrentChannel._id,
                 {
                     $set: {
@@ -55,7 +61,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
             if (!doUserSubscribedCurrentChannel) {
                 throw new ApiErrors(500, "Internal Server Error while toggling Subscribe")
             }
-        }
+        } */
     }
 
     if (!doUserSubscribedCurrentChannel) {
@@ -65,14 +71,19 @@ const toggleSubscription = asyncHandler(async (req, res) => {
             isSubscribed: true
         })
 
+        if (subsCribe) {
+            resp = true
+        }
+
         if (!subsCribe) {
             throw new ApiErrors(500, "Internal Server Error while Subscripting")
         }
     }
 
+    
     return res
         .status(200)
-        .json(new ApiResponses(200, { subsCribe, toggleSubscribe }))
+        .json(new ApiResponses(200, resp))
 
 })
 

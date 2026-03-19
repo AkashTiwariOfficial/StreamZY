@@ -37,9 +37,9 @@ export default function SubscrptionItems(props) {
             });
 
             if (response.data.success) {
-                if ((response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined) || (response.data.data.toggleSubscribe?.isSubscribed == true && response.data.data.subsCribe?.isSubscribed == undefined)) {
+                if (response.data.data == true) {
                     setsubs(true);
-                } else if (response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined) {
+                } else if (response.data.data == false) {
                     setsubs(false);
                 }
             }
@@ -63,12 +63,12 @@ export default function SubscrptionItems(props) {
                     <div className="flex flex-col w-auto mx-2 px-2 flex-wrap mt-3">
                         <span className="text-xl dark:text-white/90 font-[500]">{location.pathname === "/yourSubscribers" ? subscriber?.subscriber?.fullName : subscriber?.channel?.fullName}</span>
                         <div className='flex'>
-                        <span onClick={handleChannelChange} className="cursor-pointer text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200 text-xs font-[400]">{location.pathname === "/yourSubscribers" ? subscriber?.subscriber?.username : subscriber?.channel?.username}   </span>  {
-                            location.pathname === "/yourSubscribers"
-                                ? null
-                                : <span className='text-gray-700 dark:text-gray-400 text-xs font-[400]'> • {subscriber?.noOfSubscribers} subscribers</span> 
-                        }
-                       </div>
+                            <span onClick={handleChannelChange} className="cursor-pointer text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200 text-xs font-[400]">{location.pathname === "/yourSubscribers" ? subscriber?.subscriber?.username : subscriber?.channel?.username}   </span>  {
+                                location.pathname === "/yourSubscribers"
+                                    ? null
+                                    : <span className='text-gray-700 dark:text-gray-400 text-xs font-[400]'> • {subscriber?.noOfSubscribers} subscribers</span>
+                            }
+                        </div>
                     </div>
                 </div>
                 {location.pathname !== "/yourSubscribers" ? (

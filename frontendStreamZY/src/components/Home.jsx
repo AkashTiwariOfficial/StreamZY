@@ -9,7 +9,7 @@ export default function Home() {
    const {  } = Context;
 
   const tailwindCSS = () => {
-    return "flex h-9 w-auto p-3 m-2 font-[500] bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] rounded-lg dark:text-white/100 text-center items-center justify-center"
+    return "flex h-9 w-auto p-3 m-2 font-[500] bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 border-[1px] dark:border-white/5 border-neutral-200/40 focus:outline-none  dark:text-white/100 text-center items-center justify-center"
   }
 
   return (

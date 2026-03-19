@@ -78,7 +78,7 @@ export default function Navbar() {
         setOpenProfile(false);
       }
 
-       if (
+      if (
         openSearchPannel &&
         searchRef.current &&
         !searchRef.current.contains(e.target)
@@ -174,25 +174,25 @@ export default function Navbar() {
               </div>
             </Tooltip>
 
-         { !openSearchPannel && (  <Tooltip text="search" width="w-[60px]">
-              <i  onClick={(e) => { e.stopPropagation(); setOpenSearchPannel((prev) => !prev); }}  className="relative fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-1 text-xl cursor-pointer" aria-hidden="true"></i>
-            </Tooltip> )}
-             {
+            {!openSearchPannel && (<Tooltip text="search" width="w-[60px]">
+              <i onClick={(e) => { e.stopPropagation(); setOpenSearchPannel((prev) => !prev); }} className="relative fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-1 text-xl cursor-pointer" aria-hidden="true"></i>
+            </Tooltip>)}
+            {
               openSearchPannel && (
-                   <div ref={searchRef} className="absolute right-2 sm:right-32 top-0 mt-2 w-[300px] 
+                <div ref={searchRef} className="absolute right-2 sm:right-32 top-0 mt-2 w-[300px] 
                     bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20 px-2">
-                 <div>
-                <form action="/search" className="flex h-[42px] w-[280px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
-                  <input onChange={(e) => { setSearch(e.target.value) }} type="text" value={search} name="q" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-4  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
-                  </input>
-              <i className="fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-3 text-xl cursor-pointer" aria-hidden="true"></i>
-             </form>
-              </div>
-               </div>
+                  <div>
+                    <form action="/search" className="flex h-[42px] w-[280px] border-[1px] my-2 rounded-full items-center bg-gray-200 border-gray-200 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:bg-[hsla(0,0%,100%,.08)] dark:border-gray-600">
+                      <input onChange={(e) => { setSearch(e.target.value) }} type="text" value={search} name="q" placeholder="Search" className="flex-1 h-full w-max items-center focus:ring-1  focus:ring-blue-600 px-4  outline-none rounded-r-none dark:bg-black/70 dark:text-white rounded-full border-r-[1px] border-gray-200 dark:border-[hsla(0,0%,100%,.08)]/25 shadow-2xl">
+                      </input>
+                      <i className="fa fa-search white-icon flex md:hidden lg:hidden dark:text-white  mx-3 text-xl cursor-pointer" aria-hidden="true"></i>
+                    </form>
+                  </div>
+                </div>
               )
-             }
+            }
             <div className="items-center mr-6 lg:space-x-7 md:space-x-3 sm:space-x-1 flex">
-            
+
 
               <Tooltip text="Create" width="w-[80px]">
                 <div onClick={(e) => { e.stopPropagation(); setOpenCreate((prev) => !prev); }} className="relative hidden md:flex h-[42px] pl-2 pr-5 rounded-full items-center cursor-pointer bg-[#e6e6e6] dark:bg-[hsla(0,0%,100%,.08)]">
@@ -388,7 +388,7 @@ export default function Navbar() {
                 </Link>
               </Tooltip>
               <div className="flex flex-col">
-                {subscribers.slice(0, !open ? subscribers.length : 4).map((subscriber) => {
+                {subscribers.length >= 1 ? (subscribers.slice(0, !open ? subscribers.length : 4).map((subscriber) => {
                   return (
                     <Tooltip key={subscriber._id} text={`${subscriber?.channel?.username}`} width="w-[1/2]" margin="mt-[10px]" changes="ml-12">
                       <div onClick={(e) => { e.stopPropagation(); handleChannelChange(subscriber?.channel?.username); }} className="flex py-[19px] cursor-pointer h-8 w-max items-center gap-[15px] pl-5 pr-[30px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90 text-[12px] dark:text-white">
@@ -400,6 +400,13 @@ export default function Navbar() {
                     </Tooltip>
                   )
                 })
+                )
+                  : (
+                    <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[15px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
+                          <i className="fa-solid fa-user-slash text-base" />
+                      <li><label htmlFor="menu-toggle" className="cursor-pointer block">No subscriptions</label></li>
+                    </div>
+                  )
                 }
                 <button className="mb-2 flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-6 pr-[70px] rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/90" onClick={toggleOpen}>
                   <i className={`fa-solid fa-angle-${open ? "down" : "up"} text-base`}></i>
@@ -473,7 +480,7 @@ export default function Navbar() {
           ></label>
 
           {/* Sidebar */}
-          {!location.pathname.startsWith("/video/") ? (
+          {!(location.pathname.startsWith("/video/") || location.pathname.startsWith("/playlist/") || location.pathname.startsWith("/category/")) ? (
             <div className="hidden lg:flex fixed top-[70px] left-0 h-screen w-[64px] pl-2 pr-2 dark:text-[#f1f1f1] text-center">
               <div className="flex flex-col gap-6">
                 <Tooltip text="Home" width="w-[50px]" direction="absolute left-full top-1/2 -translate-y-1/2 ml-[10px]">

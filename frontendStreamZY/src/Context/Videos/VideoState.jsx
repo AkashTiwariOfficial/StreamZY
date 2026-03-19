@@ -97,9 +97,9 @@ export default function VideoState(props) {
             });
 
             if (response.data.success) {
-                if ((response.data.data.subsCribe?.isSubscribed == true && response.data.data.toggleSubscribe?.isSubscribed == undefined) || (response.data.data.toggleSubscribe?.isSubscribed == true && response.data.data.subsCribe?.isSubscribed == undefined) ) {
+                if (response.data.data == true ) {
                     setDoSubscribed(true);
-                } else if (response.data.data.toggleSubscribe?.isSubscribed == false && response.data.data.subsCribe?.isSubscribed == undefined) {
+                } else if  (response.data.data == false )  {
                     setDoSubscribed(false);
                 }
             }

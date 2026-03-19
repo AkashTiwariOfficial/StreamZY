@@ -87,7 +87,7 @@ export default function SavedPlaylist() {
                         <div className="relative inline-block text-left">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-                                className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                                className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                             >
                                 sortBy
                                 <i className="fa-solid fa-chevron-down ml-2" />
@@ -117,7 +117,7 @@ export default function SavedPlaylist() {
 
                         <button
                             onClick={() => { navigate("/playlists") }}
-                            className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                            className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                         >
                             Playlists
                         </button>
@@ -128,18 +128,18 @@ export default function SavedPlaylist() {
           </button>)} */}
                         <button
                             onClick={() => { navigate("/playlists/owned") }}
-                            className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                            className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                         >
                             owned
                         </button>
                         <button disabled
-                            className="px-3 py-2 bg-slate-200  disabled:pointer-events-none  dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                            className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200  disabled:pointer-events-none  dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                         >
                             saved
                         </button>
                         <button
                             onClick={() => { navigate("/createPlaylist") }}
-                            className="px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                            className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                         >
                             New Playlist
                         </button>
