@@ -275,22 +275,22 @@ const deleteVideoById = asyncHandler(async (req, res) => {
     try {
 
         const comments = await Comment.find({ video: videoId }).select("_id").session(session);
-          const commentIds = comments.map(c => c._id);
-        await ReplyComment.deleteMany({ comment: {$in: commentIds} }, { session });
+        const commentIds = comments.map(c => c._id);
+        await ReplyComment.deleteMany({ comment: { $in: commentIds } }, { session });
         await Comment.deleteMany({ video: videoId }, { session });
         await Views.deleteMany({ videoId: videoId }, { session });
         await Like.deleteMany({ video: videoId }, { session });
         await Playlist.updateMany({ videos: videoId }, {
             $pull: { videos: videoId }
         }, { session })
-        await User.updateMany({ "watchHistory.video": videoId}, {
+        await User.updateMany({ "watchHistory.video": videoId }, {
             $pull: {
                 watchHistory: {
                     video: videoId
                 }
             }
         }, { session })
-        await User.updateMany({ "savedVideos.video": videoId}, {
+        await User.updateMany({ "savedVideos.video": videoId }, {
             $pull: {
                 savedVideos: {
                     video: videoId
@@ -619,16 +619,24 @@ const watchedVideo = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "video id is missing!")
     }
 
-    const video = await Video.findById(videoId)
+    const video = await Video.findById(videoId);
 
     if (!video) {
         throw new ApiErrors(404, "Video does not exists");
     }
 
-    const exists = await User.exists({
+    const videoObjectId = new mongoose.Types.ObjectId(videoId);
+
+    const exists = await User.findOneAndUpdate({
         _id: req.user?._id,
-        "watchHistory.video": videoId
-    });
+        "watchHistory.video": videoObjectId
+    }, {
+        $set: {
+            "watchHistory.$.watchedAt": new Date()
+        },
+    }, { new: true }).select(
+        "-password -refreshToken"
+    );
 
     let newAdd;
 
@@ -639,24 +647,6 @@ const watchedVideo = asyncHandler(async (req, res) => {
                     video: videoId,
                     watchedAt: new Date()
                 }
-            },
-        }, { new: true }).select(
-            "-password -refreshToken"
-        );
-    }
-
-    let updateAdd;
-
-    const videoObjectId = new mongoose.Types.ObjectId(videoId);
-
-
-    if (exists) {
-        updateAdd = await User.findOneAndUpdate({
-            _id: req.user?._id,
-            "watchHistory.video": videoObjectId
-        }, {
-            $set: {
-                "watchHistory.$.watchedAt": new Date()
             },
         }, { new: true }).select(
             "-password -refreshToken"
