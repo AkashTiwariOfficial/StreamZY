@@ -286,7 +286,13 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     if (!playListId) {
         throw new ApiErrors(400, "PlayList id is missing!")
     }
-
+    await User.updateMany({}, {
+    $pull: {
+            savedPlaylists: {
+                playlist: playListId
+            }
+        }
+    })
     const getPlayList = await Playlist.findByIdAndDelete(playListId)
 
     if (!getPlayList) {

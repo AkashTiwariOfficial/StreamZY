@@ -5,6 +5,7 @@ import { Video } from "../models/video.models.js";
 import { Comment } from "../models/comment.models.js";
 import { User } from "../models/user.models.js"
 import mongoose from "mongoose";
+import { ReplyComment } from "../models/replyComment.models.js";
  
 
 const getVideoComment = asyncHandler(async (req, res) => {
@@ -140,7 +141,8 @@ const deleteComment = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Invalid commentId! or comment do not exists")
     }
 
-    const delComment = await Comment.findByIdAndDelete(commentId)
+    const delComment = await Comment.findByIdAndDelete(commentId);
+    await ReplyComment.deleteMany({ comment: commentId});
 
     if (!delComment) {
         throw new ApiErrors(500, "Internal Server Error while deleting comment on the video")

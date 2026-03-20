@@ -6,6 +6,10 @@ import { ApiResponses } from "../utils/ApiResponses.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { deleteFromCloudinary, uploadOnCloudinary, uploadVideoOnCloudinary } from "../utils/cloudinary.js";
 import { User } from "../models/user.models.js";
+import { Like } from "../models/like.models.js";
+import { Comment } from "../models/comment.models.js"
+import { ReplyComment } from "../models/replyComment.models.js"
+import { Playlist } from "../models/playlist.models.js"
 
 
 
@@ -42,11 +46,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
         .limit(limitNumber)
         .populate("owner", "username avatar")
 
-        
+
     if (!vidoes) {
         throw new ApiErrors(500, "No Vidoes found!")
     }
-    
+
     const newVideos = vidoes.filter(video => video.isPublished);
 
     return res
@@ -75,8 +79,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "Vedio file is required")
     }
 
-    let thumbnail, videoFile; 
-      
+    let thumbnail, videoFile;
+
     try {
         thumbnail = await uploadOnCloudinary(thumbnailFilePath);
         videoFile = await uploadVideoOnCloudinary(videoFilePath);
@@ -265,10 +269,44 @@ const deleteVideoById = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "video id is missing!")
     }
 
-    const video = await Video.findByIdAndDelete(videoId)
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    if (!video) {
-        throw new ApiErrors(404, "Video does not exists");
+    try {
+
+        const comments = await Comment.find({ video: videoId }).select("_id").session(session);
+          const commentIds = comments.map(c => c._id);
+        await ReplyComment.deleteMany({ comment: {$in: commentIds} }, { session });
+        await Comment.deleteMany({ video: videoId }, { session });
+        await Views.deleteMany({ videoId: videoId }, { session });
+        await Like.deleteMany({ video: videoId }, { session });
+        await Playlist.updateMany({ videos: videoId }, {
+            $pull: { videos: videoId }
+        }, { session })
+        await User.updateMany({ "watchHistory.video": videoId}, {
+            $pull: {
+                watchHistory: {
+                    video: videoId
+                }
+            }
+        }, { session })
+        await User.updateMany({ "savedVideos.video": videoId}, {
+            $pull: {
+                savedVideos: {
+                    video: videoId
+                }
+            }
+        }, { session })
+
+        await Video.findByIdAndDelete(videoId, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw new ApiErrors(500, "Internal Server Error while deleting video" || error.message)
     }
 
     return res

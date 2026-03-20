@@ -8,6 +8,12 @@ import jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
 import bcrypt from "bcrypt"
 import mongoose from "mongoose";
+import { Like } from "../models/like.models.js";
+import { Views } from "../models/videoViewsData.models.js";
+import { Comment } from "../models/comment.models.js";
+import { ReplyComment } from "../models/replyComment.models.js";
+import { Subscription } from "../models/subscription.models.js";
+import { Playlist } from "../models/playlist.models.js";
 
 
 
@@ -414,17 +420,58 @@ const upadtecoverImage = asyncHandler(async (req, res) => {
 
 const deleteAccount = asyncHandler(async (req, res) => {
 
-  try {
-    const deletedAccount = await User.findByIdAndDelete(req.user?._id)
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    if (!deletedAccount) {
-      throw new ApiErrors(404, "User not found")
-    }
+  try {
+
+    const videos = await Video.find({ owner: req.user?._id }).session(session);
+    const videoIds = videos.map(v => v._id)
+    await Like.deleteMany({ video: { $in: videoIds } }, { session });
+    await Comment.deleteMany({ video: { $in: videoIds } }, { session });
+    const comments = await Comment.find({ video: { $in: videoIds } }).select("_id").session(session);
+    await ReplyComment.deleteMany({ comment: { $in: comments.map(c => c._id) }}, { session });
+    await Views.deleteMany({ videoId: { $in: videoIds } }, { session });
+    await Playlist.updateMany({ videos: { $in: videoIds } }, {
+      $pull: { videos: { $in: videoIds } }
+    }, { session })
+    await User.updateMany({ "watchHistory.video": { $in: videoIds }}, {
+      $pull: {
+      watchHistory: {
+          video: { $in: videoIds }
+        }
+      }
+    }, { session })
+    await User.updateMany({ "savedVideos.video": { $in: videoIds }}, {
+      $pull: {
+      savedVideos: {
+          video: { $in: videoIds }
+        }
+      }
+    }, { session })
+    await Video.deleteMany({ owner: req.user?._id }, { session });
+    await Like.deleteMany({ likedBy: req.user?._id }, { session });
+    await Views.deleteMany({ vistedUser: req.user?._id }, { session });
+    await Comment.deleteMany({ owner: req.user?._id }, { session })
+    await ReplyComment.deleteMany({ owner: req.user?._id }, { session })
+    await Subscription.deleteMany({
+      $or: [
+        { subscriber: req.user?._id },
+        { channel: req.user?._id }
+      ]
+    }, { session })
+    await Playlist.deleteMany({ owner: req.user?._id }, { session });
+    await User.findByIdAndDelete(req.user?._id, { session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     return res
       .status(200)
       .json(new ApiResponses(200, {}, "Account has been deleted successfully"))
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     throw new ApiErrors(500, "Internal Server Error while deleting user account" || error.message)
   }
 
@@ -705,8 +752,8 @@ const getUserChannel = asyncHandler(async (req, res) => {
   }
 
   const isUserExits = await User.findOne({ username: username })
- 
-    if (!isUserExits) {
+
+  if (!isUserExits) {
     throw new ApiErrors(400, "user does not exists");
   }
 
@@ -772,7 +819,7 @@ const getUserChannel = asyncHandler(async (req, res) => {
           }
         }
       },
- {
+      {
         $match: {
           username: username.toLowerCase()
         },
@@ -853,12 +900,12 @@ const getUserChannel = asyncHandler(async (req, res) => {
           channelsubscribedToCount: 1,
           isSubscribedTo: 1,
           coverImage: 1,
-           totalLike: 1,
+          totalLike: 1,
           totalViews: 1,
           totalVideo: 1
         }
       }
-      
+
     ])
 
     if (!channel) {
@@ -869,7 +916,7 @@ const getUserChannel = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponses(200, channel[0] , "User channel fetched successfully")
+        new ApiResponses(200, channel[0], "User channel fetched successfully")
       )
 
   } catch (error) {
