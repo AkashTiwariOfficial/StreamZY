@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import videoContext from "../../Context/Videos/videoContext";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
 
   const navigate = useNavigate();
   const Context = useContext(videoContext);
-  const { user, setUser } = Context;
+  const { setProgress, setLoading, loading } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
 
   const [signupfields, setSignupfields] = useState({ fullName: "", username: "", email: "", password: "" });
@@ -16,11 +17,15 @@ export default function SignUp() {
   const [preview, setPreview] = useState(null);
   const [coverImage, setCoverImage] = useState(null);
   const [coverImagePreview, setCoverImagePreview] = useState(null);
+
   const handleResgister = async (e) => {
     e.preventDefault();
+    setProgress(15);
+    setLoading(true);
+    const toastId = toast.loading("Logging In", { position: "bottom-center"});
 
     try {
-
+      setProgress(40);
       const { fullName, username, email, password } = signupfields;
 
       const body = {
@@ -32,27 +37,33 @@ export default function SignUp() {
       }
 
       if (coverImage) {
-      body.coverImage = coverImage
+        body.coverImage = coverImage
       }
 
-      console.log(body);
-
+      setProgress(60);
       const response = await axios.post(`${host}/v1/users/register`, body, {
         headers: {
           "Content-Type": "multipart/form-data",
         }, timeout: 95000
       })
-      
-  
+
+
       if (response.data.success) {
+        setLoading(false);
         const userDetails = response.data.data.userCreated;
         localStorage.setItem("accessToken", response.data.data.accessToken);
         localStorage.setItem("refreshToken", response.data.data.refreshToken);
         localStorage.setItem("user", JSON.stringify(userDetails));
         localStorage.setItem("timeofAT", Date.now());
+        setProgress(80);
         navigate("/home");
+        setProgress(100);
+        toast.success("Signed Up Successfully", {id: toastId})
       }
     } catch (error) {
+      setLoading(false);
+      setProgress(100);
+      toast.error("Signed Up failed!", {id: toastId});
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
   }
@@ -66,15 +77,15 @@ export default function SignUp() {
   }
 
   const handleAvatarChange = (e) => {
-     const file = e.target.files[0];
-     setAvatar(file);
-     setPreview(URL.createObjectURL(file))
+    const file = e.target.files[0];
+    setAvatar(file);
+    setPreview(URL.createObjectURL(file))
   }
 
-    const handleCoverImageChange = (e) => {
-     const file = e.target.files[0];
-     setCoverImage(file);
-     setCoverImagePreview(URL.createObjectURL(file))
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files[0];
+    setCoverImage(file);
+    setCoverImagePreview(URL.createObjectURL(file))
   }
 
   return (
@@ -150,7 +161,7 @@ export default function SignUp() {
               />
             </div>
 
-         
+
             <div>
               <label className="block mb-1 text-sm font-medium">Avatar</label>
               <input
@@ -159,17 +170,17 @@ export default function SignUp() {
                 onChange={handleAvatarChange}
                 className="w-full text-sm text-gray-600 border-[1px] dark:border-white/20 rounded-2xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
               />
-             
-             { preview &&
-              <img
-                src={preview}
-                alt="Avatar Preview"
-                className="w-20 h-20 rounded-full mt-3 object-cover border border-gray-300 dark:border-gray-700"
-              />
-             }
+
+              {preview &&
+                <img
+                  src={preview}
+                  alt="Avatar Preview"
+                  className="w-20 h-20 rounded-full mt-3 object-cover border border-gray-300 dark:border-gray-700"
+                />
+              }
             </div>
 
-                <div>
+            <div>
               <label className="block mb-1 text-sm font-medium">Cover-Image</label>
               <input
                 type="file"
@@ -177,14 +188,14 @@ export default function SignUp() {
                 onChange={handleCoverImageChange}
                 className="w-full text-sm text-gray-600 border-[1px] dark:border-white/20 rounded-2xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
               />
-             
-             { coverImagePreview &&
-              <img
-                src={coverImagePreview}
-                alt="Avatar Preview"
-                className="w-20 h-20 rounded-full mt-3 object-cover border border-gray-300 dark:border-gray-700"
-              />
-             }
+
+              {coverImagePreview &&
+                <img
+                  src={coverImagePreview}
+                  alt="Avatar Preview"
+                  className="w-20 h-20 rounded-full mt-3 object-cover border border-gray-300 dark:border-gray-700"
+                />
+              }
             </div>
 
             <button

@@ -11,6 +11,8 @@ export default function VideoState(props) {
     const [subscribers, setSubscribers] = useState([]);
     const [dosubscribed, setDoSubscribed] = useState(false);
     const host = import.meta.env.VITE_HOST_LINK;
+    const [progress, setProgress] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const token = localStorage.getItem("accessToken");
     const user = localStorage.getItem("user");
@@ -184,6 +186,7 @@ export default function VideoState(props) {
       }
     }
 
+
     return (
 
         <VideoContext.Provider value={{
@@ -192,6 +195,10 @@ export default function VideoState(props) {
             dosubscribed,
             subscribers,
             host,
+            progress,
+            loading,
+            setLoading,
+            setProgress,
             setSubscribers,
             timeAgo,
             setVideos,

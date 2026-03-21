@@ -4,12 +4,14 @@ import { useContext } from 'react'
 import videoContext from "../../Context/Videos/videoContext";
 import { motion } from "framer-motion";
 import axios from "axios";
+import toast from 'react-hot-toast';
+
 
 
 export default function Login() {
 
     const Context = useContext(videoContext);
-    const { setUser } = Context;
+    const { setProgress, loading, setLoading } = Context;
     const host = import.meta.env.VITE_HOST_LINK;
 
     const navigate = useNavigate();
@@ -18,6 +20,9 @@ export default function Login() {
     const handleLogin = async (e) => {
 
         e.preventDefault();
+        setProgress(15);
+        setLoading(true);
+        const toastId = toast.loading("Logging In");
 
         const { usernameORemail, password } = credentials;
 
@@ -26,23 +31,32 @@ export default function Login() {
             : { username: usernameORemail, password }
 
         try {
-
+            setProgress(40);
             const response = await axios.post(`${host}/v1/users/login`, body, {
                 headers: {
                     "Content-Type": "application/json",
                 }, timeout: 15000
             })
 
+            setProgress(60);
+
             if (response.data.success) {
+                setLoading(false);
                 const userDetails = response.data.data.data;
                 localStorage.setItem("accessToken", response.data.data.accessToken);
                 localStorage.setItem("refreshToken", response.data.data.refreshToken);
                 localStorage.setItem("user", JSON.stringify(userDetails));
                 localStorage.setItem("timeofAT", Date.now());
+                setProgress(90);
                 navigate("/home");
+                setProgress(100);
+                toast.success("Logged In successfully",{ id: toastId});
             }
         } catch (error) {
-            console.log("Error while fetching vidoes", error.response?.data || error.message);
+            setLoading(false);
+            console.log("Error while doing Log In", error.response?.data || error.message);
+            setProgress(100);
+            toast.error("Invalid Credentials", { id: toastId});
         }
     }
 
@@ -109,9 +123,10 @@ export default function Login() {
 
                         <button
                             type="submit"
+                            disabled={!credentials.password || !credentials.usernameORemail || loading}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-blue-500/40 transition-all duration-300"
                         >
-                            Login
+                           {loading ? "Logging In ..." : "Login"}
                         </button>
                     </form>
 

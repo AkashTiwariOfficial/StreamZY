@@ -530,7 +530,7 @@ export default function Navbar() {
           <div className="relative">
             <input type="checkbox" id="menu-toggle" className="hidden peer" />
             {/* Navbar */}
-            <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] px-5 transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-sm bg-opacity-90">
+            <nav className="fixed top-0 left-0 h-16 w-full bg-slate-100 dark:bg-[#121212] px-5 transition-all duration-300 flex flex-wrap justify-between align-items-center backdrop-blur-sm bg-opacity-90 z-50">
               <div className="flex flex-wrap items-center">
                 <Tooltip text="StreamZY Home" margin="mt-25px">
                   <Link to="/" >
