@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import videoContext from '../../Context/Videos/videoContext.jsx';
 import axios from 'axios';
+import toast from "react-hot-toast";
 
 
 export default function Viewplaylists() {
@@ -11,14 +12,16 @@ export default function Viewplaylists() {
     const [playListDetails, setPlayListDetails] = useState([]);
     const [playlistVideos, setPlaylistVideos] = useState([]);
     const Context = useContext(videoContext);
-    const { currUser, host, timeAgo } = Context;
+    const { currUser, host, timeAgo, setProgress, loading, setLoading } = Context;
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
 
     useEffect(() => {
         const fetchPlaylistDetails = async () => {
+            setProgress(10);
             try {
+                setProgress(40);
                 const response = await axios.get(`${host}/v1/playlists/fetch-playlist/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -26,13 +29,17 @@ export default function Viewplaylists() {
                     withCredentials: true,
                     timeout: 150000
                 });
-
+                setProgress(60);
                 if (response.data.success) {
+                    setProgress(80);
                     setPlayListDetails(response.data.data);
                     setPlaylistVideos(response.data.data.videos);
+                    setProgress(100);
                 }
 
             } catch (error) {
+                setProgress(100);
+                toast.error("Internal Server Error!");
                 console.log("Error while fetching playlist's details", error.response?.data || error.message);
             }
         }
@@ -42,7 +49,11 @@ export default function Viewplaylists() {
     }, [id])
 
     const handleDelete = async () => {
+        setProgress(10);
+        setLoading(true);
+
         try {
+            setProgress(40);
             const response = await axios.delete(`${host}/v1/playlists/delete/${id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -51,11 +62,19 @@ export default function Viewplaylists() {
                 timeout: 150000
             });
 
+               setProgress(60);
             if (response.data.success) {
+                setProgress(80);
+                setLoading(false);
                 navigate("/playlists/owned");
+                setProgress(100);
+                toast.success("Playlist deleted sucessfully");
             }
 
         } catch (error) {
+            setLoading(false);
+            setProgress(100);
+            toast.error("Internal Server Error!");
             console.log("Error while deleting playlist", error.response?.data || error.message);
         }
     }
@@ -72,13 +91,14 @@ export default function Viewplaylists() {
             <div className="min-h-screen w-full bg-slate-100 dark:bg-[#121212]/100 text-gray-100 dark:text-gray-100">
                 <div className="lg:flex-row lg:items-start gap-8 px-4 lg:px-10">
 
-                    <div className="lg:fixed lg:top-20 flex flex-col lg:h-screen h-full bg-black/50 dark:bg-white/5 backdrop-blur-2xl rounded-2xl py-10 px-9 lg:w-1/3 w-full shadow-sm overflow-hidden relative items-center mb-5">
-
+                    <div className="lg:fixed lg:top-20 flex flex-col lg:h-screen h-full bg-black/50 dark:bg-white/5 backdrop-blur-2xl rounded-2xl py-10 px-9 lg:w-1/3 w-full shadow-sm overflow-hidden  items-center mb-5">
+                   
                         <img
                             src={playListDetails?.thumbnail || "https://i.ytimg.com/vi/tgbNymZ7vqY/maxresdefault.jpg"}
                             alt="Liked videos background"
-                            className="absolute inset-0 object-cover w-full h-full opacity-100 blur-[6px]"
+                            className="absolute inset-0 object-cover w-full  h-full opacity-100 blur-[6px]"
                         />
+                       
 
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/60 to-transparent rounded-2xl"></div>
 
@@ -99,8 +119,9 @@ export default function Viewplaylists() {
                         </div>
                         <div className="hidden lg:flex">
                             <div className="relative z-10">
+                                 <div className="relative w-full h-[42%] overflow-auto overflow-y-hidden">
                                 <img src={playlistVideos[0]?.thumbnail || playListDetails?.thumbnail} alt="thumb1" className="rounded-lg object-cover w-full" />
-
+                                   </div>
                                 <div className="relative z-10 py-3 px-1">
                                     <h2 className="text-xl lg:text-xl font-bold mb-3 line-clamp-2">{playListDetails?.title}</h2>
                                     <p className="text-gray-300 text-sm mb-4">{playListDetails?.owner?.username} •  {playListDetails?.name}</p>
@@ -140,7 +161,7 @@ export default function Viewplaylists() {
                                     + New Playlist
                                 </button>
 
-                           {/*      <button
+                                {/*      <button
                                     onClick={() => navigate(`/createPlaylist`)}
                                     className="px-7 py-3 rounded-full
                  bg-gradient-to-r from-indigo-600 to-blue-600
@@ -160,12 +181,13 @@ export default function Viewplaylists() {
                                 </button>
 
                                 <button
+                                disabled={loading}
                                     onClick={handleDelete}
                                     className="px-7 py-3 rounded-full
                  bg-red-600 hover:bg-red-700
                  text-white text-sm font-semibold
                  transition-all duration-300 active:scale-95">
-                                    Delete
+                                   { loading ? "Deleting" :"Delete"}
                                 </button>
 
                             </div>
@@ -173,9 +195,18 @@ export default function Viewplaylists() {
 
 
                         <div className="py-0 dark:text-white"><hr /></div>
-                        {playlistVideos.map((video) => {
+                        {  playlistVideos.length > 0 ? ( 
+                            playlistVideos.map((video) => {
                             return <SideVideosItems key={video._id} video={{ video: video }} removeVideoPlaylist={removeVideoPlaylist} />
-                        })}
+                        })
+                    ) : (
+                         <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+                                <p className="text-lg font-medium">No videos yet</p>
+                                <p className="text-sm mt-1">
+                                    Add new videos to your playlistand Enjoy
+                                </p>
+                            </div>
+                    )}
                     </div>
                 </div>
             </div>

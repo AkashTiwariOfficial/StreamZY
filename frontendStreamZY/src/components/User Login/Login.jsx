@@ -22,7 +22,7 @@ export default function Login() {
         e.preventDefault();
         setProgress(15);
         setLoading(true);
-        const toastId = toast.loading("Logging In");
+        const toastId = toast.loading("Logging In ...");
 
         const { usernameORemail, password } = credentials;
 
@@ -41,22 +41,22 @@ export default function Login() {
             setProgress(60);
 
             if (response.data.success) {
-                setLoading(false);
                 const userDetails = response.data.data.data;
                 localStorage.setItem("accessToken", response.data.data.accessToken);
                 localStorage.setItem("refreshToken", response.data.data.refreshToken);
                 localStorage.setItem("user", JSON.stringify(userDetails));
                 localStorage.setItem("timeofAT", Date.now());
                 setProgress(90);
+                setLoading(false);
                 navigate("/home");
                 setProgress(100);
-                toast.success("Logged In successfully",{ id: toastId});
+                toast.success("Logged In successfully", { id: toastId });
             }
         } catch (error) {
             setLoading(false);
-            console.log("Error while doing Log In", error.response?.data || error.message);
             setProgress(100);
-            toast.error("Invalid Credentials", { id: toastId});
+            toast.error(error?.response?.data?.message || "Invalid User Credentials!", { id: toastId });
+            console.log("Error while doing Log In", error.response?.data || error.message);
         }
     }
 
@@ -126,7 +126,7 @@ export default function Login() {
                             disabled={!credentials.password || !credentials.usernameORemail || loading}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-blue-500/40 transition-all duration-300"
                         >
-                           {loading ? "Logging In ..." : "Login"}
+                            {loading ? "Logging In ..." : "Login"}
                         </button>
                     </form>
 

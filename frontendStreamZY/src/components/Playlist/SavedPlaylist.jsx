@@ -4,13 +4,14 @@ import { useContext } from 'react';
 import videoContext from '../../Context/Videos/videoContext.jsx';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 export default function SavedPlaylist() {
 
     const [open, setOpen] = useState(false);
     const [playList, setPlayList] = useState([]);
     const Context = useContext(videoContext);
-    const { currUser, host } = Context;
+    const { currUser, host, setProgress } = Context;
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -32,7 +33,9 @@ export default function SavedPlaylist() {
 
     useEffect(() => {
         const handleOwnedPlaylist = async () => {
+            setProgress(10);
             try {
+                setProgress(30);
                 const response = await axios.get(`${host}/v1/users/saved-playlists/${currUser?.username}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -41,11 +44,16 @@ export default function SavedPlaylist() {
                     timeout: 150000
                 });
 
+                setProgress(60);
                 if (response.data.success) {
+                    setProgress(80);
                     setPlayList(response.data.data);
+                    setProgress(100);
                 }
 
             } catch (error) {
+                setProgress(100);
+                toast.error("Internal Server Error!");
                 console.log("Error while fetching owner's playlists", error.response?.data || error.message);
             }
         }
@@ -59,8 +67,10 @@ export default function SavedPlaylist() {
     };
 
     const handleSavedPlaylists = async () => {
+        setProgress(10);
 
         try {
+            setProgress(40);
             const response = await axios.patch(`${host}/v1/playlists/delete-saved-playlists`, {}, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -69,11 +79,17 @@ export default function SavedPlaylist() {
                 timeout: 150000
             });
 
+            setProgress(60);
             if (response.data.success) {
+                setProgress(80);
                 setPlayList([]);
+                setProgress(100);
+                toast.success("Removed All Playlist");
             }
 
         } catch (error) {
+            setProgress(100);
+            toast.error("Internal Server Error!");
             console.log("Error while clearing saved playlists", error.response?.data || error.message);
         }
     }
@@ -87,7 +103,7 @@ export default function SavedPlaylist() {
                         <div className="relative inline-block text-left">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-                                className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                                className="px-3 py-2 hover:bg-gray-300 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                             >
                                 sortBy
                                 <i className="fa-solid fa-chevron-down ml-2" />
@@ -117,7 +133,7 @@ export default function SavedPlaylist() {
 
                         <button
                             onClick={() => { navigate("/playlists") }}
-                            className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                            className="px-3 py-2 border-[1px] hover:bg-gray-300 dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                         >
                             Playlists
                         </button>
@@ -128,7 +144,7 @@ export default function SavedPlaylist() {
           </button>)} */}
                         <button
                             onClick={() => { navigate("/playlists/owned") }}
-                            className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                            className="px-3 py-2 hover:bg-gray-300 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                         >
                             owned
                         </button>
@@ -139,19 +155,19 @@ export default function SavedPlaylist() {
                         </button>
                         <button
                             onClick={() => { navigate("/createPlaylist") }}
-                            className="px-3 py-2 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
+                            className="px-3 py-2  hover:bg-gray-300 border-[1px] dark:border-white/30 border-neutral-200/40 bg-slate-200 dark:bg-[#1f1f1f] dark:text-white rounded-md hover:dark:bg-[#1f1f1f]/40 focus:outline-none"
                         >
                             New Playlist
                         </button>
                     </div>
                     <div>
-                    <button
-                        onClick={handleSavedPlaylists}
-                        disabled={playList.length === 0}
-                        className="text-sm px-4 py-2 rounded-lg bg-red-700 text-white hover:bg-red-500 transition mx-4 cursor-pointer"
-                    >
-                        Remove All
-                    </button>
+                        <button
+                            onClick={handleSavedPlaylists}
+                            disabled={playList.length === 0}
+                            className="text-sm px-4 py-2 rounded-lg bg-red-700 text-white hover:bg-red-500 transition mx-4 cursor-pointer"
+                        >
+                            Remove All
+                        </button>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">

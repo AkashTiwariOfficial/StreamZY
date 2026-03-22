@@ -38,7 +38,7 @@ export default function Createvideo() {
     e.preventDefault();
     setProgress(10);
     setLoading(true);
-    const toastId = toast.loading("Uploading");
+    const toastId = toast.loading("Uploading Video ....");
 
     try {
       setProgress(30);
@@ -63,8 +63,8 @@ export default function Createvideo() {
       });
 
       if (response.data.success) {
-        setLoading(false);
         setProgress(80);
+        setLoading(false);
         navigate("/home");
         setProgress(100);
         toast.success("Video uploaded sucessfully", { id: toastId });
@@ -72,8 +72,8 @@ export default function Createvideo() {
     } catch (error) {
       setLoading(false);
       setProgress(100);
-      toast.error("Video Upload failed!", { id: toastId });
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      toast.error("Internal Server Error!", { id: toastId });
+      console.log("Error while uplaoding video!", error.response?.data || error.message);
     }
   }
 

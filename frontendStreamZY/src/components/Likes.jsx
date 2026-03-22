@@ -34,7 +34,7 @@ export default function Likes() {
                 }
 
             } catch (error) {
-                console.log("Error while fetching vidoes", error.response?.data || error.message);
+                console.log("Error while fetching liked vidoes of user!", error.response?.data || error.message);
             }
         }
 

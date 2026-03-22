@@ -40,6 +40,13 @@ app.use("/api/v1/server", serverResponse)
 app.use("/api/v1/dashboard", dashBoard)
 app.use("/api/v1/streamZY", searchMech)
 app.use("/api/v1/replyComment", replyCommentRouter)
+app.use((err, req, res, next) => {
+    res.status(err.statusCode || 500).json({
+        success: err.success || false,
+        message: err.message || "Internal Server Error",
+        errors: err.errors || [],
+    });
+});
 
 
 

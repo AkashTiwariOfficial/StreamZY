@@ -3,6 +3,7 @@ import videoContext from '../Context/Videos/videoContext.jsx'
 import Tooltip from './Tooltip';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiMoon, FiSun } from "react-icons/fi";
+import toast from 'react-hot-toast';
 
 
 export default function Navbar() {
@@ -39,11 +40,14 @@ export default function Navbar() {
     setMode(newMode);
     localStorage.setItem("mode", newMode)
 
-    if (localStorage.getItem("mode") === 'light') {
-      document.documentElement.classList.remove('dark')
+      if (localStorage.getItem("mode") === 'light') {
+      document.documentElement.classList.remove('dark');
+           toast.success("Enabled Light mode successfully");
     } else {
-      document.documentElement.classList.add('dark')
+      document.documentElement.classList.add('dark');
+       toast.success("Enabled Dark mode successfully");
     }
+
 
   }
 
@@ -220,7 +224,7 @@ export default function Navbar() {
                       navigate("/uploadVideo")
                       setOpenCreate(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/15"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-100 hover:dark:bg-white/15"
                   >
                     <i className="fa-regular fa-pen-to-square mr-3"></i>
                     Upload Video
@@ -231,7 +235,7 @@ export default function Navbar() {
                       navigate("/createPlaylist")
                       setOpenCreate(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/15"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-100 hover:dark:bg-white/15"
                   >
                     <i className="fa-solid fa-list-ul text-base mr-3"></i>
                     Create Playlist
@@ -281,18 +285,18 @@ export default function Navbar() {
                       </div>
                     </div>
                     <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
-                    <button onClick={() => { handleLogout(); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4 text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg"><i className="fa-solid fa-right-from-bracket mr-3"></i>
+                    <button onClick={() => { handleLogout(); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-100 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4 text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg"><i className="fa-solid fa-right-from-bracket mr-3"></i>
                       <span>Sign out</span>
                     </button>
-                    <button onClick={() => { toggleDarkMode(); }} className="flex dark:text-white/80  items-center gap-2 py-1 md:py-2 px-4 hover:bg-gray-200 hover:dark:bg-white/15  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">
+                    <button onClick={() => { toggleDarkMode(); }} className="flex dark:text-white/80  items-center gap-2 py-1 md:py-2 px-4 hover:bg-gray-100 hover:dark:bg-white/15  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">
                       <span className='mr-3'>{mode === "light" ? <FiSun /> : <FiMoon />}</span> <span >Appearance: <span className='lg:text-base ml-1'>{mode === "light" ? "Light" : "Dark"}</span></span>
                     </button>
                     <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
-                    <button onClick={() => { navigate("/settings"); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4   text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">  <i className="fa-solid fa-gear text-base mr-3"></i>
+                    <button onClick={() => { navigate("/settings"); setOpenProfile(false); }} className="flex dark:text-white/80 items-center hover:bg-gray-100 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4   text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg">  <i className="fa-solid fa-gear text-base mr-3"></i>
                       <span>Settings</span>
                     </button>
                     <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>
-                    <button onClick={() => { navigate("/about"); setOpenProfile(false); }} className="flex  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg dark:text-white/80 items-center hover:bg-gray-200 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4  mb-2">
+                    <button onClick={() => { navigate("/about"); setOpenProfile(false); }} className="flex  text-[12px] sm:text-[14px] md:text-[15px] lg:text-lg dark:text-white/80 items-center hover:bg-gray-100 hover:dark:bg-white/15 gap-2 py-1 md:py-2 px-4  mb-2">
                       <i className="fa-solid fa-circle-info text-base mr-3"></i>
                       <span>About</span>
                     </button>

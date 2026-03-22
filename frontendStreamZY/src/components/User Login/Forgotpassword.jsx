@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import videoContext from "../../Context/Videos/videoContext";
 
 
 export default function Forgotpassword() {
+
+  const Context = useContext(videoContext);
+  const { setProgress, loading, setLoading } = Context;
 
   const [step, setStep] = useState("email");
   const [usernameORemail, setusernameORemail] = useState("");
@@ -36,12 +41,15 @@ export default function Forgotpassword() {
   };
 
   const handleClick = async (e) => {
-
+    setProgress(10);
+    setLoading(true);
+    const toastId = toast.loading("Sending Otp");
 
     const body = usernameORemail.includes("@") ?
       { email: usernameORemail }
       : { username: usernameORemail }
 
+    setLoading(40);
     try {
       const response = await axios.post(`${host}/v1/users/send-otp-forgot-password`, body, {
         headers: {
@@ -49,17 +57,29 @@ export default function Forgotpassword() {
         }, timeout: 15000
       });
 
+      setLoading(60);
       if (response.data.success) {
+        setProgress(80);
+        setLoading(false);
         setStep("otp");
+        setProgress(100);
+        toast.success("Otp sent successfully", { id: toastId });
       }
 
+
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      setLoading(false);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Invalid User!", { id: toastId });
+      console.log("Error while sending otp", error.response?.data || error.message);
     }
   }
 
   const handleOtpVerification = async (e) => {
 
+    setProgress(10);
+    setLoading(true);
+    const toastId = toast.loading("Verifying Otp");
 
     const finalOtp = otp.join("").trim();
 
@@ -68,6 +88,7 @@ export default function Forgotpassword() {
       return;
     }
 
+    setLoading(40);
     const body = usernameORemail.includes("@") ?
       { email: usernameORemail, otp: finalOtp }
       : { username: usernameORemail, otp: finalOtp }
@@ -78,26 +99,37 @@ export default function Forgotpassword() {
           "Content-Type": "application/json",
         }, timeout: 15000
       });
-
+      setLoading(60);
       if (response.data.success) {
+        setProgress(80);
+        setLoading(false);
         localStorage.setItem("resetToken", response.data.data.resetToken)
         setStep("resetPassword");
+        setProgress(100);
+        toast.success("Otp verified successfully", { id: toastId });
       }
 
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      setLoading(false);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Invalid Otp!", { id: toastId });
+      console.log("Error while verifing otp", error.response?.data || error.message);
     }
   }
 
 
   const handleChangePassword = async (e) => {
 
+    setProgress(10);
+    setLoading(true);
+    const toastId = toast.loading("Changing Password");
 
     const body = usernameORemail.includes("@") ?
       { email: usernameORemail, newPassword: password }
       : { username: usernameORemail, newPassword: password }
 
     try {
+      setProgress(40);
       if (password === confirmPassword) {
 
         const response = await axios.post(`${host}/v1/users/request-forgot-password-reset`, body, {
@@ -109,16 +141,25 @@ export default function Forgotpassword() {
           timeout: 15000
         });
 
+        setProgress(60);
         if (response.data.success) {
+          setProgress(80);
+          setLoading(false);
           navigate("/login");
+          setProgress(100);
+          toast.success("Password Changed successfully", { id: toastId });
         }
 
       } else {
-        console.log("Password did not match")
+        toast.error(error?.response?.data?.message || "Password did not match!", { id: toastId });
+        console.log("Password did not match");
       }
 
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      setLoading(false);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Password Not changed! Try Again!", { id: toastId });
+      console.log("Error while changing password!", error.response?.data || error.message);
     }
 
   }
@@ -165,9 +206,10 @@ export default function Forgotpassword() {
 
                 <button
                   type="submit"
+                  disabled={loading || !usernameORemail}
                   className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all"
                 >
-                  Send OTP
+                    { loading ? "Sending otp" : "Send OTP"}
                 </button>
               </div>
             </form>
@@ -208,26 +250,27 @@ export default function Forgotpassword() {
 
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-all mb-4"
               >
-                Verify OTP
+                { loading ? "Verifying Otp" : "Verify OTP"}
               </button>
-               </form>
+            </form>
 
-              <div className="text-center text-sm dark:text-gray-300 text-gray-700">
-                <span className="opacity-70">Didn't receive OTP?</span>
-                <br />
-                <div>
-                  {timeLeft > 0 ? (
-                    <button disabled className="opacity-50 cursor-not-allowed text-blue-500 hover:underline mt-1">
-                      Resend OTP in {minutes}:{seconds}
-                    </button>
-                  ) : (
-                    <button className="text-blue-500 hover:underline mt-1" onClick={(e) => { e.preventDefault(); setTimeLeft(600); handleClick(); }}>Resend OTP</button>
-                  )}
-                </div>
+            <div className="text-center text-sm dark:text-gray-300 text-gray-700">
+              <span className="opacity-70">Didn't receive OTP?</span>
+              <br />
+              <div>
+                {timeLeft > 0 ? (
+                  <button disabled className="opacity-50 cursor-not-allowed text-blue-500 hover:underline mt-1">
+                    Resend OTP in {minutes}:{seconds}
+                  </button>
+                ) : (
+                  <button className="text-blue-500 hover:underline mt-1" onClick={(e) => { e.preventDefault(); setTimeLeft(600); handleClick(); }}>Resend OTP</button>
+                )}
               </div>
-           
+            </div>
+
           </>
         )}
 
@@ -269,9 +312,10 @@ export default function Forgotpassword() {
 
                 <button
                   type="submit"
+                  disabled={loading || !password || !confirmPassword}
                   className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all"
                 >
-                  Change
+                       { loading ? "Changing password" : "Change"}
                 </button>
               </div>
             </form>

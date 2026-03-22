@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Camera } from "lucide-react";
 import videoContext from "../../Context/Videos/videoContext";
 import { useContext } from "react";
+import toast from "react-hot-toast";
 
 
 export default function UpdatePlaylist() {
@@ -11,13 +12,12 @@ export default function UpdatePlaylist() {
     const navigate = useNavigate();
 
     const Context = useContext(videoContext);
-    const { host } = Context;
+    const { host, setProgress, loading, setLoading } = Context;
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [thumbnailFile, setThumbnailFile] = useState(null);
     const [preview, setPreview] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [name, setName] = useState("");
     const [playList, setPlayList] = useState("");
     const [isPublic, setIsPublic] = useState(null);
@@ -25,25 +25,31 @@ export default function UpdatePlaylist() {
 
     useEffect(() => {
         const fetchPlaylist = async () => {
+            setProgress(10);
             try {
+                setProgress(40);
                 const response = await axios.get(`${host}/v1/playlists/fetch-playlist/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                     },
                     withCredentials: true,
                     timeout: 6000000
-                });
+                }); 
 
+                setProgress(60);
                 if (response.data.success) {
+                    setProgress(80);
                     setDescription(response.data.data?.description);
                     setName(response.data.data?.name);
                     setTitle(response.data.data?.title);
                     setPreview(response.data.data?.thumbnail);
                     setPlayList(response.data.data);
                     setIsPublic(response.data.data?.public);
-                    console.log(response.data.data)
+                    setProgress(100);
                 }
             } catch (error) {
+                setProgress(100);
+                toast.error("Internal Server Error!");
                 console.log("Error while fetching playlist", error.response?.data || error.message);
             }
         };
@@ -53,10 +59,12 @@ export default function UpdatePlaylist() {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+        setProgress(10);
         setLoading(true);
+        const toastId = toast.loading("Uploading Playlist ....");
 
         try {
-
+            setProgress(30);
             const formData = new FormData();
             if (title !== playList.title) {
                 formData.append("title", title);
@@ -74,6 +82,7 @@ export default function UpdatePlaylist() {
                 formData.append("isPublic", isPublic);
             }
 
+
             const response = await axios.patch(`${host}/v1/playlists/update/${id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -81,15 +90,22 @@ export default function UpdatePlaylist() {
                 withCredentials: true,
                 timeout: 6000000
             });
+
+            setProgress(60);
             if (response.data.success) {
+                setProgress(80);
+                setLoading(false);
                 navigate("/playlists");
+                setProgress(100);
+                toast.success("Playlist updated sucessfully", { id: toastId });
             }
 
         } catch (error) {
+               setLoading(false);
+            setProgress(100);
+            toast.error("Internal Server Error!", { id: toastId });
             console.log("Error while updating playlist", error.response?.data || error.message);
-        } finally {
-            setLoading(false);
-        }
+        } 
     };
 
 
@@ -118,7 +134,7 @@ export default function UpdatePlaylist() {
                             className="w-1/5 py-2 rounded-xl border-[1px] 
               border-gray-300 dark:border-gray-600
               text-gray-700 dark:text-gray-300
-              hover:bg-gray-100 dark:hover:bg-[#2a2a2a]
+              hover:bg-gray-300 dark:hover:bg-[#2a2a2a]
               transition"
                         >
                             Reset
@@ -256,7 +272,7 @@ export default function UpdatePlaylist() {
                                 className={`text-sm font-semibold transition-colors duration-300
                                            ${isPublic
                                         ? "text-green-600 dark:text-green-400"
-                                              : "text-gray-600 dark:text-gray-400"}
+                                        : "text-gray-600 dark:text-gray-400"}
                                          `}
                             >
                                 {isPublic ? "Public" : "Private"}
@@ -266,7 +282,7 @@ export default function UpdatePlaylist() {
                             <button
                                 type="button"
                                 disabled={disabled}
-                                onClick={() => {setIsPublic(!isPublic)}}
+                                onClick={() => { setIsPublic(!isPublic) }}
                                 className={`
         relative w-14 h-8 flex items-center rounded-full p-1
         transition-all duration-300 ease-in-out
@@ -277,7 +293,7 @@ export default function UpdatePlaylist() {
                                         ? "opacity-50 cursor-not-allowed"
                                         : "cursor-pointer hover:scale-105 active:scale-95"}
                                     `}
-                                >
+                            >
                                 <span
                                     className={`
                                w-6 h-6 bg-white dark:bg-gray-200 rounded-full shadow-md

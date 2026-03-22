@@ -202,7 +202,7 @@ export default function SideVideosItems(props) {
   const handleFindPlaylist = async () => {
     try {
 
-      const response = await axios.get(`${host}/v1/playlists/fetch-playlist`, {
+      const response = await axios.get(`${host}/v1/playlists/fetch-user-playlist/${currUser._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

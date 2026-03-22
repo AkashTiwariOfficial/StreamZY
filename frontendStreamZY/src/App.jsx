@@ -56,20 +56,21 @@ function App() {
       <div>
         <button onClick={notify} className='d-none'>This is a toast</button>
         <Toaster
+          position="bottom-right"
           toastOptions={{
+           success: {duration: 3000},
+           error: {duration: 3000},
+           loading: {duration: Infinity},
             style: {
-                    background: "#ffffff",
-                    color: "#0f172a",  
-                    border: "1px solid #303030",
-                    duration: 1000,
-                    position: "bottom-right"
+              background: "#ffffff",
+              color: "#0f172a",
             },
-            dark:  {
-                style: {
-                    background: "rgba(31, 41, 55, 0.8)",
-                    color: "#f9fafb",
-                    backdropFilter: "blur(8px)"
-                },
+            dark: {
+              style: {
+                background: "rgba(31, 41, 55, 0.8)",
+                color: "#f9fafb",
+                backdropFilter: "blur(8px)",
+              },
             },
           }}
         />

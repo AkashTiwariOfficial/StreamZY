@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx'
 import axios from "axios"
+import toast from "react-hot-toast";
 
 export default function Settings() {
 
   const Context = useContext(videoContext);
-  const { currUser } = Context;
+  const { currUser, setProgress, loading, setLoading } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
   const [fields, setFields] = useState({
     email: currUser.email,
@@ -29,10 +30,14 @@ export default function Settings() {
     const file = e.target.files[0];
     if (!file) return;
 
+    setProgress(10);
+    setLoading(true);
+    const toastId = toast.loading("Updating Avatar ....");
+
     const body = {
       avatar: file
     }
-
+    setProgress(40);
     try {
 
       const response = await axios.patch(`${host}/v1/users/avatar`, body, {
@@ -44,18 +49,27 @@ export default function Settings() {
         timeout: 150000
       });
 
+      setProgress(60);
       if (response.data.success) {
+        setProgress(70);
         const newAvatar = response.data.data.avatar
         if (localStorage.getItem("user")) {
-          const newUser = JSON.parse(localStorage.getItem("user"))
+          const newUser = JSON.parse(localStorage.getItem("user"));
           newUser.avatar = newAvatar
           localStorage.setItem("user", JSON.stringify(newUser));
         }
-        setAvatar(newAvatar)
+        setProgress(80);
+        setLoading(false);
+        setAvatar(newAvatar);
+        setProgress(100);
+        toast.success("Avatar Updated successfully", { id: toastId });
       }
 
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      setLoading(false);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Internal Server Error!", { id: toastId });
+      console.log("Error while changing Avatar", error.response?.data || error.message);
     }
 
   };
@@ -67,9 +81,11 @@ export default function Settings() {
     localStorage.setItem("mode", newMode)
 
     if (localStorage.getItem("mode") === 'light') {
-      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.remove('dark');
+      toast.success("Enabled Light mode successfully");
     } else {
-      document.documentElement.classList.add('dark')
+      document.documentElement.classList.add('dark');
+      toast.success("Enabled Dark mode successfully");
     }
 
   }
@@ -85,8 +101,11 @@ export default function Settings() {
 
   const handleToken = async () => {
 
+    setProgress(10);
+
     try {
 
+      setProgress(40);
       const response = await axios.post(`${host}/v1/users/refresh-token`, {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -96,21 +115,27 @@ export default function Settings() {
         timeout: 15000
       });
 
+      setProgress(60);
       if (response.data.success) {
-        localStorage.setItem("accessToken", response.data.data.accessToken)
-        localStorage.setItem("refreshToken", response.data.data.refreshToken)
+        setProgress(80);
+        localStorage.setItem("accessToken", response.data.data.accessToken);
+        localStorage.setItem("refreshToken", response.data.data.refreshToken);
+        setProgress(100);
+        toast.success("New Refresh Token Generated sucessfully");
       }
 
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Internal Server Error!");
+      console.log("Error while changing refreshToken", error.response?.data || error.message);
     }
   }
 
 
   const handleDeleteAccount = async () => {
-
+    setProgress(10);
     try {
-
+      setProgress(40);
       const response = await axios.delete(`${host}/v1/users/delete`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -118,15 +143,20 @@ export default function Settings() {
         withCredentials: true,
         timeout: 15000
       });
-
+      setProgress(60);
       if (response.data.success) {
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("refreshToken")
-        localStorage.removeItem("user")
-        navigate("/")
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        setProgress(80);
+        navigate("/");
+        setProgress(100);
+        toast.success("Account deleted successfully");
       }
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Internal Server Error!");
+      console.log("Error while deleting user account!", error.response?.data || error.message);
     }
   }
 
@@ -134,8 +164,9 @@ export default function Settings() {
     e.preventDefault();
     setEditing(null);
 
-    try {
 
+    try {
+      setProgress(40);
       const changedFields = {};
 
       if (currUser.email != fields.email) {
@@ -157,26 +188,33 @@ export default function Settings() {
         withCredentials: true,
         timeout: 150000
       });
-
+      setProgress(60);
       if (response.data.success) {
-        localStorage.setItem("user", JSON.stringify(response.data.data))
+        localStorage.setItem("user", JSON.stringify(response.data.data));
+        setProgress(100);
+        toast.success("Account details Updated successfully");
       }
 
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Internal Server Error!");
+      console.log("Error while while updating account details", error.response?.data || error.message);
     }
   }
 
 
   const handleCoverImageChange = async (e) => {
-   e.preventDefault();
+    e.preventDefault();
     const file = e.target.files[0];
     if (!file) return;
-
+    setProgress(10);
+    setLoading(true);
+    const toastId = toast.loading("Updating Cover-image ....");
     const body = {
       coverImage: file
     }
 
+    setProgress(40);
     try {
 
       const response = await axios.patch(`${host}/v1/users/cover-image`, body, {
@@ -187,22 +225,30 @@ export default function Settings() {
         withCredentials: true,
         timeout: 150000
       });
-
+      setProgress(60);
       if (response.data.success) {
+        setProgress(70);
         const newCoverImage = response.data.data.coverImage
         if (localStorage.getItem("user")) {
-          const newUser = JSON.parse(localStorage.getItem("user"))
+          const newUser = JSON.parse(localStorage.getItem("user"));
           newUser.coverImage = newCoverImage
           localStorage.setItem("user", JSON.stringify(newUser));
         }
-        setCoverImage(newCoverImage)
+        setProgress(80);
+        setLoading(false);
+        setCoverImage(newCoverImage);
+        setProgress(100);
+        toast.success("Cove-Image Updated successfully", { id: toastId });
       }
 
     } catch (error) {
+      setLoading(false);
+      setProgress(100);
+      toast.error(error?.response?.data?.message || "Internal Server Error!", { id: toastId });
       console.log("Error while changing cover-image", error.response?.data || error.message);
     }
 
-  
+
   }
 
   return (
@@ -220,7 +266,7 @@ export default function Settings() {
             className="w-28 h-28 rounded-full object-cover border-4 border-gray-300 shadow"
           />
           <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Change Avatar
+             {loading ? "Updating Avatar" : " Change Avatar" }
             <input type="file" className="hidden" accept="image/*" onChange={handleAvatar} />
           </label>
         </div>
@@ -321,24 +367,24 @@ export default function Settings() {
           </div>
         </div>
 
-       
-          <div className="space-y-5">
+
+        <div className="space-y-5">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 border-l-4 pl-3 border-blue-600">
             Cover-Image
           </h2>
 
           <div className="bg-white/90 dark:bg-white/10 p-6 rounded-xl space-y-4 border-[1px] border-gray-200/40 dark:border-white/10">
-           <div className="flex items-center space-y-4 border-black/20 gap-5">
-          <img
-            src={coverImage}
-            className="w-48 h-28 rounded-3xl object-cover border-2 border-gray-300 shadow"
-          />
-          <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Cover-Image
-            <input type="file" className="hidden" accept="image/*" onChange={handleCoverImageChange} />
-          </label>
-        </div>
-         
+            <div className="flex items-center space-y-4 border-black/20 gap-5">
+              <img
+                src={coverImage}
+                className="w-48 h-28 rounded-3xl object-cover border-2 border-gray-300 shadow"
+              />
+              <label  className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                {loading ? "Updating" : "Cover-Image" }
+                <input type="file" className="hidden" accept="image/*" onChange={handleCoverImageChange} />
+              </label>
+            </div>
+
           </div>
         </div>
 
@@ -353,7 +399,7 @@ export default function Settings() {
               className="flex items-center gap-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-800"
               onClick={() => toggleDarkMode()}
             >
-             {mode === "light" ?  <FiSun /> :  <FiMoon />} Toggle Theme
+              {mode === "light" ? <FiSun /> : <FiMoon />} Toggle Theme
             </button>
           </div>
         </div>

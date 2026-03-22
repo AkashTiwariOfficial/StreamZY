@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react'
 import videoContext from "../../Context/Videos/videoContext";
+import toast from "react-hot-toast";
 
 export default function ChangePassword() {
 
@@ -18,7 +19,7 @@ export default function ChangePassword() {
     const navigate = useNavigate();
 
     const Context = useContext(videoContext);
-    const { user } = Context;
+    const { user, loading, setLoading, setProgress } = Context;
 
     const handleOtpChange = (value, index) => {
         if (value.length > 1) return;
@@ -27,7 +28,7 @@ export default function ChangePassword() {
         setOtp(copy);
     };
 
-      useEffect(() => {
+    useEffect(() => {
         if (timeLeft <= 0) return;
 
         const interval = setInterval(() => {
@@ -41,14 +42,15 @@ export default function ChangePassword() {
     const seconds = String(timeLeft % 60).padStart(2, "0");
 
     const handleClick = async (e) => {
-
-
-        console.log(user)
+        setProgress(10);
+        setLoading(true);
+        const toastId = toast.loading("Sending Otp");
 
         const body = usernameORemail.includes("@") ?
             { email: usernameORemail }
             : { username: usernameORemail }
 
+        setProgress(40);
         try {
             const response = await axios.post(`${host}/v1/users/send-otp`, body, {
                 headers: {
@@ -59,17 +61,28 @@ export default function ChangePassword() {
                 timeout: 15000
             });
 
+            setProgress(60);
             if (response.data.success) {
+                setProgress(80);
+                setLoading(false);
                 setStep("otp");
+                setProgress(100);
+                toast.success("Otp sent successfully", { id: toastId });
             }
 
         } catch (error) {
-            console.log("Error while fetching vidoes", error.response?.data || error.message);
+            setLoading(false);
+            setProgress(100);
+            toast.error(error?.response?.data?.message || "Invalid User!", { id: toastId });
+            console.log("Error while sending otp", error.response?.data || error.message);
         }
     }
 
     const handleOtpVerification = async (e) => {
 
+        setProgress(10);
+        setLoading(true);
+        const toastId = toast.loading("Verifying Otp");
         const finalOtp = otp.join("").trim();
 
         if (finalOtp.length !== 6) {
@@ -77,7 +90,7 @@ export default function ChangePassword() {
             return;
         }
 
-
+        setProgress(40);
         try {
             const response = await axios.patch(`${host}/v1/users/verify-otp`, { otp: finalOtp }, {
                 headers: {
@@ -88,25 +101,36 @@ export default function ChangePassword() {
                 timeout: 15000
             });
 
+            setProgress(60);
             if (response.data.success) {
+                setProgress(80);
+                setLoading(false);
                 localStorage.setItem("resetToken", response.data.data.resetToken)
                 setStep("resetPassword");
+                setProgress(100);
+                toast.success("Otp verified successfully", { id: toastId });
             }
 
         } catch (error) {
-            console.log("Error while fetching vidoes", error.response?.data || error.message);
+            setLoading(false);
+            setProgress(100);
+            toast.error(error?.response?.data?.message || "Invalid Otp!", { id: toastId });
+            console.log("Error while verifing otp", error.response?.data || error.message);
         }
     }
 
 
     const handleChangePassword = async (e) => {
 
-
+        setProgress(10);
+        setLoading(true);
+        const toastId = toast.loading("Changing Password");
         const body =
             { oldPassword: oldPassword, newPassword: password }
 
 
         try {
+            setProgress(40);
             if (password === confirmPassword) {
 
                 const response = await axios.post(`${host}/v1/users/request-password-reset`, body, {
@@ -117,17 +141,25 @@ export default function ChangePassword() {
                     withCredentials: true,
                     timeout: 15000
                 });
-
+                setProgress(60);
                 if (response.data.success) {
+                    setProgress(80);
+                    setLoading(false);
                     navigate("/home");
+                    setProgress(100);
+                    toast.success("Password Changed successfully", { id: toastId });
                 }
 
             } else {
+                toast.error(error?.response?.data?.message || "Password did not match!", { id: toastId });
                 console.log("Password did not match")
             }
 
         } catch (error) {
-            console.log("Error while fetching vidoes", error.response?.data || error.message);
+            setLoading(false);
+            setProgress(100);
+            toast.error(error?.response?.data?.message || "Password Not changed! Try Again!", { id: toastId });
+            console.log("Error while changing password!", error.response?.data || error.message);
         }
 
     }
@@ -136,7 +168,6 @@ export default function ChangePassword() {
         e.preventDefault();
 
         const { name, value } = e.target;
-
 
         if (name === "password") setPassword(value);
         if (name === "confirmPassword") setConfirmPassword(value);
@@ -175,9 +206,10 @@ export default function ChangePassword() {
 
                                 <button
                                     type="submit"
+                                    disabled={loading || !usernameORemail}
                                     className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all"
                                 >
-                                    Send OTP
+                                  { loading ? "Sending otp" : "Send OTP"}
                                 </button>
                             </div>
                         </form>
@@ -210,10 +242,11 @@ export default function ChangePassword() {
                             </div>
 
                             <button
+                            disabled={loading}
                                 type="submit"
                                 className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-all mb-4"
                             >
-                                Verify OTP
+                              { loading ? "Verifying Otp" : "Verify OTP"}
                             </button>
                         </form>
                         <div className="text-center text-sm dark:text-gray-300 text-gray-700">
@@ -285,9 +318,10 @@ export default function ChangePassword() {
 
                                 <button
                                     type="submit"
+                                    disabled={loading || !oldPassword || !password || !confirmPassword}
                                     className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all"
                                 >
-                                    Change
+                                 { loading ? "Changing password" : "Change"}
                                 </button>
                             </div>
                         </form>

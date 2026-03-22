@@ -22,9 +22,10 @@ export default function SignUp() {
     e.preventDefault();
     setProgress(15);
     setLoading(true);
-    const toastId = toast.loading("Logging In", { position: "bottom-center"});
+    const toastId = toast.loading("Creating Account");
 
     try {
+
       setProgress(40);
       const { fullName, username, email, password } = signupfields;
 
@@ -47,24 +48,23 @@ export default function SignUp() {
         }, timeout: 95000
       })
 
-
       if (response.data.success) {
-        setLoading(false);
         const userDetails = response.data.data.userCreated;
         localStorage.setItem("accessToken", response.data.data.accessToken);
         localStorage.setItem("refreshToken", response.data.data.refreshToken);
         localStorage.setItem("user", JSON.stringify(userDetails));
         localStorage.setItem("timeofAT", Date.now());
         setProgress(80);
+        setLoading(false);
         navigate("/home");
         setProgress(100);
-        toast.success("Signed Up Successfully", {id: toastId})
+        toast.success("Account Created Successfully", { id: toastId });
       }
     } catch (error) {
       setLoading(false);
       setProgress(100);
-      toast.error("Signed Up failed!", {id: toastId});
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      toast.error(error?.response?.data?.message || "Signed Up failed!", { id: toastId});
+      console.log("Error while Signing up", error.response?.data || error.message);
     }
   }
 
@@ -200,9 +200,10 @@ export default function SignUp() {
 
             <button
               type="submit"
+              disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-blue-500/40 transition-all duration-300"
             >
-              Sign Up
+              {loading ? "Signing Up...." : "Sign Up"}
             </button>
           </form>
 

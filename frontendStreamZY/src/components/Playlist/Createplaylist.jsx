@@ -4,6 +4,7 @@ import videoContext from "../../Context/Videos/videoContext";
 import axios from 'axios';
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Createplaylist() {
     const [playlistName, setPlaylistName] = useState("");
@@ -12,16 +13,19 @@ export default function Createplaylist() {
     const [thumbnail, setThumbnail] = useState("");
     const [thumbnailPrev, setThumbnailPrev] = useState("");
     const [isPublic, setIsPublic] = useState(false);
-    const disabled = false;
+
 
     const Context = useContext(videoContext);
-    const { host } = Context;
+    const { host, setProgress, loading, setLoading } = Context;
 
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+        setProgress(10);
+        setLoading(true);
+        const toastId = toast.loading("Creating Playlist ....");
+
         const body = {
             name: playlistName,
             title: title,
@@ -31,6 +35,7 @@ export default function Createplaylist() {
         };
 
         //if no  "Content-Type": "multipart/form-data", then use const formSata = new formData();
+        setProgress(40);
         try {
             const response = await axios.post(`${host}/v1/playlists/create-playlist`, body, {
                 headers: {
@@ -41,11 +46,19 @@ export default function Createplaylist() {
                 timeout: 6000000
             });
 
+            setProgress(60);
             if (response.data.success) {
+                setProgress(80);
+                setLoading(false);
                 navigate(-1);
+                setProgress(100);
+                toast.success("Playlist created sucessfully", { id: toastId });
             }
         } catch (error) {
-            console.log("Error while fetching vidoes", error.response?.data || error.message);
+            setLoading(false);
+            setProgress(100);
+            toast.error("Internal Server Error!", { id: toastId });
+            console.log("Error while creating playlist", error.response?.data || error.message);
         }
     }
 
@@ -75,7 +88,7 @@ export default function Createplaylist() {
                         className="w-1/5 py-2 rounded-xl border-[1px] 
               border-gray-300 dark:border-gray-600
               text-gray-700 dark:text-gray-300
-              hover:bg-gray-100 dark:hover:bg-[#2a2a2a]
+              hover:bg-gray-300 dark:hover:bg-[#2a2a2a]
               transition"
                     >
                         Reset
@@ -203,10 +216,10 @@ export default function Createplaylist() {
                                 {isPublic ? "Public" : "Private"}
                             </span>
 
-                           
+
                             <button
                                 type="button"
-                                disabled={disabled}
+                                disabled={loading}
                                 onClick={() => setIsPublic(!isPublic)}
                                 className={`
         relative w-14 h-8 flex items-center rounded-full p-1
@@ -214,7 +227,7 @@ export default function Createplaylist() {
         ${isPublic
                                         ? "bg-green-500 dark:bg-green-600"
                                         : "bg-gray-300 dark:bg-gray-600"}
-        ${disabled
+        ${loading
                                         ? "opacity-50 cursor-not-allowed"
                                         : "cursor-pointer hover:scale-105 active:scale-95"}
       `}
@@ -248,6 +261,7 @@ export default function Createplaylist() {
 
                         <button
                             type="submit"
+                            disabled={loading || !playlistName || !description || !title || !thumbnail}
                             className="flex items-center gap-2 px-6 py-2 rounded-xl 
               bg-blue-600 text-white 
               hover:bg-blue-700 
@@ -256,7 +270,7 @@ export default function Createplaylist() {
               transition-all duration-300 shadow-md"
                         >
                             <Save size={16} />
-                            Create
+                            {loading ? "Creating ...." : "Create"}
                         </button>
 
                     </div>

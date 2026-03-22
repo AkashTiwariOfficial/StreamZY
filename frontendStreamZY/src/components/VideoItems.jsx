@@ -16,7 +16,7 @@ export default function VideoItems(props) {
   const [subMenu, setSubMenu] = useState(false);
   const [playlist, setPlayList] = useState([]);
   const Context = useContext(videoContext);
-  const { timeAgo } = Context;
+  const { timeAgo, currUser } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function VideoItems(props) {
   const handleFindPlaylist = async () => {
     try {
 
-      const response = await axios.get(`${host}/v1/playlists/fetch-playlist`, {
+      const response = await axios.get(`${host}/v1/playlists/fetch-user-playlist/${currUser._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
