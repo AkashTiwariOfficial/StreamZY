@@ -93,26 +93,55 @@ export default function Yourprofile() {
   }
 
 
+  const fetchPlayList = async () => {
+    if (!currUser?._id) {
+      return;
+    }
+    try {
+
+      const response = await axios.get(`${host}/v1/playlists/fetch-user-playlist/${currUser._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        setPlaylist(response.data.data);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+  }
+
+
   useEffect(() => {
 
     setProgress(10);
     setLoading(true);
-    try {
-      fetchMyVideos();
-      setProgress(40);
-      fetchUserWatchHistory();
-      setProgress(70);
-      fetchLikedVideos();
-      setProgress(80);
-      setLoading(false);
-      setProgress(100);
-    } catch (error) {
-      setLoading(false);
-      setProgress(100);
-      toast.error("Internal Server Error!");
+    const fetchData = async () => {
+      try {
+        await fetchMyVideos();
+        setProgress(40);
+        await fetchUserWatchHistory();
+        setProgress(50);
+        await fetchPlayList();
+        setProgress(70);
+        await fetchLikedVideos();
+        setProgress(80);
+        setLoading(false);
+        setProgress(100);
+      } catch (error) {
+        setLoading(false);
+        setProgress(100);
+        toast.error("Internal Server Error!");
+      }
     }
+    fetchData();
 
-  }, [])
+  }, [currUser.username, currUser._id])
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -126,34 +155,6 @@ export default function Yourprofile() {
       navigate(`/video/${category}/${_id}`);
     }
   }
-
-  useEffect(() => {
-    const fetchPlayList = async () => {
-      if (!currUser?._id) {
-        return;
-      }
-      try {
-
-        const response = await axios.get(`${host}/v1/playlists/fetch-user-playlist/${currUser._id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
-
-        if (response.data.success) {
-          setPlaylist(response.data.data);
-        }
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
-    }
-
-    fetchPlayList();
-
-  }, [])
 
   const removeLikedVideos = (_id_) => {
     setLike(prev =>
