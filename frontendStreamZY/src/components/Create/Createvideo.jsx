@@ -60,7 +60,7 @@ export default function Createvideo() {
         },
         withCredentials: true,
         timeout: 6000000
-      });
+      }); 
 
       if (response.data.success) {
         setProgress(80);

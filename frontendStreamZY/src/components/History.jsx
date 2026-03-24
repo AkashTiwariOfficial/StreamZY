@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import SideVideosItems from './SideVideosItems'
 import axios from 'axios';
+import videoContext from '../Context/Videos/videoContext';
+import toast from 'react-hot-toast';
 
 
 
 export default function History() {
 
-const [watVideo, setWAtVideo] = useState([]);
-const host = import.meta.env.VITE_HOST_LINK;
+  const [watVideo, setWAtVideo] = useState([]);
+
+  const Context = useContext(videoContext);
+  const { host, setProgress, loading, setLoading } = Context;
 
   const removeVideos = (_id_) => {
     setWAtVideo(prev =>
@@ -15,12 +19,46 @@ const host = import.meta.env.VITE_HOST_LINK;
     );
   };
 
-useEffect(() => {
+  useEffect(() => {
 
-  const fetchUserWatchHistory = async () => {
+    setProgress(10);
+    setLoading(true);
+    const fetchUserWatchHistory = async () => {
+
+      setProgress(30);
+      try {
+        setProgress(50);
+        const response = await axios.get(`${host}/v1/users/watch-history`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          withCredentials: true,
+          timeout: 150000
+        });
+        setProgress(70);
+        if (response.data.success) {
+          setProgress(80);
+          setLoading(false);
+          setWAtVideo(response.data.data);
+          setProgress(100);
+        }
+
+      } catch (error) {
+        setLoading(false);
+        setProgress(100);
+        toast.error("Internal Server Error!");
+        console.log("Error while fetching ", error.response?.data || error.message);
+      }
+    }
+
+    fetchUserWatchHistory();
+
+  }, [])
+
+  const handleHistory = async () => {
 
     try {
-      const response = await axios.get(`${host}/v1/users/watch-history`, {
+      const response = await axios.patch(`${host}/v1/videos/delete-watch-History-videos`, {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -29,77 +67,57 @@ useEffect(() => {
       });
 
       if (response.data.success) {
-        setWAtVideo(response.data.data);
+        setWAtVideo([]);
+        toast.success("Watch History cleared");
       }
 
     } catch (error) {
-      console.log("Error while fetching vidoes", error.response?.data || error.message);
+      toast.error("Internal Server Error!");
+      console.log("Error while fetching watch history", error.response?.data || error.message);
     }
   }
 
-  fetchUserWatchHistory();
-
-}, [])
-
-const handleHistory = async () => {
-  
-      try {
-        const response = await axios.patch(`${host}/v1/videos/delete-watch-History-videos`, {},  {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
-
-        if (response.data.success) {
-         setWAtVideo([]);
-        }
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
-}
-
   return (
-<div>
-  <div className="flex flex-col lg:ml-20 ml-1 px-3 grid-cols-1 max-w-max overflow-x-hidden gap-2">
+    <div>
+      {!loading && (
+        <div className="flex flex-col lg:ml-20 ml-1 px-3 grid-cols-1 max-w-max overflow-x-hidden gap-2">
 
-    {/* Header */}
-    <div className="flex items-center justify-between ml-6 my-2 w-full">
-      <h1 className="text-3xl font-[700] text-black/70 dark:text-white/100">
-        Watch History
-      </h1>
+          {/* Header */}
+          <div className="flex items-center justify-between ml-6 my-2 w-full">
+            <h1 className="text-3xl font-[700] text-black/70 dark:text-white/100">
+              Watch History
+            </h1>
 
-      <button
-        onClick={handleHistory}
-        disabled={watVideo.length === 0}
-        className="text-sm px-4 py-2 rounded-lg bg-red-700 text-white hover:bg-red-500 transition mx-4"
-      >
-        Clear History
-      </button>
+            <button
+              onClick={handleHistory}
+              disabled={watVideo.length === 0}
+              className="text-sm px-4 py-2 rounded-lg bg-red-700 text-white hover:bg-red-500 transition mx-4"
+            >
+              Clear History
+            </button>
+          </div>
+
+          {watVideo.length > 0 ? (
+            watVideo.map((video) => (
+              <SideVideosItems
+                key={video._id}
+                video={video}
+                removeVideos={removeVideos}
+              />
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-medium">No watch history yet</p>
+              <p className="text-sm mt-1">
+                Start watching videos and they’ll show up here 📺
+              </p>
+            </div>
+          )}
+
+
+        </div>
+      )}
     </div>
-
-{watVideo.length > 0 ? (
-  watVideo.map((video) => (
-    <SideVideosItems
-      key={video._id}
-      video={video}
-      removeVideos={removeVideos}
-    />
-  ))
-) : (
-  <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
-    <p className="text-lg font-medium">No watch history yet</p>
-    <p className="text-sm mt-1">
-      Start watching videos and they’ll show up here 📺
-    </p>
-  </div>
-)}
-
-
-  </div>
-</div>
 
   )
 }
