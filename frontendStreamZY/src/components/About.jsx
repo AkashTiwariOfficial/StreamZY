@@ -2,7 +2,7 @@ import React from "react";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-slate-200 dark:bg-[#121212] flex justify-center px-6 py-12">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#121212] flex justify-center px-6 py-12">
       <div className="max-w-3xl bg-white/10 dark:bg-white/5 dark:text-white/90 shadow-lg rounded-2xl p-8 space-y-10">
 
         <h1 className="text-4xl font-bold tracking-tight">About StreamZY</h1>

@@ -31,6 +31,7 @@ export default function UserProfile() {
 
             if (response.data.success) {
                 setDetails(response.data.data);
+                console.log(response.data.data);
             }
 
         } catch (error) {
@@ -136,7 +137,7 @@ export default function UserProfile() {
                             </div>
                             <div className="flex flex-col gap-2 w-auto mx-4 px-3 flex-wrap my-4">
                                 <span className="text-4xl dark:text-white/90 font-[700]">{details?.fullName}</span>
-                                <span className="dark:text-white/80 text-base font-[400]">{details.username} • <span className='text-white/50'>{details?.subscribersCount} subscribers • {details?.totalVideo} Videos</span></span>
+                                <span className="dark:text-white/80 text-base font-[400]">{details.username} • <span className='dark:text-white/50'>{details?.subscribersCount} subscribers • {details?.totalVideo} Videos</span></span>
                                 <div className="flex gap-5 mt-2">
                                     {dosubscribed && <div className="flex gap-[12px] h-max text-sm dark:text-white rounded-3xl px-3 py-2 bg-slate-200 dark:bg-[#1f1f1f] hover:bg-slate-300 hover:dark:bg-gray-500/50 items-center">
                                         <i className="fa fa-bell">

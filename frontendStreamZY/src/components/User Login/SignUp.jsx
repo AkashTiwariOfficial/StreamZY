@@ -9,7 +9,7 @@ export default function SignUp() {
 
   const navigate = useNavigate();
   const Context = useContext(videoContext);
-  const { setProgress, setLoading, loading } = Context;
+  const { setLoading, loading } = Context;
   const host = import.meta.env.VITE_HOST_LINK;
 
   const [signupfields, setSignupfields] = useState({ fullName: "", username: "", email: "", password: "" });
@@ -20,13 +20,11 @@ export default function SignUp() {
 
   const handleResgister = async (e) => {
     e.preventDefault();
-    setProgress(15);
     setLoading(true);
     const toastId = toast.loading("Creating Account");
 
     try {
 
-      setProgress(40);
       const { fullName, username, email, password } = signupfields;
 
       const body = {
@@ -41,7 +39,6 @@ export default function SignUp() {
         body.coverImage = coverImage
       }
 
-      setProgress(60);
       const response = await axios.post(`${host}/v1/users/register`, body, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -54,15 +51,12 @@ export default function SignUp() {
         localStorage.setItem("refreshToken", response.data.data.refreshToken);
         localStorage.setItem("user", JSON.stringify(userDetails));
         localStorage.setItem("timeofAT", Date.now());
-        setProgress(80);
         setLoading(false);
         navigate("/home");
-        setProgress(100);
         toast.success("Account Created Successfully", { id: toastId });
       }
     } catch (error) {
       setLoading(false);
-      setProgress(100);
       toast.error(error?.response?.data?.message || "Signed Up failed!", { id: toastId});
       console.log("Error while Signing up", error.response?.data || error.message);
     }
