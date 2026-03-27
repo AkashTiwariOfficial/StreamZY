@@ -11,7 +11,7 @@ export default function YourPlaylist() {
   const [open, setOpen] = useState(false);
   const [playList, setPlayList] = useState([]);
   const Context = useContext(videoContext);
-  const { currUser, host, setProgress } = Context;
+  const { currUser, host, setProgress, loading, setLoading } = Context;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,6 +34,7 @@ export default function YourPlaylist() {
   useEffect(() => {
     const handleOwnedPlaylist = async () => {
       setProgress(10);
+      setLoading(true);
       try {
         setProgress(30);
         const response = await axios.get(`${host}/v1/playlists/fetch-user-playlist/${currUser._id}`, {
@@ -48,10 +49,12 @@ export default function YourPlaylist() {
         if (response.data.success) {
           setProgress(80);
           setPlayList(response.data.data);
+          setLoading(false);
           setProgress(100);
         }
 
       } catch (error) {
+        setLoading(false);
         setProgress(100);
         toast.error("Internal Server Error!");
         console.log("Error while fetching owner's playlists", error.response?.data || error.message);
@@ -133,9 +136,9 @@ export default function YourPlaylist() {
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-          {playList.map((pylt) => {
+          {!loading && (playList.map((pylt) => {
             return <PlaylistItems key={pylt._id} pylt={pylt} removePlaylist={removePlaylist} />
-          })}
+          }))}
         </div>
       </div>
     </div>

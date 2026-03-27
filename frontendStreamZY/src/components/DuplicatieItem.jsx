@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function DuplicatieItem(props) {
 
@@ -63,6 +64,11 @@ export default function DuplicatieItem(props) {
 
             if (response.data.success) {
                 setSave(response.data.data);
+                if (response.data.data) {
+                    toast.success("Video Saved successfully");
+                } else {
+                    toast.success("Video unsaved");
+                }
             }
 
         } catch (error) {
@@ -98,6 +104,7 @@ export default function DuplicatieItem(props) {
 
             if (response.data.success) {
                 removeHistory(video._id);
+                toast.success("Removed from watch history");
             }
 
         } catch (error) {
@@ -123,6 +130,7 @@ export default function DuplicatieItem(props) {
 
             if (response.data.success) {
                 removeLikedVideos(video?._id);
+                   toast.success("Removed from Liked Videos");
             }
 
         } catch (error) {

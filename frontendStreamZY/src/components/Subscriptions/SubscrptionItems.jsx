@@ -39,8 +39,10 @@ export default function SubscrptionItems(props) {
             if (response.data.success) {
                 if (response.data.data == true) {
                     setsubs(true);
+                    toast.success("Channel subscribed successfully");
                 } else if (response.data.data == false) {
                     setsubs(false);
+                    toast.success("Channel unsubscribed");
                 }
             }
 

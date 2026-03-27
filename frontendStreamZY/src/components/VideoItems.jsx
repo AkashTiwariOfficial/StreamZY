@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function VideoItems(props) {
 
@@ -87,6 +88,11 @@ export default function VideoItems(props) {
 
       if (response.data.success) {
         setSave(response.data.data);
+          if (response.data.data) {
+          toast.success("Video Saved successfully");
+        } else {
+          toast.success("Video unsaved");
+        }
       }
 
     } catch (error) {
@@ -127,11 +133,12 @@ export default function VideoItems(props) {
       });
 
       if (response.data.success) {
-        alert("done saving to playlist");
+       toast.success("Video added to playlist");
       }
 
     } catch (error) {
-      console.log("Error while ading video to playlist", error.response?.data || error.message);
+      toast.error(error?.response?.data?.message || "Internal Server Error!");
+      console.log("Error while adding video to playlist", error.response?.data || error.message);
     }
 
   }
@@ -149,6 +156,7 @@ export default function VideoItems(props) {
 
       if (response.data.success) {
         removeVideos(video?._id);
+             toast.success("Video deleted successfully");
       }
 
     } catch (error) {
@@ -174,8 +182,10 @@ export default function VideoItems(props) {
           removeVideos(video?._id);
         if (response.data.data) {
           addToPublishedVideos(video);
+          toast.success("Video Published successfully");
         } else {
           addToUnPublishedVideos(video);
+                    toast.success("Video UnPublished");
         }  
       }
 
@@ -233,8 +243,8 @@ export default function VideoItems(props) {
               <i className="fa-solid fa-ellipsis-vertical text-black/80 dark:text-gray-200"></i>
             </div>
             {menu && (
-              <div ref={menuRef} className="absolute right-full mt-2 min-w-48 w-full
-                    bg-gray-200 dark:bg-black/50  border-[1px] rounded shadow-md z-50 dark:border-white/20">
+              <div ref={menuRef} className="absolute right-full top-0 text-[14px] mt-2 min-w-44 w-full
+                    bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20 py-1">
                 {location.pathname === "/you" || location.pathname === "/userChannel" ? (
                   <div
                     onClick={(e) => {
@@ -242,7 +252,7 @@ export default function VideoItems(props) {
                       handleEdit();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/10"
                   >
                     <i className="fa-regular fa-pen-to-square mr-3"></i>
                     Edit
@@ -254,7 +264,7 @@ export default function VideoItems(props) {
                       handleSave();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/10"
                   >
                     <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3`}></i>
                     Save
@@ -267,7 +277,7 @@ export default function VideoItems(props) {
                       handleDeleteVideo();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-white/10"
                   >
                     <i className="fa-solid fa-trash mr-3"></i>
                     Delete
@@ -281,7 +291,7 @@ export default function VideoItems(props) {
                       handleTogglePublish();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-white/10"
                   >
                      <i class="fa-solid fa-code-compare text-base mr-3"></i>
                     Toggle Publish
@@ -295,9 +305,9 @@ export default function VideoItems(props) {
                     setSubMenu(true);
                     handleFindPlaylist();
                   }}
-                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
+                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-white/10"
                 >
-                  <i className="fa-solid fa-list-ul text-base mr-3 "></i>
+                  <i className="fa-solid fa-list-ul mt-1 mr-3 "></i>
                   Add to Playlist
                 </div>
               </div>

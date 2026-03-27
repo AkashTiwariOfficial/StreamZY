@@ -362,7 +362,7 @@ export default function Navbar() {
               </Tooltip>
               <Tooltip text="Saved Video" width="w-1/3" margin="mt-[10px]" changes="ml-12">
                 <Link to="/saved-vidoes" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
-                  <i className="fa-solid fa-clock-rotate-left text-base"></i>
+                <i class="fa-solid fa-floppy-disk text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Saved Video</label></li>
                 </Link>
               </Tooltip>

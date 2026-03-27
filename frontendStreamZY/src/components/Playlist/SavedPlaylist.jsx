@@ -11,7 +11,7 @@ export default function SavedPlaylist() {
     const [open, setOpen] = useState(false);
     const [playList, setPlayList] = useState([]);
     const Context = useContext(videoContext);
-    const { currUser, host, setProgress } = Context;
+    const { currUser, host, setProgress, setLoading, loading } = Context;
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -34,6 +34,7 @@ export default function SavedPlaylist() {
     useEffect(() => {
         const handleOwnedPlaylist = async () => {
             setProgress(10);
+            setProgress(true);
             try {
                 setProgress(30);
                 const response = await axios.get(`${host}/v1/users/saved-playlists/${currUser?.username}`, {
@@ -48,10 +49,12 @@ export default function SavedPlaylist() {
                 if (response.data.success) {
                     setProgress(80);
                     setPlayList(response.data.data);
+                    setLoading(false);
                     setProgress(100);
                 }
 
             } catch (error) {
+                setLoading(false);
                 setProgress(100);
                 toast.error("Internal Server Error!");
                 console.log("Error while fetching owner's playlists", error.response?.data || error.message);
@@ -171,7 +174,7 @@ export default function SavedPlaylist() {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-                    {playList.length === 0 ? (
+                    {!loading && (playList.length === 0 ? (
                         <div className="flex flex-col items-center justify-center mt-20 text-center">
                             <i className="fa-solid fa-bookmark text-5xl text-gray-400 mb-4" />
                             <h2 className="text-xl font-semibold text-gray-600 dark:text-gray-300">
@@ -181,9 +184,9 @@ export default function SavedPlaylist() {
                                 Start saving playlists and they’ll appear here.
                             </p>
                         </div>
-                    ) : (playList.map((pylt) => {
+                    ) : ( playList.map((pylt) => {
                         return <PlaylistItems key={pylt?.playlist?._id} pylt={pylt?.playlist} removePlaylist={removePlaylist} />
-                    }))}
+                    })))}
                 </div>
             </div>
         </div>

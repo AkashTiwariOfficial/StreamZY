@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function SideVideosItems(props) {
 
   const location = useLocation();
   const { video, removeVideos, num, removeLikedVideos, removeMyVideo, removeVideoPlaylist, removeSavedVideos } = props;
   const Context = useContext(videoContext);
-  const { timeAgo } = Context;
+  const { timeAgo, currUser } = Context;
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const [menu, setMenu] = useState(false);
@@ -102,6 +103,11 @@ export default function SideVideosItems(props) {
 
       if (response.data.success) {
         setSave(response.data.data);
+        if (response.data.data) {
+          toast.success("Video Saved successfully");
+        } else {
+          toast.success("Video unsaved");
+        }
       }
 
     } catch (error) {
@@ -128,6 +134,7 @@ export default function SideVideosItems(props) {
 
       if (response.data.success) {
         removeVideos(video._id);
+        toast.success("Removed from watch history");
       }
 
     } catch (error) {
@@ -149,6 +156,7 @@ export default function SideVideosItems(props) {
 
       if (response.data.success) {
         removeLikedVideos(video?._id);
+        toast.success("Removed from Liked Videos");
       }
 
     } catch (error) {
@@ -169,6 +177,7 @@ export default function SideVideosItems(props) {
 
       if (response.data.success) {
         removeMyVideo(video.video?._id);
+        toast.success("Video deleted successfully");
       }
 
     } catch (error) {
@@ -192,6 +201,7 @@ export default function SideVideosItems(props) {
 
       if (response.data.success) {
         removeVideoPlaylist(video.video._id);
+        toast.success("Video Removed from Playlist");
       }
 
     } catch (error) {
@@ -231,10 +241,11 @@ export default function SideVideosItems(props) {
       });
 
       if (response.data.success) {
-        alert("done saving to playlist");
+        toast.success("Video added to playlist");
       }
 
     } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal Server Error!");
       console.log("Error while ading video to playlist", error.response?.data || error.message);
     }
 
@@ -261,6 +272,7 @@ export default function SideVideosItems(props) {
 
       if (response.data.success) {
         removeSavedVideos(video._id);
+        toast.success("Removed from Saved Videos");
       }
 
     } catch (error) {

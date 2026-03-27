@@ -2,6 +2,7 @@ import VideoContext from "./videoContext.jsx";
 import react, { useState } from 'react';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function VideoState(props) {
 
@@ -79,9 +80,11 @@ export default function VideoState(props) {
                 localStorage.removeItem("user");
                 localStorage.removeItem("timeofAT");
                 navigate("/")
+                toast.success("Loged out successfully");
             }
 
         } catch (error) {
+            toast.error("Internal Server Error!");
             console.log("Error while fetching vidoes", error.response?.data || error.message);
         }
     }
@@ -101,8 +104,10 @@ export default function VideoState(props) {
             if (response.data.success) {
                 if (response.data.data == true ) {
                     setDoSubscribed(true);
+                    toast.success("Channel subscribed successfully");
                 } else if  (response.data.data == false )  {
                     setDoSubscribed(false);
+                       toast.success("Channel unsubscribed");
                 }
             }
 

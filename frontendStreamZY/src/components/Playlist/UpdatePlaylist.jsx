@@ -22,10 +22,12 @@ export default function UpdatePlaylist() {
     const [playList, setPlayList] = useState("");
     const [isPublic, setIsPublic] = useState(null);
     const [disabled, setDisabled] = useState(true);
+    const [load, setLoad] = useState(false);
 
     useEffect(() => {
         const fetchPlaylist = async () => {
             setProgress(10);
+            setLoad(true);
             try {
                 setProgress(40);
                 const response = await axios.get(`${host}/v1/playlists/fetch-playlist/${id}`, {
@@ -45,9 +47,11 @@ export default function UpdatePlaylist() {
                     setPreview(response.data.data?.thumbnail);
                     setPlayList(response.data.data);
                     setIsPublic(response.data.data?.public);
+                    setLoad(false);
                     setProgress(100);
                 }
             } catch (error) {
+                setLoad(false);
                 setProgress(100);
                 toast.error("Internal Server Error!");
                 console.log("Error while fetching playlist", error.response?.data || error.message);
@@ -101,7 +105,7 @@ export default function UpdatePlaylist() {
             }
 
         } catch (error) {
-               setLoading(false);
+            setLoading(false);
             setProgress(100);
             toast.error("Internal Server Error!", { id: toastId });
             console.log("Error while updating playlist", error.response?.data || error.message);
@@ -110,6 +114,8 @@ export default function UpdatePlaylist() {
 
 
     return (
+        <>
+        {!load && ( 
         <div className="min-h-screen flex items-center justify-center px-4 py-12 
       bg-gray-50 dark:bg-[#121212] transition-colors duration-300">
 
@@ -337,5 +343,6 @@ export default function UpdatePlaylist() {
                 </form>
             </div>
         </div>
+        )}</>
     );
 }

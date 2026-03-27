@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useContext, useLayoutEffect } from 
 import { useParams } from "react-router-dom";
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from "axios";
-
+import toast from "react-hot-toast"
 
 
 function Avatar({ src, alt, size = 10 }) {
@@ -41,7 +41,7 @@ export default function Comment() {
   const host = import.meta.env.VITE_HOST_LINK;
 
   const Context = useContext(videoContext);
-  const { currUser, timeAgo } = Context;
+  const { currUser, timeAgo, loading, setLoading, setProgress } = Context;
 
   useEffect(() => {
     // Focus the input on mount for better UX
@@ -76,6 +76,7 @@ export default function Comment() {
 
     } catch (error) {
       setIsPosting(false);
+      toast.error("Internal Server Error!");
       console.log("Error while poating vidoe comment", error.response?.data || error.message);
     }
   }
@@ -88,7 +89,7 @@ export default function Comment() {
 
     const getComments = async () => {
       try {
-        
+
         const response = await axios.get(`${host}/v1/comments/getAll-comments/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -116,7 +117,7 @@ export default function Comment() {
     );
   };
 
-   const soryBy = (field) => {
+  const soryBy = (field) => {
     setComments(prev =>
       [...prev].sort(
         (a, b) => new Date(b[field]) - new Date(a[field])
@@ -124,14 +125,14 @@ export default function Comment() {
     )
   }
 
-const handleChange = (value) => {
+  const handleChange = (value) => {
     if (value === "replies") {
-       setComments(prev => [...prev].sort((a,b)=> b.replies - a.replies));
+      setComments(prev => [...prev].sort((a, b) => b.replies - a.replies));
     } else {
       soryBy("createdAt");
     }
-}
-                 
+  }
+
   return (
     <section aria-labelledby="comments-heading" className="w-full mx-auto px-3 py-2">
       <div className="flex items-center justify-between mb-3">
@@ -144,12 +145,12 @@ const handleChange = (value) => {
           <select
             id="sort"
             value={state}
-            onChange={(e) => { setState(e.target.value); handleChange(e.target.value);}}
+            onChange={(e) => { setState(e.target.value); handleChange(e.target.value); }}
             className="bg-gray-700 dark:bg-black/40 dark:text-white/80 border-[1px] dark:border-white/20 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="replies" onChange={handleChange} >Top Replied Comment</option>
             <option value="CreatedAt" onChange={handleChange} >Newest first</option>
-        </select>
+          </select>
         </div>
       </div>
 
@@ -163,7 +164,7 @@ const handleChange = (value) => {
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Add a public comment..."
             rows={2}
-            className="w-full h-14 resize-none dark:bg-black/5 dark:text-white border-[1px] dark:border-white/20 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full h-14 resize-none dark:bg-black/5 text-black/90 dark:text-white/80 border-[1px] dark:border-white/20 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             aria-label="Add a public comment"
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -250,6 +251,7 @@ function CommentCard({ comment, removeComments }) {
   const [editing, setEditing] = useState(false);
   const [editedText, setEditedText] = useState(comment?.content);
   const [totalReplies, setTotalReplies] = useState(comment.replies);
+  const [openReplies, setOpenReplies] = useState(false);
   const host = import.meta.env.VITE_HOST_LINK;
 
   const Context = useContext(videoContext);
@@ -290,9 +292,11 @@ function CommentCard({ comment, removeComments }) {
       });
 
       if (response.data.success) {
-        removeComments(comment?._id)
+        removeComments(comment?._id);
+        toast.success("Comment deleted successfully");
       }
     } catch (error) {
+      toast.error("Internal Server Error!");
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
   }
@@ -348,9 +352,10 @@ function CommentCard({ comment, removeComments }) {
 
       if (response.data.success) {
         let newReply = response.data.data;
-        setReplyComment(prev => [...prev, newReply])
+        setReplyComment(prev => [...prev, newReply]);
         setTotalReplies(prev => prev + 1);
-        setReplying(false)
+        setOpenReplies(true);
+        setReplying(false);
       }
 
     } catch (error) {
@@ -502,6 +507,7 @@ function CommentCard({ comment, removeComments }) {
 
       if (response.data.success) {
         setEditing(false);
+        toast.success("Comment updated successfully")
       }
     } catch (error) {
       setEditing(false);
@@ -558,30 +564,30 @@ function CommentCard({ comment, removeComments }) {
                     rows={1}
                     className="
     px-3 py-2 mt-1
-    text-black/90 bg-gray-200 dark:bg-black/40 dark:text-white/80
+    text-black/90 dark:text-white/80 bg-gray-200 dark:bg-black/40 
     border border-white/20 rounded-md text-sm
     focus:outline-none focus:ring-2 focus:ring-blue-400
     md:w-[470px] sm:w-[3700px] max-w-[90vw]
     resize-none overflow-hidden
   "
                   />
-                 <div className="flex flex-col">
-                <button
-                  onClick={handleEditings}
-                  className="bg-blue-600 text-white text-xs px-2 py-2 mt-2 rounded-lg h-fit"
-                >
-                  Save
-                </button>
-                <button
-                    onClick={() => {
-                    setEditedText(comment?.content)
-                    setEditing(false);
-                    }}
-                    className="ptext-white text-xs px-2 py-2 mt-2 rounded-lg h-fit hover:bg-gray-700 bg-gray-500 dark:hover:bg-white/5 focus:outline-none text-white"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                  <div className="flex flex-col">
+                    <button
+                      onClick={handleEditings}
+                      className="bg-blue-600 text-white text-xs px-2 py-2 mt-2 rounded-lg h-fit"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditedText(comment?.content)
+                        setEditing(false);
+                      }}
+                      className="ptext-white text-xs px-2 py-2 mt-2 rounded-lg h-fit hover:bg-gray-700 bg-gray-500 dark:hover:bg-white/5 focus:outline-none text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
 
               )}
@@ -603,12 +609,12 @@ function CommentCard({ comment, removeComments }) {
           {opens == false && (
             <div className="mt-3 border-l dark:border-white/20  pl-4 space-y-3">
               {replycomment.map((r) => (
-                <ReplyCommentCard key={r?._id} reply_Comment={r} reduceComments={reduceComments} />
+                <ReplyCommentCard key={r?._id} reply_Comment={r} reduceComments={reduceComments} setTotalReplies={setTotalReplies} />
               ))}
             </div>
           )}
 
-          {comment.replies != 0 && (
+          {(comment.replies != 0 || openReplies) && (
             <button className="mt-1 mb-2 text-black/80 dark:text-white flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-6 pr-[70px] rounded-lg hover:bg-black/10 dark:hover:bg-white/5" onClick={toggleOpen}>
               <label htmlFor="menu-toggle" className="cursor-pointer block text-sm">{opens ? (
                 `${totalReplies} replies`
@@ -627,7 +633,7 @@ function CommentCard({ comment, removeComments }) {
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   rows={2}
-                  className="w-full resize-none dark:bg-black/5 dark:text-white border-[1px] dark:border-white/20 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full resize-none dark:bg-black/5 text-black/90 dark:text-white/80 border-[1px] dark:border-white/20 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Add a public reply..."
                   aria-label="Add a public reply"
                   onKeyDown={(e) => {
@@ -688,7 +694,7 @@ function CommentCard({ comment, removeComments }) {
                 setEditing(true);
                 setCMenu(false);
               }}
-              className="px-4 py-2 cursor-pointer hover:bg-gray-200 hover:dark:bg-black/40"
+              className="px-4 py-2 cursor-pointer hover:bg-gray-100 hover:dark:bg-black/40"
             >
               Edit
             </div>
@@ -698,7 +704,7 @@ function CommentCard({ comment, removeComments }) {
                 deleteComment();
                 setCMenu(false);
               }}
-              className="px-4 py-2 cursor-pointer text-red-600 hover:bg-gray-200 hover:dark:bg-black/40"
+              className="px-4 py-2 cursor-pointer text-red-600  hover:bg-gray-100 hover:dark:bg-black/40"
             >
               Delete
             </div>
@@ -711,7 +717,7 @@ function CommentCard({ comment, removeComments }) {
 
 
 
-function ReplyCommentCard({ reply_Comment, reduceComments }) {
+function ReplyCommentCard({ reply_Comment, reduceComments, setTotalReplies }) {
 
   const [rliked, setRLiked] = useState(false);
   const [disrliked, setRdisliked] = useState(false);
@@ -869,7 +875,9 @@ function ReplyCommentCard({ reply_Comment, reduceComments }) {
       });
 
       if (response.data.success) {
-        reduceComments(reply_Comment?._id)
+        reduceComments(reply_Comment?._id);
+         setTotalReplies(prev => prev - 1);
+        toast.success("Comment deleted successfully");
       }
     } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
@@ -897,9 +905,10 @@ function ReplyCommentCard({ reply_Comment, reduceComments }) {
 
       if (response.data.success) {
         setEditing(false);
+        toast.success("Comment updated successfully");
       }
     } catch (error) {
-      setEditing(false)
+      setEditing(false);
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
   }
@@ -954,16 +963,16 @@ function ReplyCommentCard({ reply_Comment, reduceComments }) {
   "
                 />
                 <div className="flex flex-col">
-                <button
-                  onClick={handleEditing}
-                  className="bg-blue-600 text-white text-xs px-2 py-2 mt-2 rounded-lg h-fit"
-                >
-                  Save
-                </button>
-                <button
+                  <button
+                    onClick={handleEditing}
+                    className="bg-blue-600 text-white text-xs px-2 py-2 mt-2 rounded-lg h-fit"
+                  >
+                    Save
+                  </button>
+                  <button
                     onClick={() => {
-                    setEditedText(reply_Comment?.content)
-                    setEditing(false);
+                      setEditedText(reply_Comment?.content)
+                      setEditing(false);
                     }}
                     className="ptext-white text-xs px-2 py-2 mt-2 rounded-lg h-fit hover:bg-gray-700 bg-gray-500 dark:hover:bg-white/5 focus:outline-none text-white"
                   >
@@ -1005,7 +1014,7 @@ function ReplyCommentCard({ reply_Comment, reduceComments }) {
                   setEditing(true)
                   setMenu(false);
                 }}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-200 hover:dark:bg-black/40"
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100 hover:dark:bg-black/40"
               >
                 Edit
               </div>
@@ -1015,7 +1024,7 @@ function ReplyCommentCard({ reply_Comment, reduceComments }) {
                   deleteReplyComment()
                   setMenu(false);
                 }}
-                className="px-4 py-2 cursor-pointer text-red-600 hover:bg-gray-200 hover:dark:bg-black/40"
+                className="px-4 py-2 cursor-pointer text-red-600 hover:bg-gray-100 hover:dark:bg-black/40"
               >
                 Delete
               </div>

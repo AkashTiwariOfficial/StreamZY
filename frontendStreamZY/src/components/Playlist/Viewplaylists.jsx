@@ -20,6 +20,7 @@ export default function Viewplaylists() {
     useEffect(() => {
         const fetchPlaylistDetails = async () => {
             setProgress(10);
+            setLoading(true);
             try {
                 setProgress(40);
                 const response = await axios.get(`${host}/v1/playlists/fetch-playlist/${id}`, {
@@ -34,10 +35,12 @@ export default function Viewplaylists() {
                     setProgress(80);
                     setPlayListDetails(response.data.data);
                     setPlaylistVideos(response.data.data.videos);
+                    setLoading(false);
                     setProgress(100);
                 }
 
             } catch (error) {
+                setLoading(false);
                 setProgress(100);
                 toast.error("Internal Server Error!");
                 console.log("Error while fetching playlist's details", error.response?.data || error.message);
@@ -86,7 +89,8 @@ export default function Viewplaylists() {
     }
 
     return (
-
+    <>
+    {!loading && (
         <div className="ml-2 lg:ml-20">
             <div className="min-h-screen w-full bg-slate-100 dark:bg-[#121212]/100 text-gray-100 dark:text-gray-100">
                 <div className="lg:flex-row lg:items-start gap-8 px-4 lg:px-10">
@@ -211,5 +215,7 @@ export default function Viewplaylists() {
                 </div>
             </div>
         </div>
+        )}
+    </>
     )
 }

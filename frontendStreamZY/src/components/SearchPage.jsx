@@ -161,9 +161,8 @@ export default function SearchPage() {
 
     const fetchSearchResults = async () => {
       setLoading(40);
-
       try {
-        setLoading(50);
+      setLoading(50);
 
         const response = await axios.get(`${host}/v1/streamZY/search/?&query=${searchTerm}`, {
           headers: {
@@ -196,7 +195,8 @@ export default function SearchPage() {
 
   return (
     <>
-      {!loading && (<div className='flex flex-col lg:ml-24 ml-5 px-3'>
+      {!loading && (
+        <div className='flex flex-col lg:ml-24 ml-5 px-3'>
         <h1 className='dark:text-white/90 font-[600] text-2xl text-center my-3'>Search Results</h1>
 
         <div className="flex flex-col grid-cols-1 max-w-max overflow-x-hidden gap-2">

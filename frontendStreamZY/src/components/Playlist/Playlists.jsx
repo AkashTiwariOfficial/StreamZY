@@ -11,7 +11,7 @@ export default function Playlists() {
   const [open, setOpen] = useState(false);
   const [playList, setPlayList] = useState([]);
   const Context = useContext(videoContext);
-  const { currUser, host, setProgress } = Context;
+  const { currUser, host, setProgress, loading, setLoading } = Context;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,6 +26,7 @@ export default function Playlists() {
 
     const fetchPlayLists = async () => {
       setProgress(10);
+      setLoading(true);
       try {
         setProgress(30);
         const response = await axios.get(`${host}/v1/playlists/fetch-playlist`, {
@@ -38,11 +39,13 @@ export default function Playlists() {
         setProgress(60);
         if (response.data.success) {
           setProgress(80);
+          setLoading(false);
           setPlayList(response.data.data.filter(pylt => pylt.videos.length !== 0));
           setProgress(100);
         }
 
       } catch (error) {
+        setLoading(false);
         setProgress(100);
         toast.error("Internal Server Error!");
         console.log("Error while fetching playlists", error.response?.data || error.message);
@@ -54,7 +57,7 @@ export default function Playlists() {
   }, [location.pathname])
 
   const handleOwnedPlaylist = async () => {
-    navigate("/playlists/owned")
+    navigate("/playlists/owned");
   }
 
   const soryBy = (field) => {
@@ -133,9 +136,9 @@ export default function Playlists() {
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-          {playList.map((pylt) => {
+          {!loading && ( playList.map((pylt) => {
             return <PlaylistItems key={pylt._id} pylt={pylt} />
-          })}
+          }))}
         </div>
       </div>
     </div>
