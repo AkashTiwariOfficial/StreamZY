@@ -12,8 +12,8 @@
 }
 
 .myScroll::-webkit-scrollbar-thumb {
-  background-color: gray;    /* the draggable part */
   border-radius: 10px;
 }
+
 
 

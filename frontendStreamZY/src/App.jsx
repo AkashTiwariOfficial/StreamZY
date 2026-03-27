@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 import './App.css'
 import Layout from './components/Layout.jsx'
 import Navbar from './components/Navbar.jsx'
@@ -32,17 +32,32 @@ import UserProfile from './components/UserProfile.jsx'
 import Savedvideo from './components/Savedvideo.jsx'
 import SearchPage from './components/SearchPage.jsx'
 import toast, { Toaster } from 'react-hot-toast'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import videoContext from './Context/Videos/videoContext.jsx'
 import LoadingBar from 'react-top-loading-bar'
+import axios from 'axios'
+import ServerError from './components/ServerError.jsx'
 
 
 
 function App() {
 
   const Context = useContext(videoContext);
-  const { progress, setProgress } = Context;
+  const { progress, setProgress, host } = Context;
   const notify = () => toast('Here is your toast');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const serverCheck = async () => {
+      try {
+        await axios.get(`${host}/v1/server/health-checkup`);
+      } catch (error) {
+        navigate("/ServerError")
+        toast.error("Server down! Try again after some time.", {duration: 10000})
+      }
+    }
+    serverCheck();
+  },[])
 
   return (
     <>
@@ -107,6 +122,7 @@ function App() {
           <Route path="/userProfile/:username" element={<UserProfile />} />
           <Route path="/saved-vidoes" element={<Savedvideo />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path='/ServerError' element={<ServerError />} />
         </Routes>
       </Layout>
     </>

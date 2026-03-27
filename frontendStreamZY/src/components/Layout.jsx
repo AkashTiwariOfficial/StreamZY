@@ -23,7 +23,7 @@ export default function Layout({ children }) {
 
   return (
     <>
-      <main className="pt-[var(--navbar-gap)] bg-gray-100 dark:bg-[#121212] min-h-screen">
+      <main className="py-[var(--navbar-gap)] bg-gray-100 dark:bg-[#121212] min-h-screen">
      { children }
       </main>
     </>
