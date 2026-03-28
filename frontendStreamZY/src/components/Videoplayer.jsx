@@ -473,7 +473,7 @@ export default function Videoplayer({ video }) {
 
   const showQuality = (q) => {
     if (q === "Auto") {
-        toast.success(`${q} applied`);
+      toast.success(`${q} applied`);
     } else {
       toast.success(`${q} quality applied`);
     }
@@ -511,166 +511,204 @@ export default function Videoplayer({ video }) {
                     setDuration(v.duration || 0);
                   }}
                 />
-                {/* Play Overlay */}
-                {!isPlaying && (
-                  <button
-                    onClick={togglePlay}
-                    className="absolute inset-0 flex items-center justify-center text-5xl bg-black/30 backdrop-blur-sm  hover:bg-black/40 transition rounded-lg"
-                  >
-                    <i className="fa-solid fa-play py-3 px-4 rounded-full bg-black/5 backdrop-blur-[1px]"></i>
-                  </button>
-                )}
 
-                {/* Top fade */}
-                <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
+                <div className="hidden md:flex">
+                  {!isPlaying && (
+                    <button
+                      onClick={togglePlay}
+                      className="absolute inset-0 flex items-center justify-center 
+                       text-3xl sm:text-4xl md:text-5xl 
+                     bg-black/30 backdrop-blur-sm hover:bg-black/40 transition rounded-lg"
+                    >
+                      <i className="fa-solid fa-play py-2 px-3 sm:py-3 sm:px-4 rounded-full bg-black/5 backdrop-blur-[1px]"></i>
+                    </button>
+                  )}
 
-                {/* CONTROLS */}
-                <div
-                  className={`absolute bottom-0 left-0 right-0 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
-                    }`}
-                >
-                  {/* Progress Bar */}
+                  {/* Top fade */}
+                  <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 md:h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
+
+                  {/* CONTROLS */}
                   <div
-                    className="w-full h-[5px] bg-white/20 cursor-pointer hover:h-2 transition-all"
-                    onClick={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      seekTo((e.clientX - rect.left) / rect.width);
-                    }}
+                    className={`absolute bottom-0 left-0 right-0 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
+                      }`}
                   >
+                    {/* Progress Bar */}
                     <div
-                      className="h-full bg-red-500 rounded-md transition-all duration-150"
-                      style={{ width: `${prog * 100}%` }}
-                    />
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="flex items-center justify-between px-4 py-3 bg-transparent">
-                    <div className="flex items-center gap-5">
-                      <div className="flex  justify-center bg-black/30  backdrop-blur-[2px] rounded-3xl h-11 w-11 hover:scale-110 transition items-center">
-                        <button onClick={togglePlay} className="text-2xl hover:bg-white/20 rounded-full h-9 w-9">
-                          {isPlaying ? <i className="fa-solid fa-pause"></i> : <i className="fa-solid fa-play ml-1"></i>}
-                        </button>
-                      </div>
-                      <div className="px-1 py-1 rounded-full  bg-black/30  backdrop-blur-[1px] ">
-                        <div onMouseEnter={() => setShowVolDrag(true)} onMouseLeave={() => setShowVolDrag(false)} onTouchStart={() => setShowVolDrag(true)} className="flex gap-2  hover:bg-white/20 items-center rounded-full px-2 py-1">
-                          <button onClick={toggleMute} className={`text-xl `}>
-                            {isMuted ? <i className="fa-solid fa-volume-xmark"></i> : <i className="fa-solid fa-volume-high"></i>}
-                          </button>
-                          {showVolDrag && <input
-                            type="range"
-                            min={0}
-                            max={1}
-                            step={0.01}
-                            value={volume}
-                            onChange={(e) => changeVolume(Number(e.target.value))}
-                            className="accent-red-500 h-1 w-20"
-                          />
-                          }
-                        </div>
-                      </div>
-                      <div className="bg-black/30  backdrop-blur-[1px] rounded-full px-1 py-2 ">
-                        <span className="text-sm text-gray-300 hover:bg-white/20 px-2 py-[6px] rounded-full">
-                          {format(vidRef.current?.currentTime)} / {format(duration)}
-                        </span>
-                      </div>
+                      className="w-full h-[4px] sm:h-[5px] md:h-[6px] bg-white/20 cursor-pointer hover:h-[6px] sm:hover:h-[7px] transition-all"
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        seekTo((e.clientX - rect.left) / rect.width);
+                      }}
+                    >
+                      <div
+                        className="h-full bg-red-500 rounded-md transition-all duration-150"
+                        style={{ width: `${prog * 100}%` }}
+                      />
                     </div>
 
-                    <div className="flex items-center relative">
-                      <div className="flex gap-2 justify-center bg-black/20  backdrop-blur-[1px] rounded-3xl px-2 py-1 items-center">
-                        <div className="px-3 hover:bg-white/20 rounded-3xl py-[2px] hover:scale-110 transition" onClick={(e) => { e.stopPropagation(1); setSettings("showSettings") }}>
-                          <button><i className="fa-solid fa-gear text-xl"></i></button>
+                    {/* Buttons */}
+                    <div className="flex items-center justify-between 
+                      px-2 sm:px-3 md:px-4 
+                           py-2 sm:py-2 md:py-3">
+
+                      {/* LEFT SIDE */}
+                      <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
+
+                        {/* Play */}
+                             <div className="flex justify-center bg-black/30 backdrop-blur-[2px] rounded-full 
+                             h-8 w-8 sm:h-9 sm:w-9 md:h-11 md:w-11 
+                           hover:scale-110 transition items-center">
+                          <button
+                            onClick={togglePlay}
+                            className="flex items-center justify-center w-full h-full 
+                                  text-lg sm:text-xl md:text-2xl 
+                               hover:bg-white/20 rounded-full"
+                          >
+                            {isPlaying ? (
+                              <i className="fa-solid fa-pause"></i>
+                            ) : (
+                              <i className="fa-solid fa-play ml-1"></i>
+                            )}
+                          </button>
                         </div>
-                        {
-                          settings === "showSettings" &&
-                          <div className="absolute bottom-20 right-0 w-max 
-                   bg-black/30 text-white rounded-xl 
-               p-2  backdrop-blur-[1px] 
-                       ">
-                            <div onClick={(e) => { e.stopPropagation(); setSettings("showSpeed") }} className="flex justify-between p-3 gap-5 hover:bg-white/10 rounded-xl cursor-pointer">
-                              <div className="flex gap-3">
-                                <span><i className="fa-solid fa-gauge-simple-high"></i></span>
-                                <span>Playback speed</span>
-                              </div>
-                              <div className="flex gap-2 items-center text-gray-100/60">
-                                <span>{speed}</span>
-                                <span className="text-sm">{">"}</span>
-                              </div>
-                            </div>
-                            <div onClick={(e) => { e.stopPropagation(); setSettings("showQuality") }} className="flex justify-between p-3 gap-5 hover:bg-white/10 rounded-xl cursor-pointer">
-                              <div className="flex gap-3">
-                                <span><i className="fa-solid fa-sliders"></i></span>
-                                <span>Quality</span>
-                              </div>
-                              <div className="flex gap-2 items-center text-gray-100/60">
-                                <span>{quality + "p"}</span>
-                                <span className="text-sm">{">"}</span>
-                              </div>
-                            </div>
+
+                        {/* Volume */}
+                        <div className="px-1 py-1 rounded-full bg-black/30 backdrop-blur-[1px]">
+                          <div
+                            onMouseEnter={() => setShowVolDrag(true)}
+                            onMouseLeave={() => setShowVolDrag(false)}
+                            onTouchStart={() => setShowVolDrag(true)}
+                            className="flex gap-1 sm:gap-2 hover:bg-white/20 items-center rounded-full px-1 sm:px-2 py-1"
+                          >
+                            <button onClick={toggleMute} className="text-base sm:text-lg md:text-xl">
+                              {isMuted ? (
+                                <i className="fa-solid fa-volume-xmark"></i>
+                              ) : (
+                                <i className="fa-solid fa-volume-high"></i>
+                              )}
+                            </button>
+
+                            {showVolDrag && (
+                              <input
+                                type="range"
+                                min={0}
+                                max={1}
+                                step={0.01}
+                                value={volume}
+                                onChange={(e) => changeVolume(Number(e.target.value))}
+                                className="accent-red-500 h-1 w-12 sm:w-16 md:w-20"
+                              />
+                            )}
                           </div>
-                        }
+                        </div>
 
-                        {
-                          settings === "showSpeed" && (
-                            <div className="absolute bottom-20 right-0 w-max 
-                   bg-black/30 text-white rounded-xl 
-               p-2  backdrop-blur-[1px] 
-                       ">
+                        {/* Time */}
+                        <div className="bg-black/30 backdrop-blur-[1px] rounded-full px-1 py-2 sm:py-2">
+                          <span className="text-[10px] sm:text-xs md:text-sm text-gray-300 hover:bg-white/20 px-1 sm:px-2 py-[4px] sm:py-[6px] rounded-full">
+                            {format(vidRef.current?.currentTime)} / {format(duration)}
+                          </span>
+                        </div>
+                      </div>
 
-                              <div className="myscroll flex flex-col justify-between p-1 gap-1  rounded-xl cursor-pointer text-gray-100/60 h-60  overflow-y-scroll scrollbar-thin scrollbar-thumb-black dark:scrollbar-thumb-gray-700 w-60">
-                                <div onClick={(e) => { e.stopPropagation(); setSettings("showSettings") }} className="flex rounded-xl cursor-pointer text-gray-100/60 items-center gap-4 px-2 py-2">
-                                  <span className="text-xl mb-1">{"<"}</span>
-                                  <span className="text-xs">Playback speed</span>
+                      {/* RIGHT SIDE */}
+                      <div className="flex items-center relative">
+                        <div className="flex gap-1 sm:gap-2 justify-center bg-black/20 backdrop-blur-[1px] rounded-3xl px-2 sm:px-2 py-1 items-center">
+
+                          {/* Settings */}
+                          <div
+                            className="px-2 sm:px-3 hover:bg-white/20 rounded-3xl py-[2px] hover:scale-110 transition"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSettings("showSettings");
+                            }}
+                          >
+                            <button>
+                              <i className="fa-solid fa-gear text-lg sm:text-xl md:text-2xl"></i>
+                            </button>
+                          </div>
+
+                          {/* SETTINGS MENU */}
+                          {settings === "showSettings" && (
+                            <div className="absolute bottom-16 sm:bottom-20 right-0 
+                             w-40 sm:w-52 md:w-60 
+                                 bg-black/30 text-white rounded-xl p-2 backdrop-blur-[1px]">
+
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSettings("showSpeed");
+                                }}
+                                className="flex justify-between p-2 sm:p-3 gap-5 sm:gap-5 hover:bg-white/10 rounded-xl cursor-pointer"
+                              >
+                                <div className="flex gap-2 sm:gap-3">
+                                  <i className="fa-solid fa-gauge-simple-high mt-1"></i>
+                                  <span className="text-sm sm:text-base">Playback</span>
                                 </div>
-                                <hr />
-                                <span onClick={() => changeSpeed(0)} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">0.25</span>
-                                <span onClick={() => changeSpeed(1)} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">0.5</span>
-                                <span onClick={() => changeSpeed(2)} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">0.75</span>
-                                <span onClick={() => changeSpeed(3)} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">Normal</span>
-                                <span onClick={() => changeSpeed(4)} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">1.25</span>
-                                <span onClick={() => changeSpeed(5)} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">1.5</span>
-                                <span onClick={() => changeSpeed(6)} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">2</span>
+                                <span className="text-xs sm:text-sm text-gray-100/60">{speed} &gt;</span>
+                              </div>
+
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSettings("showQuality");
+                                }}
+                                className="flex justify-between p-2 sm:p-3 gap-3 sm:gap-5 hover:bg-white/10 rounded-xl cursor-pointer"
+                              >
+                                <div className="flex gap-2 sm:gap-3">
+                                  <i className="fa-solid fa-sliders mt-1"></i>
+                                  <span className="text-sm sm:text-base">Quality</span>
+                                </div>
+                                <span className="text-xs sm:text-sm text-gray-100/60">{quality}p &gt;</span>
                               </div>
                             </div>
-                          )
-                        }
+                          )}
 
+                          {/* QUALITY MENU */}
+                          {settings === "showQuality" && (
+                            <div className="absolute bottom-16 sm:bottom-20 right-0 
+                             w-40 sm:w-52 md:w-60 
+                              bg-black/30 text-white rounded-xl p-2 backdrop-blur-[1px]">
 
-                        {
-                          settings === "showQuality" && (
-                            <div className="absolute bottom-20 right-0 w-max 
-                   bg-black/30 text-white rounded-xl 
-               p-2  backdrop-blur-[1px] 
-                       ">
-
-                              <div className="myscroll flex flex-col justify-between p-1 gap-1  rounded-xl cursor-pointer text-gray-100/60 h-60  overflow-y-scroll scrollbar-thin scrollbar-thumb-black dark:scrollbar-thumb-gray-700 w-60">
-                                <div onClick={(e) => { e.stopPropagation(); setSettings("showSettings") }} className="flex rounded-xl cursor-pointer text-gray-100/60 items-center gap-4 px-2 py-2">
-                                  <span className="text-xl mb-1">{"<"}</span>
-                                  <span className="text-xs">Video Quality</span>
+                              <div className="flex flex-col gap-1 h-40 sm:h-52 md:h-60 overflow-y-scroll text-gray-100/60">
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSettings("showSettings");
+                                  }}
+                                  className="flex items-center gap-3 px-2 py-2"
+                                >
+                                  {"<"} Quality
                                 </div>
-                                <hr />
 
-                                <span onClick={() => { setQuality("1080"); showQuality("1080p"); }} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">1080p</span>
-                                <span onClick={() => { setQuality("720"); showQuality("720p"); }} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">720p</span>
-                                <span onClick={() => { setQuality("480"); showQuality("480p"); }} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">480p</span>
-                                <span onClick={() => { setQuality("360"); showQuality("360p"); }} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">360p</span>
-                                <span onClick={() => { setQuality("240"); showQuality("240p"); }} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">240p</span>
-                                <span onClick={() => { setQuality("144"); showQuality("144p"); }} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">144p</span>
-                                <span onClick={() => { setQuality("360"); showQuality("Auto"); }} className="px-4 py-2 hover:bg-white/10 rounded-xl cursor-pointer text-gray-100/60">Auto</span>
+                                {["1080", "720", "480", "360", "240", "144"].map((q) => (
+                                  <span
+                                    key={q}
+                                    onClick={() => {
+                                      setQuality(q);
+                                      showQuality(q + "p");
+                                    }}
+                                    className="px-3 py-2 hover:bg-white/10 rounded-xl cursor-pointer"
+                                  >
+                                    {q}p
+                                  </span>
+                                ))}
                               </div>
                             </div>
-                          )
-                        }
+                          )}
 
-
-                        <button onClick={toggleFullscreen} className="text-2xl hover:bg-white/20 rounded-3xl px-3 py-[2px]">
-                          {isFullscreen ? "⤢" : "⛶"}
-                        </button>
+                          {/* Fullscreen */}
+                          <button
+                            onClick={toggleFullscreen}
+                            className="text-lg sm:text-xl md:text-2xl hover:bg-white/20 rounded-3xl px-2 sm:px-3 py-[2px]"
+                          >
+                            {isFullscreen ? "⤢" : "⛶"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
               {/* TITLE + META */}
               <h1 className="text-xl font-semibold mt-[10px] ml-2 dark:text-white/90 text-black/80  line-clamp-2">{details?.video?.title}</h1>
 
