@@ -14,6 +14,8 @@ export default function VideoState(props) {
     const host = import.meta.env.VITE_HOST_LINK;
     const [progress, setProgress] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [state, setState] = useState(true);
+    const [page, setPage] = useState(1);
 
     const token = localStorage.getItem("accessToken");
     const user = localStorage.getItem("user");
@@ -33,6 +35,9 @@ export default function VideoState(props) {
 
             const videosData = response.data.data;
             setVideos(videosData);
+            if (response.data.data.length === 0 || response.data.data.length < 10) {
+                setState(false);
+            }
 
         } catch (error) {
             console.log("Error while fetching vidoes", error.response?.data || error.message);
@@ -57,6 +62,9 @@ export default function VideoState(props) {
 
             const videosData = response.data.data;
             setVideos(videosData);
+            if (response.data.data.length === 0 || response.data.data.length < 10) {
+                setState(false);
+            }
 
         } catch (error) {
             console.log("Error while fetching vidoes", error.response?.data || error.message);
@@ -102,12 +110,12 @@ export default function VideoState(props) {
             });
 
             if (response.data.success) {
-                if (response.data.data == true ) {
+                if (response.data.data == true) {
                     setDoSubscribed(true);
                     toast.success("Channel subscribed successfully");
-                } else if  (response.data.data == false )  {
+                } else if (response.data.data == false) {
                     setDoSubscribed(false);
-                       toast.success("Channel unsubscribed");
+                    toast.success("Channel unsubscribed");
                 }
             }
 
@@ -117,78 +125,78 @@ export default function VideoState(props) {
     }
 
 
-      const fetchSubscribers = async (ownerId) => {
+    const fetchSubscribers = async (ownerId) => {
 
-      try {
-        const response = await axios.get(`${host}/v1/subscriber/subscribers/${ownerId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
+        try {
+            const response = await axios.get(`${host}/v1/subscriber/subscribers/${ownerId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
 
-        if (response.data.success) {
-          setSubscribers(response.data.data);
+            if (response.data.success) {
+                setSubscribers(response.data.data);
+            }
+
+        } catch (error) {
+            console.log("Error while fetching whter the user subscriber's", error.response?.data || error.message);
         }
-
-      } catch (error) {
-        console.log("Error while fetching whter the user subscriber's", error.response?.data || error.message);
-      }
     }
 
-     const fetchChannelIsSubscribed = async (ownerId) => {
+    const fetchChannelIsSubscribed = async (ownerId) => {
 
-      try {
-        const response = await axios.get(`${host}/v1/subscriber/isSubscribed/${ownerId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
+        try {
+            const response = await axios.get(`${host}/v1/subscriber/isSubscribed/${ownerId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
 
-        if (response.data.success) {
-          setDoSubscribed(response.data.data);
+            if (response.data.success) {
+                setDoSubscribed(response.data.data);
+            }
+
+        } catch (error) {
+            console.log("Error while checking user have subscribed the channnel", error.response?.data || error.message);
         }
-
-      } catch (error) {
-        console.log("Error while checking user have subscribed the channnel", error.response?.data || error.message);
-      }
     }
-    
-    
-  const timeAgo = (dateString) => {
-    const now = new Date();
-    const past = new Date(dateString);
-    const diff = (now - past) / 1000;
 
-    if (diff < 60) return `${Math.floor(diff)} sec ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
-    if (diff < 2592000) return `${Math.floor(diff / 86400)} day ago`;
-    if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
-    return `${Math.floor(diff / 31104000)} yr ago`;
-  }
 
-  
+    const timeAgo = (dateString) => {
+        const now = new Date();
+        const past = new Date(dateString);
+        const diff = (now - past) / 1000;
+
+        if (diff < 60) return `${Math.floor(diff)} sec ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+        if (diff < 2592000) return `${Math.floor(diff / 86400)} day ago`;
+        if (diff < 31104000) return `${Math.floor(diff / 2592000)} month ago`;
+        return `${Math.floor(diff / 31104000)} yr ago`;
+    }
+
+
     const fetchSubcribedChannels = async () => {
-       try {
-        const response = await axios.get(`${host}/v1/subscriber/subscribed-channel/${currUser?._id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          withCredentials: true,
-          timeout: 150000
-        });
+        try {
+            const response = await axios.get(`${host}/v1/subscriber/subscribed-channel/${currUser?._id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
 
-        if (response.data.success) {
-          setSubscribers(response.data.data);
+            if (response.data.success) {
+                setSubscribers(response.data.data);
+            }
+
+        } catch (error) {
+            console.log("Error while fetching vidoes", error.response?.data || error.message);
         }
-
-      } catch (error) {
-        console.log("Error while fetching vidoes", error.response?.data || error.message);
-      }
     }
 
 
@@ -202,6 +210,10 @@ export default function VideoState(props) {
             host,
             progress,
             loading,
+            page,
+            state,
+            setState,
+            setPage,
             setLoading,
             setProgress,
             setSubscribers,

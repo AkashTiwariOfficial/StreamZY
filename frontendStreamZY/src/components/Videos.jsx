@@ -4,12 +4,13 @@ import videoContext from '../Context/Videos/videoContext.jsx'
 import VideoItems from './VideoItems.jsx';
 import { useLocation, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
+import InfiniteScroll from "react-infinite-scroll-component";
+import axios from 'axios';
 
 export default function Videos() {
 
   const Context = useContext(videoContext);
-  const { videos, setProgress, loading, setLoading, fetchAllVideos, fetchAllVideoswithQuery } = Context;
+  const { videos, setProgress, loading, setLoading, fetchAllVideos, fetchAllVideoswithQuery, setPage, page, state, setState, results, setVideos, host, setResults } = Context;
   const location = useLocation();
   const { category } = useParams();
 
@@ -45,23 +46,87 @@ export default function Videos() {
       }
     }
     fetchData();
-  }, [location.pathname, category])
+  }, [location.pathname, category]);
 
-  return (
-    <div>
+  const fetchMoreData = async () => {
+    setState(true);
+    try {
+      if (location.pathname === "/home") {
+        try {
+          const response = await axios.get(`${host}/v1/videos/get-allVideos?page=${page + 1}&limit=10`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            withCredentials: true
+          });
+
+          const videosData = response.data.data;
+          setVideos(prev => [...prev, ...videosData]);
+          console.log(videosData);
+
+          if (response.data.data.length < 10) {
+            setState(false);
+          }
+
+        } catch (error) {
+          console.log("Error while fetching vidoes", error.response?.data || error.message);
+        }
+        setPage(prev => prev + 1);
+      }
+      else if (category) {
+
+        try {
+          const response = await axios.get(`${host}/v1/videos/get-allVideos?&query=${category}&page=${page + 1}&limit=10`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            withCredentials: true
+          });
+
+          const videosData = response.data.data;
+          setVideos(prev => [...prev, ...videosData]);
+          console.log(videosData);
+
+          if (response.data.data.length < 10) {
+            setState(false);
+          }
+
+        } catch (error) {
+          console.log("Error while fetching vidoes", error.response?.data || error.message);
+        }
+        setPage(prev => prev + 1);
+      }
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+  }
+ console.log(videos);
+ console.log(page)
+
+  return (   
+<div>
       {!loading && (
-        <div className="w-full">
-          <div className="lg:ml-24 ml-2 mb-5 mt-1 p-2 md:p-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-              {
-                videos.map((video) => {
-                  return <VideoItems video={video} key={video._id} category={category} />
-                })
-              }
+        <InfiniteScroll
+          key={location.pathname + category}
+          dataLength={videos.length}
+          next={fetchMoreData}
+          hasMore={state}
+          loader={<div className="lds-ring"><div></div><div></div><div></div><div></div></div>}
+        >
+          <div className="w-full">
+            <div className="lg:ml-24 ml-2 mb-5 mt-1 p-2 md:p-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                {
+                  videos.map((video) => {
+                    return <VideoItems video={video} key={video._id} category={category} />
+                  })
+                }
+              </div>
             </div>
           </div>
-        </div>
+        </InfiniteScroll>
       )}
-    </div>
+      </div>
+  
   )
 }

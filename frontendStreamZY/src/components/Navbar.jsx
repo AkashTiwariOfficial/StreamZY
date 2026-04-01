@@ -4,6 +4,10 @@ import Tooltip from './Tooltip';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiMoon, FiSun } from "react-icons/fi";
 import toast from 'react-hot-toast';
+import logo from '../assets/logoone.png';
+
+
+
 
 
 export default function Navbar() {
@@ -40,12 +44,12 @@ export default function Navbar() {
     setMode(newMode);
     localStorage.setItem("mode", newMode)
 
-      if (localStorage.getItem("mode") === 'light') {
+    if (localStorage.getItem("mode") === 'light') {
       document.documentElement.classList.remove('dark');
-           toast.success("Enabled Light mode successfully");
+      toast.success("Enabled Light mode successfully");
     } else {
       document.documentElement.classList.add('dark');
-       toast.success("Enabled Dark mode successfully");
+      toast.success("Enabled Dark mode successfully");
     }
 
 
@@ -147,8 +151,8 @@ export default function Navbar() {
               <Tooltip text="StreamZY Home" margin="mt-25px">
                 <Link to="/home" >
                   <div className="flex gap-[2px] cursor-pointer">
-                    <div className="h-[26px] w-[26px]">
-                      <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+                    <div className="h-[32px] w-[32px]">
+                         <img className='w-full h-full object-contain' src={logo} alt="StreamZY logo" />
                     </div>
                     <div>
                       <h1 className="dark:text-white tracking-wide font-semibold text-lg">StreamZY</h1>
@@ -323,8 +327,8 @@ export default function Navbar() {
               <Tooltip text="StreamZY Home" margin="mt-25px" changes="ml-4">
                 <Link to="/home" >
                   <div className="flex mt-[24px]">
-                    <div className="h-[26px] w-[26px]">
-                      <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+                    <div className="h-[32px] w-[32px]">
+                       <img className='w-full h-full object-contain' src={logo} alt="StreamZY logo" />
                     </div>
                     <div>
                       <h1 className="dark:text-white tracking-wide font-semibold text-lg">StreamZY</h1>
@@ -362,7 +366,7 @@ export default function Navbar() {
               </Tooltip>
               <Tooltip text="Saved Video" width="w-1/3" margin="mt-[10px]" changes="ml-12">
                 <Link to="/saved-vidoes" className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[6px] pl-3 pr-[91px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
-                <i class="fa-solid fa-floppy-disk text-base"></i>
+                  <i className="fa-solid fa-floppy-disk text-base"></i>
                   <li><label htmlFor="menu-toggle" className="cursor-pointer block">Saved Video</label></li>
                 </Link>
               </Tooltip>
@@ -407,7 +411,7 @@ export default function Navbar() {
                 )
                   : (
                     <div className="flex cursor-pointer h-8 w-max items-center gap-[15px] py-[15px] pl-3 pr-[70px] rounded-lg  hover:bg-black/10 dark:hover:bg-slate-700/90 ">
-                          <i className="fa-solid fa-user-slash text-base" />
+                      <i className="fa-solid fa-user-slash text-base" />
                       <li><label htmlFor="menu-toggle" className="cursor-pointer block">No subscriptions</label></li>
                     </div>
                   )
@@ -540,7 +544,7 @@ export default function Navbar() {
                   <Link to="/" >
                     <div className="flex gap-[2px] cursor-pointer">
                       <div className="h-[40px] w-[40px]">
-                        <img src="https://img.icons8.com/?size=48&id=108794&format=png" alt="icon" />
+                  <img className='w-full h-full object-fill' src={logo} alt="StreamZY logo" />
                       </div>
                       <div>
                         <h1 className="dark:text-white tracking-wide font-semibold text-3xl">StreamZY</h1>

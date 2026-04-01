@@ -90,7 +90,7 @@ function App() {
           }}
         />
       </div>
-      <Layout>
+   <Layout>
         <Routes >
           <Route path="/:category" element={<Home />} />
           <Route path="/playlists" element={<Playlists />} />
@@ -124,7 +124,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path='/ServerError' element={<ServerError />} />
         </Routes>
-      </Layout>
+     </Layout>
     </>
   )
 }

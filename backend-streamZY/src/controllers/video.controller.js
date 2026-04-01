@@ -17,10 +17,12 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     const { page = 1, limit = 10, query, sortBy = "views", sortType = "desc", userId } = req.query
 
-    const limitNumber = parseInt(limit, 10)
-    const pageNumber = parseInt(page, 10)
+    const limitNumber = parseInt(limit, 10);
+    const pageNumber = parseInt(page, 10);
 
-    const filter = {}
+    const filter = {
+        isPublished: true 
+    }
 
     if (query) {
         filter.$or = [
@@ -30,32 +32,22 @@ const getAllVideos = asyncHandler(async (req, res) => {
         ]
     }
 
-    const sort = {}
-
-    if (sortBy) {
-        sort[sortBy] = sortType === "desc" ? -1 : 1;
-    }
-
     if (userId) {
         filter.userId = userId
     }
 
-    const vidoes = await Video.find(filter)
-        .sort(sort)
-        .skip((pageNumber - 1) * 10)
+    const videos = await Video.find(filter)
+        .sort({
+            [sortBy]: sortType === "desc" ? -1 : 1,
+            _id: -1  
+        })
+        .skip((pageNumber - 1) * limitNumber) 
         .limit(limitNumber)
-        .populate("owner", "username avatar")
-
-
-    if (!vidoes) {
-        throw new ApiErrors(500, "No Vidoes found!")
-    }
-
-    const newVideos = vidoes.filter(video => video.isPublished);
+        .populate("owner", "username avatar");
 
     return res
         .status(200)
-        .json(new ApiResponses(200, newVideos, "All Videos were fetched successfully"))
+        .json(new ApiResponses(200, videos, "All Videos were fetched successfully"))
 })
 
 

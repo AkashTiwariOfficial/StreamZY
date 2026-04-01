@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import logo from '../assets/logo.png';
 
 export default function Getsartpage() {
 
@@ -75,8 +76,8 @@ export default function Getsartpage() {
                         className="mt-10 md:mt-0 md:ml-16 w-full md:w-1/2 flex justify-center"
                     >
                         <img
-                            src="https://tse1.mm.bing.net/th/id/OIP.JTvhz79ia_rJRUy0xmUZDgHaE6?cb=ucfimg2ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3"
-                            className="w-80 md:w-[420px] drop-shadow-2xl rounded-3xl"
+                            src={logo}
+                            className="w-80 md:w-[420px] md:h-[380px] drop-shadow-2xl rounded-3xl"
                         />
                     </motion.div>
                 </main>
