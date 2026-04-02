@@ -23,7 +23,7 @@ export default function VideoState(props) {
 
     // Fetchng all Videos :-
     const fetchAllVideos = async () => {
-
+        setState(true);
         try {
 
             const response = await axios.get(`${host}/v1/videos/get-allVideos`, {
@@ -50,6 +50,8 @@ export default function VideoState(props) {
         if (!query) {
             query = "";
         }
+
+        setState(true);
 
         try {
 

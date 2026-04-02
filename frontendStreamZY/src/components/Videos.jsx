@@ -62,7 +62,7 @@ export default function Videos() {
 
           const videosData = response.data.data;
           setVideos(prev => [...prev, ...videosData]);
-          console.log(videosData);
+
 
           if (response.data.data.length < 10) {
             setState(false);
@@ -85,7 +85,7 @@ export default function Videos() {
 
           const videosData = response.data.data;
           setVideos(prev => [...prev, ...videosData]);
-          console.log(videosData);
+
 
           if (response.data.data.length < 10) {
             setState(false);
@@ -100,18 +100,16 @@ export default function Videos() {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
   }
- console.log(videos);
- console.log(page)
 
-  return (   
-<div>
+
+  return (
+    <div>
       {!loading && (
         <InfiniteScroll
-          key={location.pathname + category}
           dataLength={videos.length}
           next={fetchMoreData}
           hasMore={state}
-          loader={<div className="lds-ring"><div></div><div></div><div></div><div></div></div>}
+          loader={<div className="flex justify-center items-center h-screen"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
         >
           <div className="w-full">
             <div className="lg:ml-24 ml-2 mb-5 mt-1 p-2 md:p-3">
@@ -126,7 +124,6 @@ export default function Videos() {
           </div>
         </InfiniteScroll>
       )}
-      </div>
-  
+    </div>
   )
 }

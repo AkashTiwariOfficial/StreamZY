@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <div>
-      <div className="h-14 w-full ml-3 lg:ml-24 overflow-x-auto xl:overflow-visible scrollbar-hide">
+      <div className="h-14 lg:w-max w-full pl-4 lg:ml-24 overflow-x-auto xl:overflow-visible scrollbar-hide">
       <div className="flex gap-3">
         <Link to="/Music" onClick={() => {fetchAllVideoswithQuery("Music"); }} className={tailwindCSS()}>
         Music

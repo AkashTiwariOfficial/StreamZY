@@ -55,10 +55,6 @@ export default function Navbar() {
 
   }
 
-  const toggleDarkMod = () => {
-    document.documentElement.classList.toggle('dark');
-  }
-
   useEffect(() => {
     const handleClickOutside = (e) => {
 
@@ -521,11 +517,6 @@ export default function Navbar() {
                     </div>
                   </Link>
                 </Tooltip>
-                <div className="flex flex-col">
-                  <div className="mt-3">
-                    <button onClick={toggleDarkMod} className="bg-blue-600  text-white rounded-lg p-1 text-[10px]">Toggle Mode</button>
-                  </div>
-                </div>
               </div>
             </div>
           ) : (

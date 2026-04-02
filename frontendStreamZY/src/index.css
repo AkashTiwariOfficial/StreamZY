@@ -10,3 +10,6 @@
   scrollbar-width: none;  
 }
 
+.body {
+  overflow: hidden;
+}
