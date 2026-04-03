@@ -10,11 +10,12 @@ import axios from 'axios';
 export default function Videos() {
 
   const Context = useContext(videoContext);
-  const { videos, setProgress, loading, setLoading, fetchAllVideos, fetchAllVideoswithQuery, setPage, page, state, setState, results, setVideos, host, setResults } = Context;
+  const { videos, setProgress, loading, setLoading, fetchAllVideos, fetchAllVideoswithQuery, setPage, page, state, setState, setVideos, host } = Context;
   const location = useLocation();
   const { category } = useParams();
 
   useEffect(() => {
+     setPage(1);
     setProgress(10);
     setLoading(true);
     const toastId = toast.loading("Loading ...");

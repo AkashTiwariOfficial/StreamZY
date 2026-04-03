@@ -21,14 +21,16 @@ export default function Login() {
 
         e.preventDefault();
         setLoading(true);
-        
+
         const toastId = toast.loading("Logging In ...");
 
         const { usernameORemail, password } = credentials;
 
-        const body = usernameORemail.includes("@") ?
-            { email: usernameORemail, password }
-            : { username: usernameORemail, password }
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usernameORemail);
+
+        const body = isEmail
+            ? { email: usernameORemail, password }
+            : { username: usernameORemail, password };
 
         try {
 

@@ -35,7 +35,7 @@ export default function VideoState(props) {
 
             const videosData = response.data.data;
             setVideos(videosData);
-            if (response.data.data.length === 0 || response.data.data.length < 10) {
+            if (response.data.data.length < 10) {
                 setState(false);
             }
 
@@ -64,7 +64,7 @@ export default function VideoState(props) {
 
             const videosData = response.data.data;
             setVideos(videosData);
-            if (response.data.data.length === 0 || response.data.data.length < 10) {
+            if (response.data.data.length < 10) {
                 setState(false);
             }
 

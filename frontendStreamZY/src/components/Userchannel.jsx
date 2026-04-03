@@ -5,11 +5,12 @@ import videoContext from '../Context/Videos/videoContext';
 import axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PlaylistItems from "./Playlist/PlaylistItems"
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 export default function Userchannel() {
 
   const Context = useContext(videoContext);
-  const { currUser, host, handleLogout, setProgress, loading, setLoading } = Context;
+  const { currUser, host, handleLogout, setProgress, loading, setLoading, setPage, page, state, setState } = Context;
   const [published, setPublished] = useState(true);
   const [myVideo, setMyVideo] = useState([]);
   const [publishedVideos, setpublishedVideos] = useState([]);
@@ -60,6 +61,10 @@ export default function Userchannel() {
         setMyVideo(response.data.data.filter(video => video.isPublished));
       }
 
+      if (response.data.data.length < 10) {
+        setState(false);
+      }
+
     } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
@@ -86,6 +91,8 @@ export default function Userchannel() {
   }
 
   useEffect(() => {
+    setPage(1);
+    setPage(1);
     setProgress(10);
     setLoading(true);
     const fetchData = async () => {
@@ -147,11 +154,40 @@ export default function Userchannel() {
     )
   }
 
+  const fetchMoreData = async () => {
+
+    setState(true);
+    try {
+      const response = await axios.get(`${host}/v1/users/fetch-videos/${currUser.username}?&page=${page + 1}&limit=10`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      const resultsPublished = response.data.data.filter(video => video.isPublished);
+      setpublishedVideos(prev => [...prev, ...resultsPublished]);
+      const resultsUnPublished = response.data.data.filter(video => !video.isPublished)
+      setUnPublishedVideosVideo(prev => [...prev, ...resultsUnPublished]);
+      published ? setMyVideo(publishedVideos) : setMyVideo(unPublishedPlaylist)
+
+      if (response.data.data.length < 10) {
+        setState(false);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching search results", error.response?.data || error.message);
+    }
+    setPage(prev => prev + 1);
+  }
+
   const date = new Date(details?.createdAt)
 
   return (
     <div className='lg:px-10'>
       {!loading && (
+
         <div className="flex flex-col lg:ml-20 p-3 gap-5">
           <div className="rounded-sm h-44 w-[90%] overflow-hidden mx-10">
             <img src={details?.coverImage || details?.avatar} alt="Profile photo" className="h-full w-full object-cover rounded-3xl" />
@@ -222,82 +258,91 @@ export default function Userchannel() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {comp === "Video" && (
-              myVideo.length !== 0 ? (
-                myVideo.map((video) => {
-                  return <VideoItems key={video?._id} video={video} removeVideos={removeVideos} addToPublishedVideos={addToPublishedVideos} addToUnPublishedVideos={addToUnPublishedVideos} />
-                })
-              ) : (
-                published ? (
-                  <div class="w-full flex justify-center items-center py-14">
-                    <div class="text-center">
-                      <h2 class="text-lg sm:text-xl font-semibold 
+          {comp === "Video" && (
+            myVideo.length !== 0 ? (
+              <InfiniteScroll
+                dataLength={publishedVideos.length + unPublishedVideosVideo.length}
+                next={fetchMoreData}
+                hasMore={state}
+                loader={<div className="flex justify-center items-center h-screen"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {myVideo.map((video) => {
+                    return <VideoItems key={video?._id} video={video} removeVideos={removeVideos} addToPublishedVideos={addToPublishedVideos} addToUnPublishedVideos={addToUnPublishedVideos} />
+                  })}
+                </div>
+              </InfiniteScroll>
+            ) : (
+              published ? (
+                <div className="w-full flex justify-center items-center py-14">
+                  <div className="text-center">
+                    <h2 className="text-lg sm:text-xl font-semibold 
                text-gray-700 dark:text-white/80">
-                        No Published Videos
-                      </h2>
-                      <p class="mt-2 text-sm 
+                      No Published Videos
+                    </h2>
+                    <p className="mt-2 text-sm 
               text-gray-500 dark:text-white/50">
-                        You haven’t uploaded any published videos yet.
+                      You haven’t uploaded any published videos yet.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full flex justify-center items-center py-14">
+                  <div className="text-center">
+                    <h2 className="text-lg sm:text-xl font-semibold 
+               text-gray-700 dark:text-white/80">
+                      No Unpublished Videos
+                    </h2>
+                    <p className="mt-2 text-sm 
+              text-gray-500 dark:text-white/50">
+                      You don’t have any draft or unpublished videos.
+                    </p>
+                  </div>
+                </div>
+              )
+            )
+          )
+          }
+
+          {
+            comp === "Playlist" && (
+              playlist.length !== 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {playlist.map((pylt) => {
+                    return <PlaylistItems key={pylt?._id} pylt={pylt} removePlaylist={removePlaylist} />
+                  })}
+                </div>
+              ) : (
+                publicPlaylist ? (
+                  <div className="w-full flex justify-center items-center py-14">
+                    <div className="text-center">
+                      <h2 className="text-lg sm:text-xl font-semibold 
+               text-gray-700 dark:text-white/80">
+                        No Public Playlists
+                      </h2>
+                      <p className="mt-2 text-sm 
+              text-gray-500 dark:text-white/50">
+                        You haven’t created any Playlists yet.
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div class="w-full flex justify-center items-center py-14">
-                    <div class="text-center">
-                      <h2 class="text-lg sm:text-xl font-semibold 
+                  <div className="w-full flex justify-center items-center py-14">
+                    <div className="text-center">
+                      <h2 className="text-lg sm:text-xl font-semibold 
                text-gray-700 dark:text-white/80">
-                        No Unpublished Videos
+                        No Private Playlists
                       </h2>
-                      <p class="mt-2 text-sm 
+                      <p className="mt-2 text-sm 
               text-gray-500 dark:text-white/50">
-                        You don’t have any draft or unpublished videos.
+                        You don’t have any draft or Private Playlist.
                       </p>
                     </div>
                   </div>
                 )
               )
             )
-            }
-
-            {
-              comp === "Playlist" && (
-                playlist.length !== 0 ? (
-                  playlist.map((pylt) => {
-                    return <PlaylistItems key={pylt?._id} pylt={pylt} removePlaylist={removePlaylist} />
-                  })
-                ) : (
-                  publicPlaylist ? (
-                    <div class="w-full flex justify-center items-center py-14">
-                      <div class="text-center">
-                        <h2 class="text-lg sm:text-xl font-semibold 
-               text-gray-700 dark:text-white/80">
-                          No Public Playlists
-                        </h2>
-                        <p class="mt-2 text-sm 
-              text-gray-500 dark:text-white/50">
-                          You haven’t created any Playlists yet.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div class="w-full flex justify-center items-center py-14">
-                      <div class="text-center">
-                        <h2 class="text-lg sm:text-xl font-semibold 
-               text-gray-700 dark:text-white/80">
-                          No Private Playlists
-                        </h2>
-                        <p class="mt-2 text-sm 
-              text-gray-500 dark:text-white/50">
-                          You don’t have any draft or Private Playlist.
-                        </p>
-                      </div>
-                    </div>
-                  )
-                )
-              )
-            }
-          </div>
+          }
         </div>
       )}
     </div>

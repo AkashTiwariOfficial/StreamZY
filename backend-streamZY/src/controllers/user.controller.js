@@ -430,21 +430,21 @@ const deleteAccount = asyncHandler(async (req, res) => {
     await Like.deleteMany({ video: { $in: videoIds } }, { session });
     await Comment.deleteMany({ video: { $in: videoIds } }, { session });
     const comments = await Comment.find({ video: { $in: videoIds } }).select("_id").session(session);
-    await ReplyComment.deleteMany({ comment: { $in: comments.map(c => c._id) }}, { session });
+    await ReplyComment.deleteMany({ comment: { $in: comments.map(c => c._id) } }, { session });
     await Views.deleteMany({ videoId: { $in: videoIds } }, { session });
     await Playlist.updateMany({ videos: { $in: videoIds } }, {
       $pull: { videos: { $in: videoIds } }
     }, { session })
-    await User.updateMany({ "watchHistory.video": { $in: videoIds }}, {
+    await User.updateMany({ "watchHistory.video": { $in: videoIds } }, {
       $pull: {
-      watchHistory: {
+        watchHistory: {
           video: { $in: videoIds }
         }
       }
     }, { session })
-    await User.updateMany({ "savedVideos.video": { $in: videoIds }}, {
+    await User.updateMany({ "savedVideos.video": { $in: videoIds } }, {
       $pull: {
-      savedVideos: {
+        savedVideos: {
           video: { $in: videoIds }
         }
       }
@@ -1011,8 +1011,8 @@ const fetchUserVideos = asyncHandler(async (req, res) => {
       throw new ApiErrors(404, "User does not exists")
     }
 
-    const limitNumber = parseInt(limit, 10)
-    const pageNumber = parseInt(page, 10)
+    const limitNumber = parseInt(limit, 10);
+    const pageNumber = parseInt(page, 10);
 
     const filter = {}
 
@@ -1024,15 +1024,12 @@ const fetchUserVideos = asyncHandler(async (req, res) => {
       ]
     }
 
-    const sort = {}
-
-    if (sortBy) {
-      sort[sortBy] = sortType === "desc" ? -1 : 1;
-    }
-
     const video = await Video.find({ owner: new mongoose.Types.ObjectId(user?._id) })
-      .sort(sort)
-      .skip((pageNumber - 1) * 10)
+      .sort({
+        [sortBy]: sortType === "desc" ? -1 : 1,
+        _id: -1
+      })
+      .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber)
       .populate("owner", "avatar username")
 
@@ -1044,7 +1041,7 @@ const fetchUserVideos = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponses(200, video, "user's videos fetched successfully"))
   } catch (error) {
-    throw new ApiErrors(500, "Internal Server Error while fetcing user videos")
+    throw new ApiErrors(500, "Internal Server Error while fetcing user's videos")
   }
 
 })

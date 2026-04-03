@@ -7,6 +7,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import PlaylistVideoItem from "./PlaylistVideoItem.jsx";
 import toast from "react-hot-toast"
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function Videoplayer({ video }) {
   const vidRef = useRef(null);
@@ -36,7 +37,7 @@ export default function Videoplayer({ video }) {
 
 
   const Context = useContext(videoContext);
-  const { host, videos, fetchIsSubscribers, dosubscribed, subscribers, fetchChannelIsSubscribed, fetchSubscribers, timeAgo, fetchAllVideos, fetchAllVideoswithQuery, loading, setLoading, setProgress } = Context;
+  const { host, videos, fetchIsSubscribers, dosubscribed, subscribers, fetchChannelIsSubscribed, fetchSubscribers, timeAgo, fetchAllVideos, fetchAllVideoswithQuery, loading, setLoading, setProgress, setPage, page, state, setState, setVideos } = Context;
 
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function Videoplayer({ video }) {
   }, []);
 
   useEffect(() => {
+    setPage(1);
     if (category === "home") { fetchAllVideos(); }
     else if (!category) { fetchAllVideos(); }
     else { fetchAllVideoswithQuery(`${category}`); }
@@ -491,8 +493,61 @@ export default function Videoplayer({ video }) {
     }
   }
 
-  const newVideos = videos.filter(video => video._id != details?.video?._id);
+  const fetchMoreData = async () => {
+    console.log("infinte scroll working");
+    setState(true);
+    try {
+      if (category === "home" || !category) {
+        try {
+          const response = await axios.get(`${host}/v1/videos/get-allVideos?page=${page + 1}&limit=10`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            withCredentials: true
+          });
 
+          const videosData = response.data.data;
+          setVideos(prev => [...prev, ...videosData]);
+         console.log(response.data.data);
+
+          if (response.data.data.length < 10) {
+            setState(false);
+          }
+
+        } catch (error) {
+          console.log("Error while fetching vidoes", error.response?.data || error.message);
+        }
+        setPage(prev => prev + 1);
+      }
+      else if (category) {
+
+        try {
+          const response = await axios.get(`${host}/v1/videos/get-allVideos?&query=${category}&page=${page + 1}&limit=10`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            withCredentials: true
+          });
+
+          const videosData = response.data.data;
+          setVideos(prev => [...prev, ...videosData]);
+ console.log(response.data.data)
+
+          if (response.data.data.length < 10) {
+            setState(false);
+          }
+
+        } catch (error) {
+          console.log("Error while fetching vidoes", error.response?.data || error.message);
+        }
+        setPage(prev => prev + 1);
+      }
+    } catch (error) {
+      console.log("Error while fetching vidoes", error.response?.data || error.message);
+    }
+  }
+ console.log(state);
+ console.log(videos);
   return (
     <>
       {!loading && (
@@ -810,9 +865,16 @@ export default function Videoplayer({ video }) {
                 </div>
                 )}
                 {
-                  newVideos.map((video) => {
-                    return <VideoItems video={video} key={video._id} />
-                  })
+                  <InfiniteScroll
+                    dataLength={videos.length}
+                    next={fetchMoreData}
+                    hasMore={state}
+                    loader={<div className="flex justify-center items-center"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+                  >
+                    {videos.map((video) => {
+                      return <VideoItems video={video} key={video._id} />
+                    })}
+                  </InfiniteScroll>
                 }
               </div>
             </aside>

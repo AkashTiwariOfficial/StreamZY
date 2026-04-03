@@ -7,22 +7,19 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const searchEngine = asyncHandler(async (req, res) => {
 
-    const { page = 1, limit = 20, query, sortBy = "desc", sortType = "views" } = req.query
+    const { page = 1, limit = 10, query, sortBy = "desc", sortType = "views" } = req.query
 
-    const sort = {}
-
-    const limitNumber = parseInt(limit, 10)
-    const pageNumber = parseInt(page, 10)
-
-    if (sortBy) {
-        sort[sortBy] = sortType === "desc" ? -1 : 1;
-    }
+    const limitNumber = parseInt(limit, 10);
+    const pageNumber = parseInt(page, 10);
 
     const videoIndexing = await Video.collection.createIndex({ title: "text", description: "text", tag: "text" }, { weight: { title: 1000, descrption: 500, tag: 700 } })
 
     const videoResponse = await Video.find({ $text: { $search: query } }, { score: { $meta: "textScore" } })
-        .sort(sort)
-        .skip((pageNumber - 1) * 20)
+        .sort({
+            [sortBy]: sortType === "desc" ? -1 : 1,
+            _id: -1
+        })
+        .skip((pageNumber - 1) * limitNumber)
         .limit(limitNumber)
         .populate("owner", "username avatar")
 
@@ -31,7 +28,7 @@ const searchEngine = asyncHandler(async (req, res) => {
     const userResponse = await User.aggregate([
         {
             $match: {
-                $text: { $search: query }, 
+                $text: { $search: query },
             }
         },
         {
@@ -99,8 +96,11 @@ const searchEngine = asyncHandler(async (req, res) => {
             }
         }
     ])
-        .sort(sort)
-        .skip((pageNumber - 1) * 20)
+        .sort({
+            [sortBy]: sortType === "desc" ? -1 : 1,
+            _id: -1
+        })
+        .skip((pageNumber - 1) * limitNumber)
         .limit(limitNumber)
 
     const combinedResponse = {
