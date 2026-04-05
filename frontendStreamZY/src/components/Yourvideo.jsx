@@ -4,11 +4,12 @@ import React, { useContext, useEffect, useState } from 'react'
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function Yourvideo() {
 
     const Context = useContext(videoContext);
-    const { currUser, host, setProgress, loading, setLoading } = Context;
+    const { currUser, host, setProgress, loading, setLoading, page, setPage, state, setState, handleLogout } = Context;
     const [myVideo, setMyVideo] = useState([]);
 
 
@@ -21,6 +22,7 @@ export default function Yourvideo() {
     useEffect(() => {
         setProgress(10);
         setLoading(true);
+        setPage(1);
         const fetchMyVideos = async () => {
 
             setProgress(30);
@@ -41,6 +43,10 @@ export default function Yourvideo() {
                     setProgress(100);
                 }
 
+                if (response.data.data.length < 10) {
+                    setState(false);
+                }
+
             } catch (error) {
                 setLoading(false);
                 setProgress(100);
@@ -51,8 +57,36 @@ export default function Yourvideo() {
 
         fetchMyVideos();
 
-    }, [])
+    }, []);
 
+    const fetchMoreData = async () => {
+
+        const nextPage = page + 1;
+        try {
+            const response = await axios.get(`${host}/v1/users/fetch-videos/${currUser.username}?&page=${nextPage}&limit=10`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
+
+            if (response.data.success) {
+                const results = response.data.data;
+                setMyVideo(prev => [...prev, ...results]);
+            }
+
+            if (response.data.data.length < 10) {
+                setState(false);
+            }
+
+        } catch (error) {
+            console.log("Error while fetching search results", error.response?.data || error.message);
+        }
+        setPage(prev => prev + 1);
+    }
+
+console.log(myVideo);
     return (
         <>
             {!loading && (
@@ -69,7 +103,7 @@ export default function Yourvideo() {
                             <span className="dark:text-white/60 text-base font-[400]">{currUser.username} • View Channel</span>
                             <div className="flex gap-5 mt-2">
 
-                                <div className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
+                                <div onClick={handleLogout} className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
                     md:px-10 lg:px-20 sm:px-10 xs:px-5 
                     rounded-3xl bg-slate-200 dark:bg-[hsla(0,0%,100%,.08)] hover:bg-slate-300 hover:dark:bg-white/20  items-center justify-center">
                                     <i className="fa-solid fa-right-from-bracket"></i>
@@ -95,9 +129,16 @@ export default function Yourvideo() {
                             <hr />
                         </div>
                         {myVideo.length > 0 ? (
-                            myVideo.map((video) => {
-                                return <SideVideosItems key={video?._id} video={{ video: video }} removeMyVideo={removeMyVideo} />
-                            })
+                            <InfiniteScroll
+                                dataLength={myVideo.length}
+                                next={fetchMoreData}
+                                hasMore={state}
+                                loader={<div className="flex justify-center items-center my-10"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+                            >
+                                {myVideo.map((video) => {
+                                    return <SideVideosItems key={video?._id} video={{ video: video }} removeMyVideo={removeMyVideo} />
+                                })}
+                            </InfiniteScroll>
                         ) : (
                             <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
                                 <p className="text-lg font-medium">You haven’t uploaded anything yet</p>

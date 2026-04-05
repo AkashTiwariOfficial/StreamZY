@@ -6,11 +6,12 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import PlaylistItems from "./Playlist/PlaylistItems.jsx"
 import axios from 'axios';
 import toast from "react-hot-toast";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 
 export default function Yourprofile() {
 
-  const { handleLogout, currUser, host, setProgress, loading, setLoading } = useContext(videoContext);
+  const { handleLogout, currUser, host, setProgress, loading, setLoading, page, setPage, state, setState } = useContext(videoContext);
   const scrollRefLike = useRef(null);
   const scrollRef = useRef(null);
   const scrollRefHistory = useRef(null);
@@ -24,7 +25,7 @@ export default function Yourprofile() {
     const el = ref.current;
     if (!el) return;
 
-    const scrollAmount = 250;
+    const scrollAmount = 500;
     el.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
@@ -44,6 +45,10 @@ export default function Yourprofile() {
 
       if (response.data.success) {
         setHistory(response.data.data);
+      }
+
+      if (response.data.data.length < 10) {
+        setState(false);
       }
 
     } catch (error) {
@@ -174,6 +179,43 @@ export default function Yourprofile() {
     );
   };
 
+
+  const fetchMoreData = async () => {
+
+    const nextPage = page + 1;
+    try {
+      const response = await axios.get(`${host}/v1/users/fetch-videos/${currUser.username}?&page=${nextPage}&limit=10`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        const results = response.data.data;
+        setMyVideo(prev => [...prev, ...results]);
+      }
+
+      if (response.data.data.length < 10) {
+        setState(false);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching search results", error.response?.data || error.message);
+    }
+    setPage(prev => prev + 1);
+  }
+
+  const handleScroll = (e) => {
+    const { scrollLeft, scrollWidth, clientWidth } = e.target;
+
+    if (scrollWidth - scrollLeft <= clientWidth + 50 && state) {
+      fetchMoreData();
+    }
+  };
+
+
   return (
     <>
       {!loading && (
@@ -215,7 +257,7 @@ export default function Yourprofile() {
                 <h1 className="text-2xl font-[700] dark:text-white/100">Your Videos</h1>
               </div>
               <div className="flex gap-2">
-                <Link to="/watchHistory" className="flex px-3 py-1 hover:dark:bg-black/70 hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
+                <Link to="/yourVideos" className="flex px-3 py-1 hover:dark:bg-black/70 hover:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
                   View All
                 </Link>
                 <div onClick={() => scroll(scrollRef, "left")} className="flex h-[36px] w-[36px] active:dark:bg-black/90 active:bg-slate-300/95 border-[1px] border-gray-600 dark:border-[hsl(0, 0%, 18.82%)]/20 dark:text-white/90 rounded-full items-center justify-center cursor-pointer">
@@ -233,18 +275,23 @@ export default function Yourprofile() {
               </div>
             </div>
           </div>
-          <div ref={scrollRef} className="overflow-x-auto flex gap-3 scroll-hidden  overflow-x-hidden scroll-smooth py-4">
-            {myVideo.length > 0 ? (
-              myVideo.map((video) => {
-                return <VideoItems key={video?._id} video={video} />
-              })
-            ) : (
-              <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
-                <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
+          {myVideo.length > 0 ? (
+            <div
+              onScroll={handleScroll}
+              className="flex gap-3 overflow-x-auto py-4"
+            >
+              <div ref={scrollRef} className="overflow-x-auto flex gap-3 scroll-hidden scroll-smooth py-4">
+                {myVideo.map((video) => {
+                  return <VideoItems key={video?._id} video={video} />
+                })}
               </div>
-            )
-            }
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
+            </div>
+          )
+          }
+      
 
 
           <div className="my-4 dark:text-white">
