@@ -74,7 +74,7 @@ export default function Videoplayer({ video }) {
   useEffect(() => {
     const onKey = (e) => {
       if (e.target.tagName === "INPUT") return;
-      if (e.key === " ") {
+      if (e.key === " " && !["INPUT", "TEXTAREA"].includes(e.target.tagName) && !e.target.isContentEditable) {
         e.preventDefault();
         togglePlay();
       } else if (e.key === "m") toggleMute();
@@ -494,12 +494,11 @@ export default function Videoplayer({ video }) {
   }
 
   const fetchMoreData = async () => {
-    console.log("infinte scroll working");
-    setState(true);
     try {
       if (category === "home" || !category) {
         try {
-          const response = await axios.get(`${host}/v1/videos/get-allVideos?page=${page + 1}&limit=10`, {
+          const nextPage = page + 1;
+          const response = await axios.get(`${host}/v1/videos/get-allVideos?page=${nextPage}&limit=10`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`
             },
@@ -508,7 +507,6 @@ export default function Videoplayer({ video }) {
 
           const videosData = response.data.data;
           setVideos(prev => [...prev, ...videosData]);
-         console.log(response.data.data);
 
           if (response.data.data.length < 10) {
             setState(false);
@@ -531,7 +529,6 @@ export default function Videoplayer({ video }) {
 
           const videosData = response.data.data;
           setVideos(prev => [...prev, ...videosData]);
- console.log(response.data.data)
 
           if (response.data.data.length < 10) {
             setState(false);
@@ -546,8 +543,8 @@ export default function Videoplayer({ video }) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
   }
- console.log(state);
- console.log(videos);
+
+ const filteredVideos = videos.filter(video => video?._id != id)
   return (
     <>
       {!loading && (
@@ -871,7 +868,7 @@ export default function Videoplayer({ video }) {
                     hasMore={state}
                     loader={<div className="flex justify-center items-center"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
                   >
-                    {videos.map((video) => {
+                    {filteredVideos.map((video) => {
                       return <VideoItems video={video} key={video._id} />
                     })}
                   </InfiniteScroll>

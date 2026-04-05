@@ -6,22 +6,16 @@ import { Comment } from "../models/comment.models.js";
 import { User } from "../models/user.models.js"
 import mongoose from "mongoose";
 import { ReplyComment } from "../models/replyComment.models.js";
- 
+
 
 const getVideoComment = asyncHandler(async (req, res) => {
 
     const { videoId } = req.params
 
-    const { page = 1, limit = 10, sortBy , sortType  } = req.query
+    const { page = 1, limit = 100, sortBy, sortType } = req.query
 
-    const limitNumber = parseInt(limit, 10)
-    const pageNumber = parseInt(page, 10)
-
-     const sort = {}
-
-    if (sortBy) {
-        sort[sortBy] = sortType === "desc" ? -1 : 1;
-    }
+    const limitNumber = parseInt(limit, 10);
+    const pageNumber = parseInt(page, 10);
 
     if (!videoId) {
         throw new ApiErrors(400, "videoId is missing!")
@@ -34,10 +28,13 @@ const getVideoComment = asyncHandler(async (req, res) => {
     }
 
     const fetchAllComment = await Comment.find({ video: videoId })
-    .sort(sort)
-    .skip((pageNumber - 1) * 10)
-    .limit(limitNumber)
-    .populate( "owner", "username avatar" )
+        .sort({
+            [sortBy]: sortType === "desc" ? -1 : 1,
+            _id: -1
+        })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber)
+        .populate("owner", "username avatar")
 
 
     if (!fetchAllComment) {
@@ -142,11 +139,11 @@ const deleteComment = asyncHandler(async (req, res) => {
     }
 
     const delComment = await Comment.findByIdAndDelete(commentId);
-    await ReplyComment.deleteMany({ comment: commentId});
+    await ReplyComment.deleteMany({ comment: commentId });
 
     if (!delComment) {
         throw new ApiErrors(500, "Internal Server Error while deleting comment on the video")
-    }
+    } 
 
     return res
         .status(200)

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from "axios";
 import toast from "react-hot-toast"
+import InfiniteScroll from "react-infinite-scroll-component";
 
 
 function Avatar({ src, alt, size = 10 }) {
@@ -32,16 +33,14 @@ function IconButton({ children, label, onClick, active }) {
 
 export default function Comment() {
   const [comments, setComments] = useState([]);
-  const [showCount, setShowCount] = useState(5);
+  const [showCount, setShowCount] = useState(8);
   const [inputText, setInputText] = useState("");
   const [isPosting, setIsPosting] = useState(false);
-  const [state, setState] = useState("");
   const inputRef = useRef(null);
   const { id } = useParams();
-  const host = import.meta.env.VITE_HOST_LINK;
-
+  const [val, setVal] = useState("");
   const Context = useContext(videoContext);
-  const { currUser, timeAgo, loading, setLoading, setProgress } = Context;
+  const { currUser, host } = Context;
 
   useEffect(() => {
     // Focus the input on mount for better UX
@@ -88,6 +87,7 @@ export default function Comment() {
     }
 
     const getComments = async () => {
+
       try {
 
         const response = await axios.get(`${host}/v1/comments/getAll-comments/${id}`, {
@@ -101,6 +101,7 @@ export default function Comment() {
         if (response.data.success) {
           setComments(response.data.data);
         }
+
 
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
@@ -133,6 +134,7 @@ export default function Comment() {
     }
   }
 
+
   return (
     <section aria-labelledby="comments-heading" className="w-full mx-auto px-3 py-2">
       <div className="flex items-center justify-between mb-3">
@@ -144,8 +146,8 @@ export default function Comment() {
           <label htmlFor="sort" className="sr-only dark:bg-gray-900/10">Sort comments</label>
           <select
             id="sort"
-            value={state}
-            onChange={(e) => { setState(e.target.value); handleChange(e.target.value); }}
+            value={val}
+            onChange={(e) => { setVal(e.target.value); handleChange(e.target.value); }}
             className="bg-gray-700 dark:bg-black/40 dark:text-white/80 border-[1px] dark:border-white/20 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="replies" onChange={handleChange} >Top Replied Comment</option>
@@ -213,7 +215,6 @@ export default function Comment() {
             />
           ))}
       </div>
-
       <div className="mt-4 text-center text-black/80 dark:text-white">
         {showCount < comments.length ? (
           <button
@@ -246,16 +247,16 @@ function CommentCard({ comment, removeComments }) {
   const [disliked, setdisliked] = useState(false);
   const [totalLike, setTotalLike] = useState(0);
   const [opens, setOpens] = useState(true);
-  const [replycomment, setReplyComment] = useState("");
+  const [replycomment, setReplyComment] = useState([]);
   const [cmenu, setCMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedText, setEditedText] = useState(comment?.content);
   const [totalReplies, setTotalReplies] = useState(comment.replies);
   const [openReplies, setOpenReplies] = useState(false);
-  const host = import.meta.env.VITE_HOST_LINK;
+  const [showCount, setShowCount] = useState(5);
 
   const Context = useContext(videoContext);
-  const { currUser, timeAgo } = Context;
+  const { currUser, timeAgo, host } = Context;
   const menuRef = useRef(null);
   const editRef = useRef(null);
 
@@ -306,7 +307,8 @@ function CommentCard({ comment, removeComments }) {
   const toggleOpen = async () => {
     if (!opens) {
       setOpens(true);
-      setReplyComment("");
+      setReplyComment([]);
+      setReplyCommentPage(1);
     } else {
 
       try {
@@ -322,6 +324,10 @@ function CommentCard({ comment, removeComments }) {
           setReplyComment(response.data.data);
         }
 
+        if (response.data.data.length < 10) {
+          setReplyScroll(false);
+        }
+
       } catch (error) {
         console.log("Error while fetching vidoes", error.response?.data || error.message);
       }
@@ -329,8 +335,6 @@ function CommentCard({ comment, removeComments }) {
       setOpens(false);
     }
   }
-
-  useEffect(() => { }, [replycomment])
 
   const addReply = async (text) => {
     if (!text.trim()) return;
@@ -523,8 +527,6 @@ function CommentCard({ comment, removeComments }) {
     }
   }, [editing, editedText]);
 
-
-
   return (
     <article className="flex justify-between" aria-labelledby={`comment-${comment?._id}`}>
       <div className="flex gap-3">
@@ -607,11 +609,33 @@ function CommentCard({ comment, removeComments }) {
           {/* Replies */}
 
           {opens == false && (
-            <div className="mt-3 border-l dark:border-white/20  pl-4 space-y-3">
-              {replycomment.map((r) => (
-                <ReplyCommentCard key={r?._id} reply_Comment={r} reduceComments={reduceComments} setTotalReplies={setTotalReplies} />
-              ))}
-            </div>
+            <>
+              <div className="my-2 border-l dark:border-white/20  pl-4 space-y-3">
+                {replycomment.slice(0, showCount).map((r) => (
+                  <ReplyCommentCard key={r?._id} reply_Comment={r} reduceComments={reduceComments} setTotalReplies={setTotalReplies} />
+                ))}
+              </div>
+
+              <div className="my-4 text-center text-black/80 dark:text-white">
+                {showCount < replycomment.length ? (
+                  <button
+                    onClick={() => setShowCount((s) => s + 5)}
+                    className="px-4 py-2 rounded-md border-[1px] text-sm dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none"
+                  >
+                    Load more
+                  </button>
+                ) : (
+                  replycomment.length > 0 && (
+                    <button
+                      onClick={() => setShowCount(5)}
+                      className="px-4 py-2 rounded-md border-[1px] text-sm dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none"
+                    >
+                      Show less
+                    </button>
+                  )
+                )}
+              </div>
+            </>
           )}
 
           {(comment.replies != 0 || openReplies) && (
@@ -876,7 +900,7 @@ function ReplyCommentCard({ reply_Comment, reduceComments, setTotalReplies }) {
 
       if (response.data.success) {
         reduceComments(reply_Comment?._id);
-         setTotalReplies(prev => prev - 1);
+        setTotalReplies(prev => prev - 1);
         toast.success("Comment deleted successfully");
       }
     } catch (error) {

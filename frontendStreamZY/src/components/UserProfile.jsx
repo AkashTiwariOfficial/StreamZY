@@ -130,10 +130,9 @@ export default function UserProfile() {
     }
 
     const fetchMoreData = async () => {
-
-        setState(true);
+  const nextPage = page + 1;
         try {
-            const response = await axios.get(`${host}/v1/users/fetch-videos/${username}?&page=${page + 1}&limit=10`, {
+            const response = await axios.get(`${host}/v1/users/fetch-videos/${username}?&page=${nextPage}&limit=10`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },
@@ -220,7 +219,7 @@ export default function UserProfile() {
                                     dataLength={myVideo.length}
                                     next={fetchMoreData}
                                     hasMore={state}
-                                    loader={<div className="flex justify-center items-center h-screen"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+                                    loader={<div className="flex justify-center items-center my-14"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
                                 >
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                         {myVideo.map((video) => (

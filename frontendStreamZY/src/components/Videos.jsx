@@ -15,7 +15,7 @@ export default function Videos() {
   const { category } = useParams();
 
   useEffect(() => {
-     setPage(1);
+    setPage(1);
     setProgress(10);
     setLoading(true);
     const toastId = toast.loading("Loading ...");
@@ -50,11 +50,12 @@ export default function Videos() {
   }, [location.pathname, category]);
 
   const fetchMoreData = async () => {
-    setState(true);
+
     try {
       if (location.pathname === "/home") {
         try {
-          const response = await axios.get(`${host}/v1/videos/get-allVideos?page=${page + 1}&limit=10`, {
+          const nextPage = page + 1;
+          const response = await axios.get(`${host}/v1/videos/get-allVideos?page=${nextPage}&limit=10`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`
             },
@@ -110,7 +111,7 @@ export default function Videos() {
           dataLength={videos.length}
           next={fetchMoreData}
           hasMore={state}
-          loader={<div className="flex justify-center items-center h-screen"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+          loader={<div className="flex justify-center items-center my-14"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
         >
           <div className="w-full">
             <div className="lg:ml-24 ml-2 mb-5 mt-1 p-2 md:p-3">

@@ -4,22 +4,16 @@ import { ApiResponses } from "../utils/ApiResponses.js";
 import { Comment } from "../models/comment.models.js";
 import { User } from "../models/user.models.js"
 import { ReplyComment } from "../models/replyComment.models.js";
- 
+
 
 const getCommentReply = asyncHandler(async (req, res) => {
 
     const { commentId } = req.params
 
-    const { page = 1, limit = 10, sortBy = "createdAt", sortType = "desc" } = req.query
+    const { page = 1, limit = 100, sortBy = "createdAt", sortType = "desc" } = req.query
 
     const limitNumber = parseInt(limit, 10)
     const pageNumber = parseInt(page, 10)
-
-     const sort = {}
-
-    if (sortBy) {
-        sort[sortBy] = sortType === "desc" ? -1 : 1;
-    }
 
     if (!commentId) {
         throw new ApiErrors(400, "commentId is missing!")
@@ -32,12 +26,16 @@ const getCommentReply = asyncHandler(async (req, res) => {
     }
 
     const fetchAllCommentReply = await ReplyComment.find({ comment: commentId })
-    .sort(sort)
-    .skip((pageNumber - 1) * 10)
-    .limit(limitNumber)
-    .populate(
-        "owner",  "username avatar"
-    )
+        .sort({
+            [sortBy]: sortType === "desc" ? -1 : 1,
+            _id: -1
+        })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber)
+        .populate("owner", "username avatar")
+        .populate(
+            "owner", "username avatar"
+        )
 
 
     if (!fetchAllCommentReply) {
@@ -85,7 +83,7 @@ const addCommentReply = asyncHandler(async (req, res) => {
         })
     }
 
-     await addCommentOnVideo.populate("owner", "username avatar");
+    await addCommentOnVideo.populate("owner", "username avatar");
 
     if (!addCommentOnVideo) {
         throw new ApiErrors(500, "Internal Server Error while adding comment's reply")
@@ -151,13 +149,13 @@ const deleteComment = asyncHandler(async (req, res) => {
 
     const delComment = await ReplyComment.findByIdAndDelete(replyCommentId)
 
-          if (delComment) {
-                await Comment.findByIdAndUpdate(validCommentId?.comment, {
+    if (delComment) {
+        await Comment.findByIdAndUpdate(validCommentId?.comment, {
             $inc: {
                 replies: -1
             }
         })
-          }
+    }
 
     if (!delComment) {
         throw new ApiErrors(500, "Internal Server Error while deleting comment on the video")
