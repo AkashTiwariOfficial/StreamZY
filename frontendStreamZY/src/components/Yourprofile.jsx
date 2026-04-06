@@ -25,6 +25,8 @@ export default function Yourprofile() {
   const [fetching, setFetching] = useState(false);
   const [likePage, setLikePage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
+
+
   const scroll = (ref, direction) => {
     const el = ref.current;
     if (!el) return;
@@ -225,6 +227,68 @@ export default function Yourprofile() {
   };
 
 
+  const fetchMoreDataLike = async () => {
+    if (fetching) return;
+
+    setFetching(true);
+
+    const nextPage = likePage + 1;
+    try {
+      const response = await axios.get(`${host}/v1/likes/fetch-user-likes-videos?&page=${nextPage}&limit=10`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        const results = response.data.data;
+        setLike(prev => [...prev, ...results]);
+      }
+
+      if (response.data.data.length < 10) {
+        setHasMore(false);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching liked videos", error.response?.data || error.message);
+    }
+    setLikePage(prev => prev + 1);
+    setFetching(false);
+  }
+
+
+  const fetchMoreDataHistory = async () => {
+    if (fetching) return;
+
+    setFetching(true);
+
+    const nextPage = historyPage + 1;
+    try {
+      const response = await axios.get(`${host}/v1/users/watch-history?&page=${nextPage}&limit=10`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        const results = response.data.data;
+        setHistory(prev => [...prev, ...results]);
+      }
+
+      if (response.data.data.length < 10) {
+        setHasMore(false);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching watch history", error.response?.data || error.message);
+    }
+    setHistoryPage(prev => prev + 1);
+    setFetching(false);
+  }
 
 
   return (
@@ -292,7 +356,6 @@ export default function Yourprofile() {
               onScroll={(e) => handleScroll(e, fetchMoreData, hasMore, fetching)}
               className="flex gap-3 overflow-x-auto py-4 scroll-hidden"
             >
-
               {myVideo.map((video) => {
                 return <VideoItems key={video?._id} video={video} />
               })}
@@ -333,18 +396,23 @@ export default function Yourprofile() {
               </div>
             </div>
           </div>
-          <div ref={scrollRefHistory} className="overflow-x-auto flex gap-3 overflow-x-hidden scroll-smooth py-4">
-            {history.length > 0 ? (
-              history.map((video) => {
+          {history.length > 0 ? (
+            <div
+              ref={scrollRef}
+              onScroll={(e) => handleScroll(e, fetchMoreDataHistory, hasMore, fetching)}
+              className="flex gap-3 overflow-x-auto py-4 scroll-hidden"
+            >
+              {history.map((video) => {
                 return <DuplicatieItem key={video._id} video={video} removeHistory={removeHistory} delFunction={"delete-History"} />
-              })
-            ) : (
-              <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
-                <p className="text-lg font-medium">No watch history yet</p>
-              </div>
-            )
-            }
-          </div>
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-medium">No watch history yet</p>
+            </div>
+          )
+          }
+
 
           <div className="py-4 dark:text-white">
             <hr />
@@ -377,19 +445,23 @@ export default function Yourprofile() {
               </div>
             </div>
           </div>
-          <div ref={scrollRefLike} className="overflow-x-auto flex gap-3 scroll-hidden scroll-smooth py-4">
-            {like.length > 0 ? (
-              like.map((video) => {
+          {like.length > 0 ? (
+            <div
+              ref={scrollRef}
+              onScroll={(e) => handleScroll(e, fetchMoreDataHistory, hasMore, fetching)}
+              className="flex gap-3 overflow-x-auto py-4 scroll-hidden"
+            >
+              {like.map((video) => {
                 return <DuplicatieItem key={video._id} video={video} removeLikedVideos={removeLikedVideos} delFunction={"delete-Like"} />
               }
-              )
-            ) : (
-              <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
-                <p className="text-lg font-medium">No liked videos yet</p>
-              </div>
-            )
-            }
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-medium">No liked videos yet</p>
+            </div>
+          )
+          }
 
 
           <div className="py-4 dark:text-white">

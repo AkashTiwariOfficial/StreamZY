@@ -10,7 +10,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 export default function Userchannel() {
 
   const Context = useContext(videoContext);
-  const { currUser, host, handleLogout, setProgress, loading, setLoading, setPage, page, state, setState } = Context;
+  const { currUser, host, handleLogout, setProgress, loading, setLoading, setPage, page } = Context;
   const [published, setPublished] = useState(true);
   const [myVideo, setMyVideo] = useState([]);
   const [publishedVideos, setpublishedVideos] = useState([]);
@@ -21,6 +21,8 @@ export default function Userchannel() {
   const [details, setDetails] = useState([]);
   const [playlist, setPlaylist] = useState([]);
   const [comp, setComp] = useState("Video");
+  const [hasMore, setHasMore] = useState(true);
+
 
 
   const handleOwnedPlaylist = async () => {
@@ -62,7 +64,7 @@ export default function Userchannel() {
       }
 
       if (response.data.data.length < 10) {
-        setState(false);
+        setHasMore(false);
       }
 
     } catch (error) {
@@ -92,7 +94,7 @@ export default function Userchannel() {
 
   useEffect(() => {
     setPage(1);
-    setPage(1);
+    setHasMore(true);
     setProgress(10);
     setLoading(true);
     const fetchData = async () => {
@@ -173,7 +175,7 @@ export default function Userchannel() {
       published ? setMyVideo(publishedVideos) : setMyVideo(unPublishedPlaylist)
 
       if (response.data.data.length < 10) {
-        setState(false);
+        setHasMore(false);
       }
 
     } catch (error) {
@@ -263,7 +265,7 @@ export default function Userchannel() {
               <InfiniteScroll
                 dataLength={publishedVideos.length + unPublishedVideosVideo.length}
                 next={fetchMoreData}
-                hasMore={state}
+                hasMore={hasMore}
                 loader={<div className="flex justify-center items-center my-14"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

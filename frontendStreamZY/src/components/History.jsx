@@ -3,15 +3,16 @@ import SideVideosItems from './SideVideosItems'
 import axios from 'axios';
 import videoContext from '../Context/Videos/videoContext';
 import toast from 'react-hot-toast';
-
+import InfiniteScroll from "react-infinite-scroll-component";
 
 
 export default function History() {
 
   const [watVideo, setWAtVideo] = useState([]);
+  const [ hasMore, setHasMore ] = useState(true);
 
   const Context = useContext(videoContext);
-  const { host, setProgress, loading, setLoading } = Context;
+  const { host, setProgress, loading, setLoading, page, setPage } = Context;
 
   const removeVideos = (_id_) => {
     setWAtVideo(prev =>
@@ -20,7 +21,8 @@ export default function History() {
   };
 
   useEffect(() => {
-
+    setPage(1);
+    setHasMore(true);
     setProgress(10);
     setLoading(true);
     const fetchUserWatchHistory = async () => {
@@ -41,6 +43,10 @@ export default function History() {
           setLoading(false);
           setWAtVideo(response.data.data);
           setProgress(100);
+        }
+
+        if (response.data.data.length < 10) {
+          setHasMore(false);
         }
 
       } catch (error) {
@@ -77,6 +83,35 @@ export default function History() {
     }
   }
 
+
+  const fetchMoreData = async () => {
+
+    const nextPage = page + 1;
+    try {
+      const response = await axios.get(`${host}/v1/users/watch-history?&page=${nextPage}&limit=10`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        withCredentials: true,
+        timeout: 150000
+      });
+
+      if (response.data.success) {
+        const results = response.data.data;
+        setWAtVideo(prev => [...prev, ...results]);
+      }
+
+      if (response.data.data.length < 10) {
+        setHasMore(false);
+      }
+
+    } catch (error) {
+      console.log("Error while fetching watch history", error.response?.data || error.message);
+    }
+    setPage(prev => prev + 1);
+  }
+
+
   return (
     <div>
       {!loading && (
@@ -98,13 +133,20 @@ export default function History() {
           </div>
 
           {watVideo.length > 0 ? (
-            watVideo.map((video) => (
-              <SideVideosItems
-                key={video._id}
-                video={video}
-                removeVideos={removeVideos}
-              />
-            ))
+            <InfiniteScroll
+              dataLength={watVideo.length}
+              next={fetchMoreData}
+              hasMore={hasMore}
+              loader={<div className="flex justify-center items-center my-10"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+            >
+              {watVideo.map((video) => (
+                <SideVideosItems
+                  key={video._id}
+                  video={video}
+                  removeVideos={removeVideos}
+                />
+              ))}
+            </InfiniteScroll>
           ) : (
             <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
               <p className="text-lg font-medium">No watch history yet</p>

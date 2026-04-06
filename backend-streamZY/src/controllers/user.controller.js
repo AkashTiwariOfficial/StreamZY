@@ -928,6 +928,12 @@ const getUserChannel = asyncHandler(async (req, res) => {
 
 const getUserWatchHistory = asyncHandler(async (req, res) => {
 
+  const { page = 1, limit = 10, sortBy = "watchedAt", sortType = "desc" } = req.query
+
+  const limitNumber = parseInt(limit, 10);
+  const pageNumber = parseInt(page, 10);
+
+
   try {
 
     const user = await User.aggregate([
@@ -981,6 +987,13 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
         }
       }
     ])
+      .sort({
+        [sortBy]: sortType === "desc" ? -1 : 1,
+        _id: -1
+      })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
+
 
     return res
       .status(200)
@@ -1088,7 +1101,11 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 const getUserSavedVidoes = asyncHandler(async (req, res) => {
 
+  const { page = 1, limit = 10, sortBy = "savedAt", sortType = "desc" } = req.query
   const { username } = req.params
+
+  const limitNumber = parseInt(limit, 10);
+  const pageNumber = parseInt(page, 10);
 
   if (!username) {
     throw new ApiErrors(400, "username is missing")
@@ -1153,6 +1170,12 @@ const getUserSavedVidoes = asyncHandler(async (req, res) => {
         }
       }
     ])
+      .sort({
+        [sortBy]: sortType === "desc" ? -1 : 1,
+        _id: -1
+      })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
 
     return res
       .status(200)

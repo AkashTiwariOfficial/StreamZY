@@ -9,8 +9,9 @@ import InfiniteScroll from "react-infinite-scroll-component";
 export default function Yourvideo() {
 
     const Context = useContext(videoContext);
-    const { currUser, host, setProgress, loading, setLoading, page, setPage, state, setState, handleLogout } = Context;
+    const { currUser, host, setProgress, loading, setLoading, page, setPage, handleLogout } = Context;
     const [myVideo, setMyVideo] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
 
 
     const removeMyVideo = (_id_) => {
@@ -20,6 +21,7 @@ export default function Yourvideo() {
     };
 
     useEffect(() => {
+        setHasMore(true);
         setProgress(10);
         setLoading(true);
         setPage(1);
@@ -44,7 +46,7 @@ export default function Yourvideo() {
                 }
 
                 if (response.data.data.length < 10) {
-                    setState(false);
+                    setHasMore(false);
                 }
 
             } catch (error) {
@@ -77,7 +79,7 @@ export default function Yourvideo() {
             }
 
             if (response.data.data.length < 10) {
-                setState(false);
+                setHasMore(false);
             }
 
         } catch (error) {
@@ -86,7 +88,6 @@ export default function Yourvideo() {
         setPage(prev => prev + 1);
     }
 
-console.log(myVideo);
     return (
         <>
             {!loading && (
@@ -132,7 +133,7 @@ console.log(myVideo);
                             <InfiniteScroll
                                 dataLength={myVideo.length}
                                 next={fetchMoreData}
-                                hasMore={state}
+                                hasMore={hasMore}
                                 loader={<div className="flex justify-center items-center my-10"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
                             >
                                 {myVideo.map((video) => {

@@ -11,12 +11,13 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 export default function UserProfile() {
 
     const Context = useContext(videoContext);
-    const { currUser, host, fetchIsSubscribers, fetchChannelIsSubscribed, dosubscribed, setProgress, loading, setLoading, setPage, page, state, setState } = Context;
+    const { currUser, host, fetchIsSubscribers, fetchChannelIsSubscribed, dosubscribed, setProgress, loading, setLoading, setPage, page } = Context;
     const [videoOrPlaylist, setVideoOrPlaylist] = useState(true);
     const [myVideo, setMyVideo] = useState([]);
     const [details, setDetails] = useState([]);
     const [playlist, setPlaylist] = useState([]);
     const [open, setOpen] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
     const { username } = useParams();
 
     const fetchUserDetails = async () => {
@@ -55,7 +56,7 @@ export default function UserProfile() {
             }
 
             if (response.data.data.length < 10) {
-                setState(false);
+                setHasMore(false);
             }
 
 
@@ -86,6 +87,7 @@ export default function UserProfile() {
 
     useEffect(() => {
         setPage(1);
+        setHasMore(true);
         setProgress(10);
         setLoading(true);
         const fetchData = async () => {
@@ -130,7 +132,7 @@ export default function UserProfile() {
     }
 
     const fetchMoreData = async () => {
-  const nextPage = page + 1;
+        const nextPage = page + 1;
         try {
             const response = await axios.get(`${host}/v1/users/fetch-videos/${username}?&page=${nextPage}&limit=10`, {
                 headers: {
@@ -144,7 +146,7 @@ export default function UserProfile() {
             setMyVideo(prev => [...prev, ...results]);
 
             if (response.data.data.length < 10) {
-                setState(false);
+                setHasMore(false);
             }
 
         } catch (error) {
@@ -218,7 +220,7 @@ export default function UserProfile() {
                                 <InfiniteScroll
                                     dataLength={myVideo.length}
                                     next={fetchMoreData}
-                                    hasMore={state}
+                                    hasMore={hasMore}
                                     loader={<div className="flex justify-center items-center my-14"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
                                 >
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -268,7 +270,7 @@ export default function UserProfile() {
                     </div>
                 </div>
             )
-}
+            }
         </>
     )
 }

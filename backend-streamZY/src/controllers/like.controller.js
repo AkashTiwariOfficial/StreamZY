@@ -12,6 +12,12 @@ import { ReplyComment } from "../models/replyComment.models.js";
 
 const getLikedVideos = asyncHandler(async (req, res) => {
 
+    const { page = 1, limit = 10, sortBy = "createdAt", sortType = "desc" } = req.query
+
+    const limitNumber = parseInt(limit, 10);
+    const pageNumber = parseInt(page, 10);
+
+
     const likedVideo = await Like.aggregate([
         {
             $match: {
@@ -61,8 +67,15 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             }
         }
     ])
+          .sort({
+        [sortBy]: sortType === "desc" ? -1 : 1,
+        _id: -1
+      })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
 
-       if (!likedVideo) {
+
+    if (!likedVideo) {
         throw new ApiErrors(500, "Internal Server Error while fetching user's liked Video")
     }
 
@@ -72,8 +85,8 @@ const getLikedVideos = asyncHandler(async (req, res) => {
 
 })
 
-const removeFromLike = asyncHandler( async (req, res) => {
-       const { Id } = req.params
+const removeFromLike = asyncHandler(async (req, res) => {
+    const { Id } = req.params
 
     if (!Id) {
         throw new ApiErrors(400, "videoId is missing!")
@@ -91,7 +104,7 @@ const removeFromLike = asyncHandler( async (req, res) => {
             throw new ApiErrors(500, "Internal Server Error while deleting Liked Video!");
         }
 
-      return res
+        return res
             .status(200)
             .json(new ApiResponses(200, validId, "Video liked deleted successfully"))
     } catch (error) {

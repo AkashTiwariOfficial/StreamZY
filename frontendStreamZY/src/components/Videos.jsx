@@ -16,6 +16,7 @@ export default function Videos() {
 
   useEffect(() => {
     setPage(1);
+    setState(true);
     setProgress(10);
     setLoading(true);
     const toastId = toast.loading("Loading ...");

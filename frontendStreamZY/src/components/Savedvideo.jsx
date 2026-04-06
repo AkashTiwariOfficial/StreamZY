@@ -3,14 +3,16 @@ import SideVideosItems from './SideVideosItems'
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import InfiniteScroll from "react-infinite-scroll-component";
 
 
 
 export default function Savedvideo() {
 
     const [savedVideo, setSavedVideo] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
     const Context = useContext(videoContext);
-    const { currUser, host, setProgress, loading, setLoading } = Context;
+    const { currUser, host, setProgress, loading, setLoading, page, setPage } = Context;
 
 
     const removeSavedVideos = (_id_) => {
@@ -20,6 +22,8 @@ export default function Savedvideo() {
     };
 
     useEffect(() => {
+        setPage(1);
+        setHasMore(true);
         setProgress(10);
         setLoading(true);
         const fetchUserSavedVideo = async () => {
@@ -39,6 +43,10 @@ export default function Savedvideo() {
                     setLoading(false);
                     setSavedVideo(response.data.data);
                     setProgress(100);
+                }
+
+                if (response.data.data.length < 10) {
+                    setHasMore(false);
                 }
 
             } catch (error) {
@@ -75,6 +83,33 @@ export default function Savedvideo() {
         }
     }
 
+    const fetchMoreData = async () => {
+
+        const nextPage = page + 1;
+        try {
+            const response = await axios.get(`${host}/v1/users/saved-videos/${currUser?.username}?&page=${nextPage}&limit=10`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                withCredentials: true,
+                timeout: 150000
+            });
+
+            if (response.data.success) {
+                const results = response.data.data;
+                setSavedVideo(prev => [...prev, ...results]);
+            }
+
+            if (response.data.data.length < 10) {
+                setHasMore(false);
+            }
+
+        } catch (error) {
+            console.log("Error while fetching saved video", error.response?.data || error.message);
+        }
+        setPage(prev => prev + 1);
+    }
+
     return (
         <div>
             {!loading && (
@@ -96,13 +131,20 @@ export default function Savedvideo() {
                     </div>
 
                     {savedVideo.length > 0 ? (
-                        savedVideo.map((video) => (
-                            <SideVideosItems
-                                key={video._id}
-                                video={video}
-                                removeSavedVideos={removeSavedVideos}
-                            />
-                        ))
+                        <InfiniteScroll
+                            dataLength={savedVideo.length}
+                            next={fetchMoreData}
+                            hasMore={hasMore}
+                            loader={<div className="flex justify-center items-center my-10"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+                        >
+                            {savedVideo.map((video) => (
+                                <SideVideosItems
+                                    key={video._id}
+                                    video={video}
+                                    removeSavedVideos={removeSavedVideos}
+                                />
+                            ))}
+                        </InfiniteScroll>
                     ) : (
                         <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 dark:text-gray-400">
                             <p className="text-lg font-medium">No Saved Videos yet</p>

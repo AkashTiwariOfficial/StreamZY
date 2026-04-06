@@ -12,10 +12,10 @@ const getVideoComment = asyncHandler(async (req, res) => {
 
     const { videoId } = req.params
 
-    const { page = 1, limit = 100, sortBy, sortType } = req.query
+/*     const { page = 1, limit = 100, sortBy, sortType } = req.query
 
     const limitNumber = parseInt(limit, 10);
-    const pageNumber = parseInt(page, 10);
+    const pageNumber = parseInt(page, 10); */
 
     if (!videoId) {
         throw new ApiErrors(400, "videoId is missing!")
@@ -28,12 +28,12 @@ const getVideoComment = asyncHandler(async (req, res) => {
     }
 
     const fetchAllComment = await Comment.find({ video: videoId })
-        .sort({
+      /*   .sort({
             [sortBy]: sortType === "desc" ? -1 : 1,
             _id: -1
         })
         .skip((pageNumber - 1) * limitNumber)
-        .limit(limitNumber)
+        .limit(limitNumber) */
         .populate("owner", "username avatar")
 
 

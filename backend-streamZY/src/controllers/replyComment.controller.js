@@ -9,12 +9,12 @@ import { ReplyComment } from "../models/replyComment.models.js";
 const getCommentReply = asyncHandler(async (req, res) => {
 
     const { commentId } = req.params
-
+/* 
     const { page = 1, limit = 100, sortBy = "createdAt", sortType = "desc" } = req.query
 
     const limitNumber = parseInt(limit, 10)
     const pageNumber = parseInt(page, 10)
-
+ */
     if (!commentId) {
         throw new ApiErrors(400, "commentId is missing!")
     }
@@ -26,12 +26,12 @@ const getCommentReply = asyncHandler(async (req, res) => {
     }
 
     const fetchAllCommentReply = await ReplyComment.find({ comment: commentId })
-        .sort({
+      /*   .sort({
             [sortBy]: sortType === "desc" ? -1 : 1,
             _id: -1
         })
         .skip((pageNumber - 1) * limitNumber)
-        .limit(limitNumber)
+        .limit(limitNumber) */
         .populate("owner", "username avatar")
         .populate(
             "owner", "username avatar"
