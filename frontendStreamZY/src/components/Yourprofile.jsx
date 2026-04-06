@@ -80,7 +80,7 @@ export default function Yourprofile() {
 
       if (response.data.success) {
         setLike(response.data.data.likedVideo);
-        setTotalLike(response.data.data.totalLikedVideo.length);
+        setTotalLike(response.data.data.totalLikedVideo);
       }
 
       if (response.data.data.length < 10) {
