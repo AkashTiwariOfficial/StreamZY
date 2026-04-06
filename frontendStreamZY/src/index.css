@@ -13,3 +13,13 @@
 .body {
   overflow: hidden;
 }
+
+/* Hide scrollbar */
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none;  /* IE */
+  scrollbar-width: none;     /* Firefox */
+}

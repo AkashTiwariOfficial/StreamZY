@@ -6,12 +6,12 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import PlaylistItems from "./Playlist/PlaylistItems.jsx"
 import axios from 'axios';
 import toast from "react-hot-toast";
-import InfiniteScroll from "react-infinite-scroll-component";
+
 
 
 export default function Yourprofile() {
 
-  const { handleLogout, currUser, host, setProgress, loading, setLoading, page, setPage, state, setState } = useContext(videoContext);
+  const { handleLogout, currUser, host, setProgress, loading, setLoading } = useContext(videoContext);
   const scrollRefLike = useRef(null);
   const scrollRef = useRef(null);
   const scrollRefHistory = useRef(null);
@@ -20,7 +20,11 @@ export default function Yourprofile() {
   const [history, setHistory] = useState([]);
   const [myVideo, setMyVideo] = useState([]);
   const [playlist, setPlaylist] = useState([]);
-
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [fetching, setFetching] = useState(false);
+  const [likePage, setLikePage] = useState(1);
+  const [historyPage, setHistoryPage] = useState(1);
   const scroll = (ref, direction) => {
     const el = ref.current;
     if (!el) return;
@@ -45,10 +49,6 @@ export default function Yourprofile() {
 
       if (response.data.success) {
         setHistory(response.data.data);
-      }
-
-      if (response.data.data.length < 10) {
-        setState(false);
       }
 
     } catch (error) {
@@ -90,11 +90,17 @@ export default function Yourprofile() {
 
       if (response.data.success) {
         setMyVideo(response.data.data);
+        setHasMore(response.data.data.length === 10);
+      }
+
+      if (response.data.data.length < 10) {
+        setHasMore(false);
       }
 
     } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
+
   }
 
 
@@ -123,7 +129,7 @@ export default function Yourprofile() {
 
 
   useEffect(() => {
-
+    setPage(1);
     setProgress(10);
     setLoading(true);
     const fetchData = async () => {
@@ -181,8 +187,11 @@ export default function Yourprofile() {
 
 
   const fetchMoreData = async () => {
+    if (fetching) return;
 
+    setFetching(true);
     const nextPage = page + 1;
+
     try {
       const response = await axios.get(`${host}/v1/users/fetch-videos/${currUser.username}?&page=${nextPage}&limit=10`, {
         headers: {
@@ -192,28 +201,30 @@ export default function Yourprofile() {
         timeout: 150000
       });
 
-      if (response.data.success) {
-        const results = response.data.data;
-        setMyVideo(prev => [...prev, ...results]);
-      }
+      const newData = response.data.data;
 
-      if (response.data.data.length < 10) {
-        setState(false);
-      }
+      setMyVideo(prev => [...prev, ...newData]);
+      setPage(prev => prev + 1);
 
+      if (newData.length < 10) {
+        setHasMore(false);
+      }
     } catch (error) {
-      console.log("Error while fetching search results", error.response?.data || error.message);
+      console.log(error);
     }
-    setPage(prev => prev + 1);
-  }
 
-  const handleScroll = (e) => {
+    setFetching(false);
+  };
+
+  const handleScroll = (e, fetchFn, hasMore, loading) => {
     const { scrollLeft, scrollWidth, clientWidth } = e.target;
 
-    if (scrollWidth - scrollLeft <= clientWidth + 50 && state) {
-      fetchMoreData();
+    if (scrollWidth - scrollLeft <= clientWidth + 50 && hasMore && !loading) {
+      fetchFn();
     }
   };
+
+
 
 
   return (
@@ -277,21 +288,22 @@ export default function Yourprofile() {
           </div>
           {myVideo.length > 0 ? (
             <div
-              onScroll={handleScroll}
-              className="flex gap-3 overflow-x-auto py-4"
+              ref={scrollRef}
+              onScroll={(e) => handleScroll(e, fetchMoreData, hasMore, fetching)}
+              className="flex gap-3 overflow-x-auto py-4 scroll-hidden"
             >
-              <div ref={scrollRef} className="overflow-x-auto flex gap-3 scroll-hidden scroll-smooth py-4">
-                {myVideo.map((video) => {
-                  return <VideoItems key={video?._id} video={video} />
-                })}
-              </div>
+
+              {myVideo.map((video) => {
+                return <VideoItems key={video?._id} video={video} />
+              })}
+            </div>
+
           ) : (
             <div className="flex flex-col items-center justify-center my-5 mx-5 text-center text-gray-500 dark:text-gray-400">
               <p className="text-lg font-medium">You haven’t uploaded anything yet</p>
             </div>
           )
           }
-      
 
 
           <div className="my-4 dark:text-white">
