@@ -147,12 +147,13 @@ export default function SearchPage() {
   const searchTerm = query.get("q");
   const [searchResultsUsers, setSearchResultsUsers] = useState([]);
   const [searchResultsVideos, setSearchResultsVidoes] = useState([]);
+  const [searchResults, setSearchResults] = useState(0);
 
   const Context = useContext(videoContext);
   const { host, loading, setLoading, setProgress, setPage, page, state, setState } = Context;
 
   useEffect(() => {
-     setPage(1);
+    setPage(1);
     if (!searchTerm) {
       return;
     }
@@ -179,6 +180,7 @@ export default function SearchPage() {
           setLoading(80);
           setSearchResultsUsers(response.data.data.user);
           setSearchResultsVidoes(response.data.data.videos);
+          setSearchResults(response.data.data.totalResults);
           setLoading(false);
           setProgress(100);
           toast.dismiss(toastId);
@@ -233,20 +235,22 @@ export default function SearchPage() {
   return (
     <>
       {!loading && (
-        <InfiniteScroll
-          dataLength={searchResultsVideos.length + searchResultsUsers.length}
-          next={fetchMoreData}
-          hasMore={state}
-          loader={<div className="flex justify-center items-center h-screen"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
-        >
-          <div className='flex flex-col lg:ml-24 ml-5 px-3'>
-            <h1 className='dark:text-white/90 font-[600] text-2xl text-center my-3'>Search Results</h1>
 
-            <div className="flex flex-col grid-cols-1 max-w-max overflow-x-hidden gap-2">
-              {(searchResultsVideos?.length > 0 || searchResultsUsers?.length > 0) && (
-                <>
-                  <h1 className='dark:text-white/90 font-[600] text-xl text-center my-3'>{searchResultsVideos.length + searchResultsUsers.length} total results found!</h1>
-                    {searchResultsUsers?.length > 0 && (
+        <div className='flex flex-col lg:ml-24 ml-5 px-3'>
+          <h1 className='dark:text-white/90 font-[600] text-2xl text-center my-3'>Search Results</h1>
+
+
+          {(searchResultsVideos?.length > 0 || searchResultsUsers?.length > 0) && (
+            <>
+              <InfiniteScroll
+                dataLength={searchResultsVideos.length + searchResultsUsers.length}
+                next={fetchMoreData}
+                hasMore={state}
+                loader={<div className="flex justify-center items-center h-screen"><div className="lds-ring dark:text-white/10 flex justify-center items-center"><div></div><div></div><div></div><div></div></div></div>}
+              >
+                <div className="flex flex-col grid-cols-1 max-w-max overflow-x-hidden gap-2">
+                  <h1 className='dark:text-white/90 font-[600] text-xl text-center my-3'>{searchResults} total results found!</h1>
+                  {searchResultsUsers?.length > 0 && (
                     searchResultsUsers.map((user) => (
                       <UserSearchComp key={user?._id} user={user} />
                     ))
@@ -260,25 +264,27 @@ export default function SearchPage() {
                       />
                     }))
                   }
-                </>
-              )
-              }
-            </div>
-            {!(searchResultsVideos?.length > 0 || searchResultsUsers?.length > 0) && (
-              <div className="flex flex-1 justify-center my-5">
-                <div className="text-gray-500 dark:text-gray-400 text-center">
-                  <h1 className="text-lg font-medium">
-                    No Results Found!
-                  </h1>
-                  <p className="text-sm mt-1">
-                    Start Searching something else!. Try Again!
-                  </p>
                 </div>
+              </InfiniteScroll>
+            </>
+          )
+          }
+
+          {!(searchResultsVideos?.length > 0 || searchResultsUsers?.length > 0) && (
+            <div className="flex flex-1 justify-center my-5">
+              <div className="text-gray-500 dark:text-gray-400 text-center">
+                <h1 className="text-lg font-medium">
+                  No Results Found!
+                </h1>
+                <p className="text-sm mt-1">
+                  Start Searching something else!. Try Again!
+                </p>
               </div>
-            )}
-          </div>
-        </InfiniteScroll>
-      )}
+            </div>
+          )}
+        </div >
+      )
+      }
     </>
   )
 }

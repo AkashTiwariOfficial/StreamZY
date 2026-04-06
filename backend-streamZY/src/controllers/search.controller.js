@@ -103,9 +103,18 @@ const searchEngine = asyncHandler(async (req, res) => {
         .skip((pageNumber - 1) * limitNumber)
         .limit(limitNumber)
 
+    const totalVideoResponses = await Video.find({ $text: { $search: query } }, { score: { $meta: "textScore" } });
+    const totalUserResponse = await User.find(
+        {
+            $text: { $search: query }
+        });
+
+    const totalResults = totalUserResponse.length + totalVideoResponses.length;
+
     const combinedResponse = {
         videos: videoResponse,
-        user: userResponse
+        user: userResponse,
+        totalResults: totalResults
     }
 
     return res
