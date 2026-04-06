@@ -18,7 +18,7 @@ export default function Videoplayer({ video }) {
   const [prog, setProg] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState("Normal");
   const [showControls, setShowControls] = useState(true);
   const [showVolDrag, setShowVolDrag] = useState(false);
   const [settings, setSettings] = useState("");
@@ -544,7 +544,7 @@ export default function Videoplayer({ video }) {
     }
   }
 
- const filteredVideos = videos.filter(video => video?._id != id)
+  const filteredVideos = videos.filter(video => video?._id != id)
   return (
     <>
       {!loading && (
@@ -693,22 +693,23 @@ export default function Videoplayer({ video }) {
 
                         {/* SETTINGS MENU */}
                         {settings === "showSettings" && (
-                          <div className="absolute bottom-16 sm:bottom-20 right-0 
-                             w-40 sm:w-52 md:w-60 
-                                 bg-black/30 text-white rounded-xl p-2 backdrop-blur-[1px]">
-
+                          <div
+                            className="absolute bottom-12 sm:bottom-14 md:bottom-20 right-1 sm:right-2 
+    w-32 sm:w-40 md:w-72
+    bg-black/40 text-white rounded-lg md:rounded-xl p-1.5 sm:p-2 md:p-2 backdrop-blur-sm text-xs sm:text-sm md:text-base shadow-lg"
+                          >
                             <div
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSettings("showSpeed");
                               }}
-                              className="flex justify-between p-2 sm:p-3 gap-5 sm:gap-5 hover:bg-white/10 rounded-xl cursor-pointer"
+                              className="flex justify-between items-center p-1.5 sm:p-2 md:p-3 gap-2 sm:gap-3 hover:bg-white/10 rounded-lg md:rounded-xl cursor-pointer"
                             >
-                              <div className="flex gap-2 sm:gap-3">
-                                <i className="fa-solid fa-gauge-simple-high mt-1"></i>
-                                <span className="text-sm sm:text-base">Playback</span>
+                              <div className="flex gap-1.5 sm:gap-2 md:gap-3 items-center">
+                                <i className="fa-solid fa-gauge-simple-high text-xs sm:text-sm md:text-base"></i>
+                                <span>Playback Speed</span>
                               </div>
-                              <span className="text-xs sm:text-sm text-gray-100/60">{speed} &gt;</span>
+                              <span className="text-[10px] sm:text-xs md:text-sm text-gray-300">{speed} &gt;</span>
                             </div>
 
                             <div
@@ -716,30 +717,67 @@ export default function Videoplayer({ video }) {
                                 e.stopPropagation();
                                 setSettings("showQuality");
                               }}
-                              className="flex justify-between p-2 sm:p-3 gap-3 sm:gap-5 hover:bg-white/10 rounded-xl cursor-pointer"
+                              className="flex justify-between items-center p-1.5 sm:p-2 md:p-3 gap-2 sm:gap-3 hover:bg-white/10 rounded-lg md:rounded-xl cursor-pointer"
                             >
-                              <div className="flex gap-2 sm:gap-3">
-                                <i className="fa-solid fa-sliders mt-1"></i>
-                                <span className="text-sm sm:text-base">Quality</span>
+                              <div className="flex gap-1.5 sm:gap-2 md:gap-3 items-center">
+                                <i className="fa-solid fa-sliders text-xs sm:text-sm md:text-base"></i>
+                                <span>Quality</span>
                               </div>
-                              <span className="text-xs sm:text-sm text-gray-100/60">{quality}p &gt;</span>
+                              <span className="text-[10px] sm:text-xs md:text-sm text-gray-300">{quality}p &gt;</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* SPEED MENU */}
+                        {settings === "showSpeed" && (
+                          <div
+                            className="absolute bottom-12 sm:bottom-14 md:bottom-20 right-1 sm:right-2 
+    w-28 sm:w-36 md:w-60
+    bg-black/40 text-white rounded-lg md:rounded-xl p-1.5 sm:p-2 backdrop-blur-sm shadow-lg"
+                          >
+                            <div className="flex flex-col gap-0.5 sm:gap-1 max-h-32 sm:max-h-40 md:max-h-60 overflow-y-auto text-gray-300 text-xs sm:text-sm md:text-base">
+
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSettings("showSettings");
+                                }}
+                                className="flex items-center gap-2 px-1.5 sm:px-2 py-1.5 sm:py-2 cursor-pointer hover:bg-white/10 rounded-lg md:rounded-xl"
+                              >
+                                {"<"} Playback Speed
+                              </div>
+
+                              {["0.25", "0.5", "0.75", "Normal", "1.25", "1.5", "2"].map((q, index) => (
+                                <span
+                                  key={q}
+                                  onClick={() => {
+                                    changeSpeed(index);
+                                    setSpeed(q);
+                                  }}
+                                  className="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-white/10 rounded-lg md:rounded-xl cursor-pointer"
+                                >
+                                  {q}
+                                </span>
+                              ))}
                             </div>
                           </div>
                         )}
 
                         {/* QUALITY MENU */}
                         {settings === "showQuality" && (
-                          <div className="absolute bottom-16 sm:bottom-20 right-0 
-                             w-40 sm:w-52 md:w-60 
-                              bg-black/30 text-white rounded-xl p-2 backdrop-blur-[1px]">
+                          <div
+                            className="absolute bottom-12 sm:bottom-14 md:bottom-20 right-1 sm:right-2 
+    w-28 sm:w-36 md:w-60
+    bg-black/40 text-white rounded-lg md:rounded-xl p-1.5 sm:p-2 backdrop-blur-sm shadow-lg"
+                          >
+                            <div className="flex flex-col gap-0.5 sm:gap-1 max-h-32 sm:max-h-40 md:max-h-60 overflow-y-auto text-gray-300 text-xs sm:text-sm md:text-base">
 
-                            <div className="flex flex-col gap-1 h-40 sm:h-52 md:h-60 overflow-y-scroll text-gray-100/60">
                               <div
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setSettings("showSettings");
                                 }}
-                                className="flex items-center gap-3 px-2 py-2"
+                                className="flex items-center gap-2 px-1.5 sm:px-2 py-1.5 sm:py-2 cursor-pointer hover:bg-white/10 rounded-lg md:rounded-xl"
                               >
                                 {"<"} Quality
                               </div>
@@ -751,7 +789,7 @@ export default function Videoplayer({ video }) {
                                     setQuality(q);
                                     showQuality(q + "p");
                                   }}
-                                  className="px-3 py-2 hover:bg-white/10 rounded-xl cursor-pointer"
+                                  className="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-white/10 rounded-lg md:rounded-xl cursor-pointer"
                                 >
                                   {q}p
                                 </span>

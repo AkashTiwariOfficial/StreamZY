@@ -67,21 +67,31 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             }
         }
     ])
-          .sort({
-        [sortBy]: sortType === "desc" ? -1 : 1,
-        _id: -1
-      })
-      .skip((pageNumber - 1) * limitNumber)
-      .limit(limitNumber);
+        .sort({
+            [sortBy]: sortType === "desc" ? -1 : 1,
+            _id: -1
+        })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber);
 
 
     if (!likedVideo) {
         throw new ApiErrors(500, "Internal Server Error while fetching user's liked Video")
     }
 
+    const totalLikedVideo = await Like.find({
+        likedBy: req.user?._id,
+        isVideoLiked: true
+    });
+
+    const liked = {
+        likedVideo,
+        totalLikedVideo
+    }
+
     return res
         .status(200)
-        .json(new ApiResponses(200, likedVideo, "User's liked videos fetched successfully"))
+        .json(new ApiResponses(200, liked, "User's liked videos fetched successfully"))
 
 })
 

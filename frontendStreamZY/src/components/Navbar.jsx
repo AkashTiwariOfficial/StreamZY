@@ -281,7 +281,7 @@ export default function Navbar() {
                       <div className='flex flex-col mx-3'>
                         <span className='text-md dark:text-white/80'>{currUser.fullName}</span>
                         <span className='text-md dark:text-white/80'>{currUser.username}</span>
-                        <button onClick={() => { navigate("/userChannel"); setOpenProfile(false); }} className='text-md  my-2 text-blue-500 hover:text-blue-700'>View Channel</button>
+                        <button onClick={() => { navigate(`/userChannel/${currUser.username}`); setOpenProfile(false); }} className='text-md  my-2 text-blue-500 hover:text-blue-700'>View Channel</button>
                       </div>
                     </div>
                     <div className='border-b border-gray-600/30 dark:border-white/20 my-1 md:my-2'></div>

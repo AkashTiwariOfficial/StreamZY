@@ -352,7 +352,7 @@ export default function SideVideosItems(props) {
                       handleEdit();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-100 hover:dark:bg-black/60"
                   >
                     <i className="fa-regular fa-pen-to-square mr-3"></i>
                     Edit
@@ -365,7 +365,7 @@ export default function SideVideosItems(props) {
                       handleSave();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-100 hover:dark:bg-black/60"
                   >
                     <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3`}></i>
                     Save
@@ -392,7 +392,7 @@ export default function SideVideosItems(props) {
                       }
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-100 hover:dark:bg-black/60"
                   >
                     <i className="fa-solid fa-trash mr-1"></i>
                     Remove
@@ -406,7 +406,7 @@ export default function SideVideosItems(props) {
                       setSubMenu(true);
                       handleFindPlaylist();
                     }}
-                    className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-black/60"
+                    className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-100 hover:dark:bg-black/60"
                   >
                     <i className="fa-solid fa-list-ul text-base mr-3"></i>
                     Add to Playlist
@@ -425,7 +425,7 @@ export default function SideVideosItems(props) {
                         handleAddPlaylist(pylt?._id);
                         setSubMenu(false);
                       }}
-                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-100 hover:dark:bg-white/10"
                     >
                       <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 mt-1`}></i>
                       {pylt?.name}
@@ -438,7 +438,7 @@ export default function SideVideosItems(props) {
                     e.stopPropagation();
                     navigate("/createPlaylist")
                   }}
-                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-100 hover:dark:bg-white/10"
                 >
                   <i class="fa-solid fa-plus mr-3 mt-1"></i> New Playlist
                 </div>

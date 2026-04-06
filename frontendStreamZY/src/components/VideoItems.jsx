@@ -36,8 +36,10 @@ export default function VideoItems(props) {
   }, []);
 
   const handleClick = () => {
-    if (category) {
+    if (category && category != "home") {
       navigate(`/category/${category}/${video._id}`);
+    } else if (category === "home") {
+      navigate(`/video/${video._id}`);
     } else {
       navigate(`/video/${video._id}`);
     }
@@ -88,7 +90,7 @@ export default function VideoItems(props) {
 
       if (response.data.success) {
         setSave(response.data.data);
-          if (response.data.data) {
+        if (response.data.data) {
           toast.success("Video Saved successfully");
         } else {
           toast.success("Video unsaved");
@@ -133,7 +135,7 @@ export default function VideoItems(props) {
       });
 
       if (response.data.success) {
-       toast.success("Video added to playlist");
+        toast.success("Video added to playlist");
       }
 
     } catch (error) {
@@ -156,7 +158,7 @@ export default function VideoItems(props) {
 
       if (response.data.success) {
         removeVideos(video?._id);
-             toast.success("Video deleted successfully");
+        toast.success("Video deleted successfully");
       }
 
     } catch (error) {
@@ -169,7 +171,7 @@ export default function VideoItems(props) {
   }
 
   const handleTogglePublish = async () => {
-     try {
+    try {
       const response = await axios.patch(`${host}/v1/videos/toggle-publish/${video?._id}`, {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -179,14 +181,14 @@ export default function VideoItems(props) {
       });
 
       if (response.data.success) {
-          removeVideos(video?._id);
+        removeVideos(video?._id);
         if (response.data.data) {
           addToPublishedVideos(video);
           toast.success("Video Published successfully");
         } else {
           addToUnPublishedVideos(video);
-                    toast.success("Video UnPublished");
-        }  
+          toast.success("Video UnPublished");
+        }
       }
 
     } catch (error) {
@@ -245,14 +247,14 @@ export default function VideoItems(props) {
             {menu && (
               <div ref={menuRef} className="absolute right-full top-0 text-[14px] mt-2 min-w-44 w-full
                     bg-gray-200 dark:bg-black/90  border-[1px] rounded shadow-md z-50 dark:border-white/20 py-1">
-                {location.pathname === "/you" || location.pathname === "/userChannel" ? (
+                {location.pathname === "/you" || location.pathname.includes("/userChannel") ? (
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
                       handleEdit();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/10"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-100 hover:dark:bg-white/10"
                   >
                     <i className="fa-regular fa-pen-to-square mr-3"></i>
                     Edit
@@ -264,36 +266,36 @@ export default function VideoItems(props) {
                       handleSave();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-white/10"
+                    className="px-4 py-2 cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-100 hover:dark:bg-white/10"
                   >
                     <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3`}></i>
                     Save
                   </div>
                 )}
-                {location.pathname === "/userChannel" && (
+                {location.pathname.includes("/userChannel") && (
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteVideo();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-white/10"
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-100 hover:dark:bg-white/10"
                   >
                     <i className="fa-solid fa-trash mr-3"></i>
                     Delete
                   </div>
                 )}
 
-                {location.pathname === "/userChannel" && (
+                {location.pathname.includes("/userChannel") && (
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
                       handleTogglePublish();
                       setMenu(false);
                     }}
-                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-white/10"
+                    className="px-4 py-2 cursor-pointer text-red-700 hover:bg-gray-100 hover:dark:bg-white/10"
                   >
-                     <i class="fa-solid fa-code-compare text-base mr-3"></i>
+                    <i class="fa-solid fa-code-compare text-base mr-3"></i>
                     Toggle Publish
                   </div>
                 )}
@@ -305,7 +307,7 @@ export default function VideoItems(props) {
                     setSubMenu(true);
                     handleFindPlaylist();
                   }}
-                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-200 hover:dark:bg-white/10"
+                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-blue-600 hover:bg-gray-100 hover:dark:bg-white/10"
                 >
                   <i className="fa-solid fa-list-ul mt-1 mr-3 "></i>
                   Add to Playlist
@@ -327,7 +329,7 @@ export default function VideoItems(props) {
                         handleAddPlaylist(pylt?._id);
                         setSubMenu(false);
                       }}
-                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                      className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-100 hover:dark:bg-white/10"
                     >
                       <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-3 mt-1`}></i>
                       {pylt?.name}
@@ -340,7 +342,7 @@ export default function VideoItems(props) {
                     e.stopPropagation();
                     navigate("/createPlaylist")
                   }}
-                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-200 hover:dark:bg-white/10"
+                  className="flex px-4 py-2 cursor-pointer text-black/90 dark:text-white/50 hover:bg-gray-100 hover:dark:bg-white/10"
                 >
                   <i class="fa-solid fa-plus mr-3 mt-1"></i> New Playlist
                 </div>

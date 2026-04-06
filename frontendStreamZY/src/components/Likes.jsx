@@ -12,6 +12,7 @@ export default function Likes() {
     const { host, currUser, setProgress, loading, setLoading, page, setPage } = Context;
     const [likedVideo, setLikedVideo] = useState([]);
     const [hasMore, setHasMore] = useState(true);
+    const [toatalLike, setTotalLike] = useState(0);
 
     const removeLikedVideos = (_id_) => {
         setLikedVideo(prev =>
@@ -40,11 +41,12 @@ export default function Likes() {
                 if (response.data.success) {
                     setProgress(80);
                     setLoading(false);
-                    setLikedVideo(response.data.data);
+                    setLikedVideo(response.data.data.likedVideo);
+                    setTotalLike(response.data.data.totalLikedVideo.length);
                     setProgress(100);
                 }
 
-                if (response.data.data.length < 10) {
+                if (response.data.data.likedVideo.length < 10) {
                     setHasMore(false);
                 }
 
@@ -75,11 +77,11 @@ export default function Likes() {
             });
 
             if (response.data.success) {
-                const results = response.data.data;
+                const results = response.data.data.likedVideo;
                 setLikedVideo(prev => [...prev, ...results]);
             }
 
-            if (response.data.data.length < 10) {
+            if (response.data.data.likedVideo.length < 10) {
                 setHasMore(false);
             }
 
@@ -112,7 +114,7 @@ export default function Likes() {
 
                                 <div className="relative z-10 p-3 m-3">
                                     <h2 className="text-3xl lg:text-4xl font-bold mb-3">Liked videos</h2>
-                                    <p className="text-gray-300 text-sm mb-4">{currUser?.fullName} •  {likedVideo?.length} videos</p>
+                                    <p className="text-gray-300 text-sm mb-4">{currUser?.fullName} •  {toatalLike} videos</p>
                                 </div>
                             </div>
                             <div className="hidden lg:flex">
@@ -122,7 +124,7 @@ export default function Likes() {
                                     </div>
                                     <div className="relative z-10 p-3 lg:m-5">
                                         <h2 className="text-3xl lg:text-4xl font-bold mb-3">Liked videos</h2>
-                                        <p className="text-gray-300 text-sm mb-4">{currUser?.fullName} •   {likedVideo?.length} videos</p>
+                                        <p className="text-gray-300 text-sm mb-4">{currUser?.fullName} •   {toatalLike} videos</p>
                                     </div>
 
                                 </div>

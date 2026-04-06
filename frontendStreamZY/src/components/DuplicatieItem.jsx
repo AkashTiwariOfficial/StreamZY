@@ -193,7 +193,7 @@ export default function DuplicatieItem(props) {
                                     handleSave();
                                     setMenu(false);
                                 }}
-                                className="px-4 py-2 text-sm cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-200 hover:dark:bg-black/60"
+                                className="px-4 py-2 text-sm cursor-pointer text-black/90 dark:text-white/80 hover:bg-gray-100 hover:dark:bg-black/60"
                             >
                                 <i className={`fa-${save ? "solid" : "regular"} fa-bookmark mr-2`}></i>
                                 Save
@@ -210,7 +210,7 @@ export default function DuplicatieItem(props) {
                                     }
                                     setMenu(false);
                                 }}
-                                className="px-4 py-2 text-sm cursor-pointer text-red-700 hover:bg-gray-200 hover:dark:bg-black/60"
+                                className="px-4 py-2 text-sm cursor-pointer text-red-700 hover:bg-gray-100 hover:dark:bg-black/60"
                             >
                                 <i className="fa-solid fa-trash text-sm mr-2"></i>
                                 Delete

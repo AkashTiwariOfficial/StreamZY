@@ -94,7 +94,6 @@ export default function Userchannel() {
 
   useEffect(() => {
     setPage(1);
-    setHasMore(true);
     setProgress(10);
     setLoading(true);
     const fetchData = async () => {
@@ -168,11 +167,12 @@ export default function Userchannel() {
         timeout: 150000
       });
 
-      const resultsPublished = response.data.data.filter(video => video.isPublished);
+      const newData = response.data.data;
+      const resultsPublished = newData.filter(video => video.isPublished);
       setpublishedVideos(prev => [...prev, ...resultsPublished]);
-      const resultsUnPublished = response.data.data.filter(video => !video.isPublished)
+      const resultsUnPublished = newData.filter(video => !video.isPublished);
       setUnPublishedVideosVideo(prev => [...prev, ...resultsUnPublished]);
-      published ? setMyVideo(publishedVideos) : setMyVideo(unPublishedPlaylist)
+      setMyVideo(prev => [...prev, ...(published ? resultsPublished : resultsUnPublished)]);
 
       if (response.data.data.length < 10) {
         setHasMore(false);
@@ -184,12 +184,11 @@ export default function Userchannel() {
     setPage(prev => prev + 1);
   }
 
-  const date = new Date(details?.createdAt)
+  const date = new Date(details?.createdAt);
 
   return (
     <div className='lg:px-10'>
       {!loading && (
-
         <div className="flex flex-col lg:ml-20 p-3 gap-5">
           <div className="rounded-sm h-44 w-[90%] overflow-hidden mx-10">
             <img src={details?.coverImage || details?.avatar} alt="Profile photo" className="h-full w-full object-cover rounded-3xl" />
@@ -200,7 +199,7 @@ export default function Userchannel() {
             </div>
             <div className="flex flex-col gap-2 w-auto mx-2 px-3 flex-wrap">
               <span className="text-4xl dark:text-white/90 font-[700]">{details?.fullName}</span>
-              <span className="dark:text-white/60 text-base font-[400]">{details.username} • View Channel</span>
+              <span className="dark:text-white/60 text-base font-[400]">{details.username} • Your Channel</span>
               <div className="flex gap-5 mt-2">
 
                 <button onClick={handleLogout} className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]

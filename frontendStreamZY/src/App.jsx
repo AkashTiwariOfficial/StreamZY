@@ -105,7 +105,7 @@ function App() {
           <Route path="/register" element={<SignUp />} />
           <Route path="/forgot-password" element={<Forgotpassword />} />
           <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/userChannel" element={<Userchannel />} />
+          <Route path="/userChannel/:user" element={<Userchannel />} />
           <Route path="/category/:category/:id" element={<Videoplayer />} />
           <Route path="/video/:id" element={<Videoplayer />} />
           <Route path="/playlist/:playlistId/:id" element={<Videoplayer />} />

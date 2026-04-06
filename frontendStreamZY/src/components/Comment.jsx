@@ -1,17 +1,25 @@
 import React, { useState, useRef, useEffect, useContext, useLayoutEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import videoContext from '../Context/Videos/videoContext.jsx';
 import axios from "axios";
 import toast from "react-hot-toast"
-import InfiniteScroll from "react-infinite-scroll-component";
 
 
-function Avatar({ src, alt, size = 10 }) {
+
+function Avatar({ src, alt, size = 10, owner }) {
+
+  const navigate = useNavigate();
+
+    const handleChannelChange = () => {
+    navigate(`/userProfile/${owner}`)
+  }
+
   return (
     <img
       src={src}
       alt={alt}
-      className={`rounded-full flex-shrink-0 h-${size} w-${size} object-cover`}
+      className={`rounded-full flex-shrink-0 h-${size} w-${size} object-cover cursor-pointer`}
+       onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} 
       onError={(e) => (e.currentTarget.src = "https://i.pravatar.cc/48?img=12")}
     />
   );
@@ -259,6 +267,7 @@ function CommentCard({ comment, removeComments }) {
   const { currUser, timeAgo, host } = Context;
   const menuRef = useRef(null);
   const editRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -308,7 +317,6 @@ function CommentCard({ comment, removeComments }) {
     if (!opens) {
       setOpens(true);
       setReplyComment([]);
-      setReplyCommentPage(1);
     } else {
 
       try {
@@ -322,10 +330,6 @@ function CommentCard({ comment, removeComments }) {
 
         if (response.data.success) {
           setReplyComment(response.data.data);
-        }
-
-        if (response.data.data.length < 10) {
-          setReplyScroll(false);
         }
 
       } catch (error) {
@@ -527,16 +531,20 @@ function CommentCard({ comment, removeComments }) {
     }
   }, [editing, editedText]);
 
+    const handleChannelChange = () => {
+    navigate(`/userProfile/${comment?.owner?.username}`)
+  }
+
   return (
     <article className="flex justify-between" aria-labelledby={`comment-${comment?._id}`}>
       <div className="flex gap-3">
-        <Avatar src={comment?.owner?.avatar} alt={`${comment?.owner?.username} avatar`} size={10} />
+        <Avatar owner={comment?.owner?.username} src={comment?.owner?.avatar} alt={`${comment?.owner?.username} avatar`} size={10} />
 
         <div className="flex-1">
           <header className="flex flex-col items-start justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <h3 id={`comment-${comment?._id}`} className="text-sm font-medium text-black/70 dark:text-white">
+                <h3 id={`comment-${comment?._id}`} onClick={(e) => { e.stopPropagation(); handleChannelChange(); }} className="text-sm cursor-pointer font-medium text-black/70 dark:text-white">
                   {comment?.owner?.username}
                 </h3>
                 <div className="text-xs text-gray-500 dark:text-gray-400 overflow-hidden">{timeAgo(comment?.createdAt)}</div>
@@ -755,6 +763,7 @@ function ReplyCommentCard({ reply_Comment, reduceComments, setTotalReplies }) {
   const Context = useContext(videoContext);
   const { currUser, timeAgo } = Context;
   const menuRef = useRef(null);
+    const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -947,13 +956,17 @@ function ReplyCommentCard({ reply_Comment, reduceComments, setTotalReplies }) {
     }
   }, [editing, editedText]);
 
+      const handleChannelChange = () => {
+    navigate(`/userProfile/${reply_Comment?.owner?.username}`)
+  }
+
   return (
     <>
       <div key={reply_Comment?._id} className="flex w-full justify-between gap-3">
         <div className="flex gap-3">
-          <Avatar src={reply_Comment?.owner?.avatar} alt={`${reply_Comment.owner.username} avatar`} size={8} />
+          <Avatar owner={reply_Comment?.owner?.username} src={reply_Comment?.owner?.avatar} alt={`${reply_Comment.owner.username} avatar`} size={8} />
           <div className="flex-1">
-            <div className="text-sm font-medium text-black/70 dark:text-white">{reply_Comment?.owner?.username}</div>
+            <div onClick={(e) => { e.stopPropagation(); handleChannelChange(); }}  className="text-sm cursor-pointer font-medium text-black/70 dark:text-white">{reply_Comment?.owner?.username}</div>
             {!editing ? (
               <div
                 className="

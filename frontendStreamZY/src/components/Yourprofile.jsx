@@ -22,9 +22,13 @@ export default function Yourprofile() {
   const [playlist, setPlaylist] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [likHasMore, setLikeHasMore] = useState(true);
+  const [historyHasMore, setHistoryHasMore] = useState(true);
   const [fetching, setFetching] = useState(false);
   const [likePage, setLikePage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
+  const [toatalLike, setTotalLike] = useState(0);
+
 
 
   const scroll = (ref, direction) => {
@@ -53,6 +57,10 @@ export default function Yourprofile() {
         setHistory(response.data.data);
       }
 
+      if (response.data.data.length < 10) {
+        setHistoryHasMore(false);
+      }
+
     } catch (error) {
       console.log("Error while fetching vidoes", error.response?.data || error.message);
     }
@@ -71,7 +79,12 @@ export default function Yourprofile() {
       });
 
       if (response.data.success) {
-        setLike(response.data.data);
+        setLike(response.data.data.likedVideo);
+        setTotalLike(response.data.data.totalLikedVideo.length);
+      }
+
+      if (response.data.data.length < 10) {
+        setLikeHasMore(false);
       }
 
     } catch (error) {
@@ -132,6 +145,8 @@ export default function Yourprofile() {
 
   useEffect(() => {
     setPage(1);
+    setHistoryPage(1);
+    setLikePage(1);
     setProgress(10);
     setLoading(true);
     const fetchData = async () => {
@@ -156,18 +171,6 @@ export default function Yourprofile() {
 
   }, [currUser.username, currUser._id])
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { category } = useParams();
-
-
-  const handleClick = (_id) => {
-    if (location.pathname.includes("/video")) {
-      navigate(`/video/${category}/${_id}`);
-    } else {
-      navigate(`/video/${category}/${_id}`);
-    }
-  }
 
   const removeLikedVideos = (_id_) => {
     setLike(prev =>
@@ -218,10 +221,10 @@ export default function Yourprofile() {
     setFetching(false);
   };
 
-  const handleScroll = (e, fetchFn, hasMore, loading) => {
+  const handleScroll = (e, fetchFn, cond, loading) => {
     const { scrollLeft, scrollWidth, clientWidth } = e.target;
 
-    if (scrollWidth - scrollLeft <= clientWidth + 50 && hasMore && !loading) {
+    if (scrollWidth - scrollLeft <= clientWidth + 50 && cond && !loading) {
       fetchFn();
     }
   };
@@ -243,12 +246,12 @@ export default function Yourprofile() {
       });
 
       if (response.data.success) {
-        const results = response.data.data;
+        const results = response.data.data.likedVideo;
         setLike(prev => [...prev, ...results]);
       }
 
-      if (response.data.data.length < 10) {
-        setHasMore(false);
+      if (response.data.data.likedVideo.length < 10) {
+        setLikeHasMore(false);
       }
 
     } catch (error) {
@@ -280,7 +283,7 @@ export default function Yourprofile() {
       }
 
       if (response.data.data.length < 10) {
-        setHasMore(false);
+        setHistoryHasMore(false);
       }
 
     } catch (error) {
@@ -304,7 +307,7 @@ export default function Yourprofile() {
             </div>
             <div className="flex flex-col gap-2 w-auto mx-2 px-3 flex-wrap">
               <span className="text-4xl dark:text-white/90 font-[700]">{currUser.fullName}</span>
-              <span className="dark:text-white/60 text-base font-[400]">{currUser.username} • View Channel</span>
+              <span className="dark:text-white/60 text-base font-[400]">{currUser.username} •<Link to={`/userChannel/${currUser.username}`} className="px-1 dark:text-white/60 hover:text-gray-600 hover:dark:text-[#f1f1f1]/80">View Channel</Link></span>
               <div className="flex gap-5 mt-2">
 
                 <button onClick={handleLogout} className="flex gap-3 dark:text-white/90 text-sm sm:text-base md:text-lg font-[500]
@@ -398,8 +401,8 @@ export default function Yourprofile() {
           </div>
           {history.length > 0 ? (
             <div
-              ref={scrollRef}
-              onScroll={(e) => handleScroll(e, fetchMoreDataHistory, hasMore, fetching)}
+              ref={scrollRefHistory}
+              onScroll={(e) => handleScroll(e, fetchMoreDataHistory, historyHasMore, fetching)}
               className="flex gap-3 overflow-x-auto py-4 scroll-hidden"
             >
               {history.map((video) => {
@@ -423,7 +426,7 @@ export default function Yourprofile() {
               <div className="flex">
                 <div className="flex flex-col">
                   <h1 className="text-2xl font-[700] dark:text-white/100">Liked Videos</h1>
-                  <span className="text-lg font-[400] dark:text-white/70">{like.length} videos</span>
+                  <span className="text-lg font-[400] dark:text-white/70">{toatalLike} videos</span>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -447,8 +450,8 @@ export default function Yourprofile() {
           </div>
           {like.length > 0 ? (
             <div
-              ref={scrollRef}
-              onScroll={(e) => handleScroll(e, fetchMoreDataHistory, hasMore, fetching)}
+              ref={scrollRefLike}
+              onScroll={(e) => handleScroll(e, fetchMoreDataLike, likHasMore, fetching)}
               className="flex gap-3 overflow-x-auto py-4 scroll-hidden"
             >
               {like.map((video) => {
