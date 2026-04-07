@@ -8,7 +8,7 @@ The project is built using a **scalable client-server architecture**, with a ded
 
 ## 🌐 Live Demo
 
-🚀 **StreamZY Live At:** [[Add Your Deployed Frontend Link Here]](https://streamzy-1.onrender.com)
+🚀 **StreamZY Live At:** https://streamzy-1.onrender.com
 
 ---
 
