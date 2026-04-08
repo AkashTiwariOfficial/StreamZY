@@ -23,6 +23,11 @@ export default function SignUp() {
     setLoading(true);
     const toastId = toast.loading("Creating Account");
 
+    if (!avatar) {
+      setLoading(false);
+     toast.error("Avatar is Required!", { id: toastId });
+    }
+
     try {
 
       const { fullName, username, email, password } = signupfields;
@@ -57,7 +62,11 @@ export default function SignUp() {
       }
     } catch (error) {
       setLoading(false);
-      toast.error(error?.response?.data?.message || "Signed Up failed!", { id: toastId});
+      if (!avatar) {
+       return;
+      } else {
+        toast.error(error?.response?.data?.message || "Signed Up failed!", { id: toastId });
+      }
       console.log("Error while Signing up", error.response?.data || error.message);
     }
   }
